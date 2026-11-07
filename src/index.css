@@ -171,12 +171,6 @@ main {
   letter-spacing: -0.025em;
   margin: 7px 0 0;
 }
-.simulation {
-  gap: 7px;
-  color: #65778a;
-  font-size: 10px;
-  white-space: nowrap;
-}
 .map-toolbar {
   padding: 14px 25px;
   display: flex;

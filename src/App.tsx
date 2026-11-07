@@ -324,10 +324,6 @@ export function EmailWorkflowDemo({
           <span className="eyebrow">DEINE SYSTEME. EIN ZUSAMMENSPIEL.</span>
           <h2>Öffne die Knoten. Entdecke, was passiert.</h2>
         </div>
-        <Badge variant="outline" className="simulation">
-          <span className="status-dot" />
-          Simulation · fiktive Daten
-        </Badge>
       </div>
       <div className="map-toolbar">
         <div className="transport-buttons">
