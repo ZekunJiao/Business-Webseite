@@ -83,7 +83,7 @@ export const scenarios: Record<ScenarioId, Scenario> = {
       "Ein verbindliches Angebot erstellen wir nach Prüfung der Anlagenangaben und des benötigten Umfangs. Eine konkrete Preis- oder Terminzusage ist mit dieser allgemeinen Auskunft nicht verbunden.",
     ],
     openAnswerIndices: [],
-    answerSources: [0, 1, 2, 3],
+    answerSources: [2, 5, 8, 10],
     crmFields: [],
   },
   unknown: {
@@ -109,9 +109,29 @@ export const scenarios: Record<ScenarioId, Scenario> = {
 };
 export const sources = [
   {
+    title: "Kontakt und Erreichbarkeit",
+    excerpt:
+      "Allgemeine Kontaktwege, telefonische Erreichbarkeit und Zuständigkeiten im Büro. Rückrufwünsche werden mit Name, Kontaktdaten und Anliegen aufgenommen.",
+  },
+  {
+    title: "Heizkörper und Raumtemperatur",
+    excerpt:
+      "Anfragen zu ungleichmäßig warmen Heizkörpern werden mit Angaben zum betroffenen Raum, zur Heizungsanlage und zum bisherigen Verlauf für das Fachteam erfasst.",
+  },
+  {
     title: "Anlagen anderer Installationsbetriebe",
     excerpt:
       "Auch Anlagen anderer Installationsbetriebe können angefragt werden. Die Betreuungsmöglichkeit wird anhand von Hersteller, Modell, Baujahr und möglichst einem Typenschildfoto geprüft. Keine pauschale Zusage für jedes Modell.",
+  },
+  {
+    title: "Rechnungen und Zahlungswege",
+    excerpt:
+      "Rückfragen zu bereits ausgestellten Rechnungen gehen mit Rechnungsnummer und Kundenzuordnung an die Buchhaltung. Zahlungsinformationen werden aus dem jeweiligen Beleg übernommen.",
+  },
+  {
+    title: "Badmodernisierung: Erstgespräch",
+    excerpt:
+      "Für ein Erstgespräch werden die Wünsche zur Badgestaltung, vorhandene Grundrisse, Fotos und der gewünschte Projektzeitraum gesammelt. Die weitere Planung erfolgt nach persönlicher Abstimmung.",
   },
   {
     title: "Leistungsumfang und Abgrenzung",
@@ -119,13 +139,33 @@ export const sources = [
       "Der Wartungsumfang folgt dem anlagenspezifischen Angebot. Reparaturen und Ersatzteile sind nicht automatisch enthalten; zusätzliche Leistungen werden separat angeboten und abgestimmt.",
   },
   {
+    title: "Heizungswechsel: Beratung",
+    excerpt:
+      "Für die Beratung zu einem Heizungswechsel werden Gebäudedaten, das bestehende Heizsystem und die Ziele der Eigentümer aufgenommen. Die technische Auslegung gehört in einen eigenen Beratungsvorgang.",
+  },
+  {
+    title: "Terminabsagen und Verschiebungen",
+    excerpt:
+      "Änderungswünsche werden dem bestehenden Termin zugeordnet und mit der Einsatzplanung abgestimmt. Eine Verschiebung gilt erst nach ausdrücklicher Bestätigung als vereinbart.",
+  },
+  {
     title: "Vorbereitung und Zugang",
     excerpt:
       "Zugang zur Anlage sicherstellen, vorhandene Anlagenunterlagen und Wartungsnachweise bereithalten. Eine ansprechbare Person sollte vor Ort sein. Andere Zugangsregelungen werden vorab abgestimmt.",
   },
   {
+    title: "Trinkwasserinstallation: Anfragen",
+    excerpt:
+      "Anliegen zur Trinkwasserinstallation werden getrennt von Heizungswartungen aufgenommen. Für die Vorbereitung werden Objekt, betroffener Bereich und eine Beschreibung des gewünschten Einsatzes benötigt.",
+  },
+  {
     title: "Angebot und Preisermittlung",
     excerpt:
       "Verbindliche Angebote erst nach Prüfung der Anlagenangaben und des benötigten Leistungsumfangs erstellen. Allgemeine Auskünfte enthalten weder konkrete Preise noch Terminbestätigungen.",
+  },
+  {
+    title: "Dokumentation nach dem Einsatz",
+    excerpt:
+      "Nach einem abgeschlossenen Einsatz werden Arbeitsbericht und freigegebene Dokumente im zugehörigen Vorgang abgelegt. Fehlende Berichte werden beim zuständigen Team angefragt.",
   },
 ];

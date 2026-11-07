@@ -162,7 +162,7 @@ export function EmailWorkflowDemo({
     [selected, setSelected] = useState<number | null>(null);
   const [scan, setScan] = useState<ScanState>({
     phase: "mail",
-    index: 0,
+    index: -1,
     matched: 0,
   });
   const reduced = useReducedMotion(),
@@ -171,6 +171,11 @@ export function EmailWorkflowDemo({
     last = unknown ? 1 : 3,
     isRequest = scenario !== "complete",
     destination: AppNode = isRequest ? "crm" : "knowledge";
+  const knowledgeFiltered =
+    !isRequest && (step > 1 || (step === 1 && scan.phase === "done"));
+  const relevantSourceCount = new Set(
+    data.answerSources.filter((i) => i !== null),
+  ).size;
   const reveal = (id: AppNode) =>
     setOpened((v) => (v.includes(id) ? v : [...v, id]));
   useEffect(() => {
@@ -202,6 +207,7 @@ export function EmailWorkflowDemo({
     setStep(0);
     setSource(null);
     setSelected(null);
+    setScan({ phase: "mail", index: -1, matched: 0 });
     setOpened(["mailbox"]);
   };
   const toggle = (id: AppNode) => {
@@ -332,6 +338,8 @@ export function EmailWorkflowDemo({
               if (step >= last) {
                 setStep(0);
                 setSource(null);
+                setSelected(null);
+                setScan({ phase: "mail", index: -1, matched: 0 });
               }
               setPlaying((p) => !p);
             }}
@@ -371,6 +379,7 @@ export function EmailWorkflowDemo({
               setOpened([]);
               setSource(null);
               setSelected(null);
+              setScan({ phase: "mail", index: -1, matched: 0 });
             }}
           >
             <RotateCcw size={16} />
@@ -418,9 +427,9 @@ export function EmailWorkflowDemo({
             {step > 1 || scan.phase === "done"
               ? "Anliegen und Wissensartikel zugeordnet"
               : scan.phase === "mail"
-                ? "KI liest die einzelnen Anliegen"
+                ? "KI erfasst den Inhalt der Mail"
                 : scan.phase === "knowledge"
-                  ? "KI durchsucht die Wissensbasis"
+                  ? `KI durchsucht ${sources.length} Wissensdateien`
                   : "KI ordnet Anliegen den passenden Artikeln zu"}
             {!playing && step === 1 && <span> · pausiert</span>}
           </div>
@@ -492,7 +501,10 @@ export function EmailWorkflowDemo({
                   </div>
                 ))}
               </div>
-              <div className="mail-reader">
+              <div
+                data-mail-scan-area
+                className={`mail-reader ${!isRequest && step === 1 && scan.phase === "mail" ? "scan-surface-active" : ""}`}
+              >
                 <div className="reader-meta">
                   <span className="avatar">{data.initials}</span>
                   <div>
@@ -501,24 +513,12 @@ export function EmailWorkflowDemo({
                   </div>
                 </div>
                 <h3>{data.subject}</h3>
-                <p
-                  data-mail-intro
-                  className={
-                    !isRequest &&
-                    step === 1 &&
-                    scan.phase === "mail" &&
-                    scan.index === -1
-                      ? "ai-scanning"
-                      : ""
-                  }
-                >
-                  {data.intro}
-                </p>
+                <p>{data.intro}</p>
                 {data.questions.map((q, i) => (
                   <button
                     key={q}
                     data-mail-question={i}
-                    className={`mail-question ${selected === i ? "linked" : ""} ${!isRequest && step === 1 && scan.phase === "mail" && scan.index === i ? "ai-scanning" : ""} ${!isRequest && step >= 1 && (step > 1 || scan.matched > i) ? "ai-matched" : ""}`}
+                    className={`mail-question ${selected === i ? "linked" : ""} ${!isRequest && step >= 1 && (step > 1 || scan.matched > i) ? "ai-matched" : ""}`}
                     onClick={() => inspect(i)}
                   >
                     {q}
@@ -559,43 +559,68 @@ export function EmailWorkflowDemo({
                   <span>Freigegebenes Betriebswissen</span>
                   <Badge variant="outline">{sources.length} Dokumente</Badge>
                 </div>
-                {sources.map((s, i) => (
-                  <div
-                    data-knowledge-source={i}
-                    className={`source-document ${!isRequest && step === 1 && scan.phase === "knowledge" && data.answerSources[scan.index] === i ? "ai-scanning" : ""} ${!isRequest && step >= 1 && (step > 1 || scan.matched > data.answerSources.indexOf(i)) ? "ai-matched" : ""} ${selected !== null && data.answerSources[selected] === i ? "linked" : ""}`}
-                    key={s.title}
-                  >
-                    <button
-                      onClick={() => {
-                        setSource(source === i ? null : i);
-                        setSelected(
-                          data.answerSources.findIndex((index) => index === i),
-                        );
-                        setPlaying(false);
-                      }}
-                      aria-expanded={source === i}
-                    >
-                      <span className="document-icon">
-                        <BookOpen size={19} />
-                      </span>
+                <div
+                  data-knowledge-scan-area
+                  className={`knowledge-documents ${!isRequest && step === 1 && scan.phase === "knowledge" ? "scan-surface-active" : ""}`}
+                >
+                  {sources.map((s, i) => {
+                    const concernIndex = data.answerSources.indexOf(i);
+                    const matched =
+                      !isRequest &&
+                      step >= 1 &&
+                      concernIndex >= 0 &&
+                      (step > 1 || scan.matched > concernIndex);
+                    return (
+                      <div
+                        data-knowledge-source={i}
+                        className={`source-document ${matched ? "ai-matched" : ""} ${knowledgeFiltered && !matched ? "source-not-relevant" : ""} ${selected !== null && data.answerSources[selected] === i ? "linked" : ""}`}
+                        key={s.title}
+                      >
+                        <button
+                          onClick={() => {
+                            setSource(source === i ? null : i);
+                            setSelected(concernIndex < 0 ? null : concernIndex);
+                            setPlaying(false);
+                          }}
+                          aria-expanded={source === i}
+                        >
+                          <span className="document-icon">
+                            <BookOpen size={19} />
+                          </span>
+                          <span>
+                            <strong>{s.title}</strong>
+                            <small>
+                              {matched
+                                ? `Artikel ${i + 1} · passt zu Anliegen ${concernIndex + 1}`
+                                : knowledgeFiltered
+                                  ? "Für diese Mail nicht benötigt"
+                                  : "Interne Wissensquelle"}
+                            </small>
+                          </span>
+                          <ChevronDown size={14} />
+                        </button>
+                        {source === i && (
+                          <motion.p {...animate}>{s.excerpt}</motion.p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {knowledgeFiltered && (
+                  <div className="knowledge-filter-result" role="status">
+                    <Check size={17} />
+                    <div>
+                      <strong>
+                        {relevantSourceCount} von {sources.length} Dokumenten
+                        relevant
+                      </strong>
                       <span>
-                        <strong>{s.title}</strong>
-                        <small>
-                          {!isRequest &&
-                          step >= 1 &&
-                          (step > 1 ||
-                            scan.matched > data.answerSources.indexOf(i))
-                            ? `Artikel ${i + 1} · passt zu Anliegen ${data.answerSources.indexOf(i) + 1}`
-                            : "Interne Wissensquelle"}
-                        </small>
+                        {sources.length - relevantSourceCount} weitere Dateien
+                        für diese Mail nicht benötigt.
                       </span>
-                      <ChevronDown size={14} />
-                    </button>
-                    {source === i && (
-                      <motion.p {...animate}>{s.excerpt}</motion.p>
-                    )}
+                    </div>
                   </div>
-                ))}
+                )}
                 <div className="app-footnote">
                   Quellen aufklappen und Informationen nachlesen.
                 </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "motion/react";
 import { Sparkles } from "lucide-react";
 export type ScanState = {
@@ -7,10 +7,76 @@ export type ScanState = {
   matched: number;
 };
 type Point = { x: number; y: number };
+type ScanRect = {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+  y: number;
+};
+const clamp = (n: number, min = 0, max = 1) => Math.max(min, Math.min(max, n));
 const mix = (a: Point, b: Point, t: number) => ({
   x: a.x + (b.x - a.x) * t,
   y: a.y + (b.y - a.y) * t,
 });
+// Shuffle height bands so each run explores the whole surface in a new order.
+// Keep these routes for the lifetime of the run so pause/resume never jumps.
+function createWanderRoute(): Point[] {
+  const bands = [0, 1, 2, 3, 4, 5, 6];
+  for (let i = bands.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [bands[i], bands[j]] = [bands[j], bands[i]];
+  }
+  const side = Math.random() < 0.5 ? 0 : 1;
+  return bands.map((band, i) => ({
+    x:
+      (i + side) % 2 === 0
+        ? 0.12 + Math.random() * 0.3
+        : 0.58 + Math.random() * 0.3,
+    y: 0.06 + ((band + 0.2 + Math.random() * 0.6) / bands.length) * 0.88,
+  }));
+}
+// A continuous curve through random points, independent of paragraphs or files.
+function wander(route: Point[], progress: number): Point {
+  const position = clamp(progress) * (route.length - 1);
+  const i = Math.min(route.length - 2, Math.floor(position));
+  const t = position - i;
+  const p0 = route[Math.max(0, i - 1)],
+    p1 = route[i],
+    p2 = route[i + 1],
+    p3 = route[Math.min(route.length - 1, i + 2)];
+  const axis = (key: keyof Point) =>
+    clamp(
+      0.5 *
+        (2 * p1[key] +
+          (-p0[key] + p2[key]) * t +
+          (2 * p0[key] - 5 * p1[key] + 4 * p2[key] - p3[key]) * t * t +
+          (-p0[key] + 3 * p1[key] - 3 * p2[key] + p3[key]) * t * t * t),
+      0.03,
+      0.97,
+    );
+  return { x: axis("x"), y: axis("y") };
+}
+function inside(
+  rect: ScanRect | null,
+  route: Point[],
+  progress: number,
+): Point | null {
+  if (!rect) return null;
+  const point = wander(route, progress);
+  const insetX = Math.min(26, (rect.right - rect.left) / 4);
+  const insetY = Math.min(26, (rect.bottom - rect.top) / 4);
+  return {
+    x: rect.left + insetX + point.x * (rect.right - rect.left - 2 * insetX),
+    y: rect.top + insetY + point.y * (rect.bottom - rect.top - 2 * insetY),
+  };
+}
+function fly(from: Point, to: Point, progress: number): Point {
+  const t = clamp(progress);
+  const point = mix(from, to, t * t * (3 - 2 * t));
+  point.y -= Math.sin(t * Math.PI) * 30;
+  return point;
+}
 export function KnowledgeScan({
   running,
   finished,
@@ -26,6 +92,10 @@ export function KnowledgeScan({
   onProgress: (state: ScanState) => void;
   onComplete: () => void;
 }) {
+  const [routes] = useState(() => ({
+    mail: createWanderRoute(),
+    knowledge: createWanderRoute(),
+  }));
   const ref = useRef<HTMLDivElement>(null),
     elapsed = useRef(0),
     reported = useRef(""),
@@ -40,10 +110,13 @@ export function KnowledgeScan({
   useEffect(() => {
     const host = ref.current?.parentElement;
     if (!host) return;
-    if (finished) { elapsed.current = 0; completed.current = false; }
+    if (finished) {
+      elapsed.current = 0;
+      completed.current = false;
+    }
     let frame = 0,
       previous = 0;
-    const duration = reduced ? 3200 : 14000;
+    const duration = reduced ? 3200 : 18000;
     const tick = (now: number) => {
       if (previous && running && !finished)
         elapsed.current = Math.min(
@@ -53,33 +126,14 @@ export function KnowledgeScan({
       previous = now;
       const p = finished ? 1 : elapsed.current / duration;
       const phase: ScanState["phase"] =
-        p < 0.3
-          ? "mail"
-          : p < 0.43
-            ? "knowledge"
-            : p < 0.72
-              ? "knowledge"
-              : p < 1
-                ? "matching"
-                : "done";
+        p < 0.3 ? "mail" : p < 0.72 ? "knowledge" : p < 1 ? "matching" : "done";
       const index =
-        phase === "mail"
+        phase === "matching" || phase === "done"
           ? Math.min(
               matches.length - 1,
-              Math.floor((p / 0.3) * (matches.length + 1)) - 1,
+              Math.floor(((p - 0.72) / 0.28) * matches.length),
             )
-          : phase === "knowledge"
-            ? Math.max(
-                0,
-                Math.min(
-                  matches.length - 1,
-                  Math.floor(((p - 0.43) / 0.29) * matches.length),
-                ),
-              )
-            : Math.min(
-                matches.length - 1,
-                Math.floor(((p - 0.72) / 0.28) * matches.length),
-              );
+          : -1;
       const matched =
         phase === "done"
           ? matches.length
@@ -89,16 +143,19 @@ export function KnowledgeScan({
       const key = `${phase}-${index}-${matched}`;
       if (reported.current !== key) {
         reported.current = key;
+        if (ref.current) ref.current.dataset.scanPhase = phase;
         callbacks.current.onProgress({ phase, index, matched });
       }
       const box = host.getBoundingClientRect();
-      const rect = (selector: string) => {
+      const rect = (selector: string): ScanRect | null => {
         const el = host.querySelector(selector);
         if (!el) return null;
         const r = el.getBoundingClientRect();
         return {
           left: r.left - box.left,
           right: r.right - box.left,
+          top: r.top - box.top,
+          bottom: r.bottom - box.top,
           y: r.top - box.top + r.height / 2,
         };
       };
@@ -106,47 +163,38 @@ export function KnowledgeScan({
       const kb = matches.map((i) =>
         i === null ? null : rect(`[data-knowledge-source="${i}"]`),
       );
-      const sweep = (items: typeof mail, position: number) => {
-        const i = Math.max(0, Math.min(items.length - 1, Math.floor(position))),
-          t = Math.max(0, Math.min(1, position - i)),
-          r = items[i];
-        if (!r) return null;
-        const start = { x: r.left + 16, y: r.y },
-          end = { x: r.right - 16, y: r.y };
-        const prev = items[Math.max(0, i - 1)];
-        return i > 0 && prev && t < 0.22
-          ? mix({ x: prev.right - 16, y: prev.y }, start, t / 0.22)
-          : mix(start, end, Math.max(0, (t - 0.22) / 0.78));
-      };
+      const mailArea = rect("[data-mail-scan-area]");
+      const knowledgeArea = rect("[data-knowledge-scan-area]");
       let point: Point | null = null;
-      if (p < 0.3)
-        point = sweep(
-          [rect("[data-mail-intro]"), ...mail],
-          (p / 0.3) * (matches.length + 1),
-        );
-      else if (p < 0.43) {
-        const a = mail[mail.length - 1],
-          b = kb[0];
+      if (p < 0.3) point = inside(mailArea, routes.mail, p / 0.3);
+      else if (p < 0.39) {
+        const a = inside(mailArea, routes.mail, 1),
+          b = inside(knowledgeArea, routes.knowledge, 0);
         if (a && b) {
-          const t = (p - 0.3) / 0.13;
-          point = mix(
-            { x: a.right - 16, y: a.y },
-            { x: b.left + 16, y: b.y },
-            t,
-          );
-          point.y -= Math.sin(t * Math.PI) * 45;
+          point = fly(a, b, (p - 0.3) / 0.09);
         }
       } else if (p < 0.72)
-        point = sweep(kb, ((p - 0.43) / 0.29) * matches.length);
+        point = inside(knowledgeArea, routes.knowledge, (p - 0.39) / 0.33);
       else if (p < 1) {
         const a = mail[index],
           b = kb[index];
         if (a && b) {
           const t = (((p - 0.72) / 0.28) * matches.length) % 1;
-          const previousTarget = kb[index === 0 ? kb.length-1 : index-1];
-          point = t < .25 && previousTarget
-            ? mix({x:index===0?previousTarget.right-16:previousTarget.left,y:previousTarget.y},{x:a.right,y:a.y},t/.25)
-            : mix({x:a.right,y:a.y},{x:b.left,y:b.y},Math.max(0,(t-.25)/.75));
+          const previousSource = kb[index - 1];
+          const previousTarget =
+            index === 0
+              ? inside(knowledgeArea, routes.knowledge, 1)
+              : previousSource
+                ? { x: previousSource.left, y: previousSource.y }
+                : null;
+          point =
+            t < 0.3 && previousTarget
+              ? fly(previousTarget, { x: a.right, y: a.y }, t / 0.3)
+              : fly(
+                  { x: a.right, y: a.y },
+                  { x: b.left, y: b.y },
+                  (t - 0.3) / 0.7,
+                );
         }
       }
       if (point && !reduced && !finished) {
@@ -196,7 +244,7 @@ export function KnowledgeScan({
       observer.disconnect();
       window.removeEventListener("resize", refresh);
     };
-  }, [running, finished, reduced, matches, x, y, opacity]);
+  }, [running, finished, reduced, matches, routes, x, y, opacity]);
   return (
     <div ref={ref} className="knowledge-scan-overlay" aria-hidden="true">
       <svg className="scan-connections">
@@ -204,7 +252,11 @@ export function KnowledgeScan({
           <path key={i} data-scan-connection={i} />
         ))}
       </svg>
-      <motion.div className="ai-scan-cursor" style={{ x, y, opacity }}>
+      <motion.div
+        className="ai-scan-cursor"
+        data-running={running && !finished}
+        style={{ x, y, opacity }}
+      >
         <Sparkles size={21} />
         <span>KI</span>
       </motion.div>
