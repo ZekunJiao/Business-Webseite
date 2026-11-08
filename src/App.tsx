@@ -33,6 +33,8 @@ import { SourceMatchStamp } from "./components/SourceMatchStamp";
 import { ClickGuide } from "./components/ClickGuide";
 import type { GuideTarget } from "./components/ClickGuide";
 import type { ScenarioId } from "./data";
+import HausverwaltungPage from "./pages/HausverwaltungPage";
+import { HandwerkWorkflows } from "./components/HandwerkWorkflows";
 function crmCopy(text: string, fragments: string[][]) {
   const parts: ReactNode[] = [];
   let offset = 0;
@@ -168,8 +170,10 @@ function MapConnections({
 }
 export function EmailWorkflowDemo({
   initialScenario = "partial",
+  active = true,
 }: {
   initialScenario?: ScenarioId;
+  active?: boolean;
 }) {
   const [scenario, setScenario] = useState<ScenarioId>(initialScenario),
     [step, setStep] = useState(0),
@@ -230,6 +234,12 @@ export function EmailWorkflowDemo({
             : "Ordne passende Quellen zu";
   const reveal = (id: AppNode) =>
     setOpened((v) => (v.includes(id) ? v : [...v, id]));
+  useEffect(() => {
+    if (!active) {
+      setPlaying(false);
+      setMailArrival("idle");
+    }
+  }, [active]);
   useEffect(() => {
     if (!playing) return;
     if (step === 0) {
@@ -459,7 +469,7 @@ export function EmailWorkflowDemo({
           </div>
         )}
         {!isRequest && step >= 1 && (
-          <div className="scan-description" role="status">
+          <div className="sr-only" role="status">
             <Sparkles size={14} />
             {scanStatus}
             {!playing && step === 1 && <span> · pausiert</span>}
@@ -483,7 +493,6 @@ export function EmailWorkflowDemo({
             finished={step > 1}
             reduced={!!reduced}
             matches={data.answerSources}
-            status={`${!playing && step === 1 ? "Pausiert · " : ""}${scanStatus}`}
             onProgress={setScan}
             onComplete={() => setStep(2)}
           />
@@ -949,18 +958,54 @@ export function EmailWorkflowDemo({
   );
 }
 export default function App() {
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  const isHausverwaltung = path === "/hausverwaltung";
+  const isHandwerk = ["/", "/workflow", "/handwerk"].includes(path);
+  useEffect(() => {
+    if (path === "/" || path === "/workflow") {
+      window.history.replaceState(
+        null,
+        "",
+        `/handwerk${window.location.search}${window.location.hash}`,
+      );
+    }
+    document.title = isHausverwaltung
+      ? "Hausverwaltung · Vorlagenseite"
+      : isHandwerk
+        ? "Handwerk · Abläufe interaktiv entdecken"
+        : "Seite nicht gefunden";
+    const description = document.querySelector<HTMLMetaElement>(
+      'meta[name="description"]',
+    );
+    if (description)
+      description.content = isHausverwaltung
+        ? "Eigenständige Vorlagenseite für Hausverwaltungen. Inhalte und Demonstrationen sind in Vorbereitung."
+        : isHandwerk
+          ? "Digitale Abläufe fürs Handwerk entdecken: E-Mail-Anfragen als interaktive Beispieldemo erleben."
+          : "Die angefragte Seite wurde nicht gefunden.";
+  }, [path, isHausverwaltung, isHandwerk]);
+  if (isHausverwaltung) return <HausverwaltungPage />;
+  if (!isHandwerk)
+    return (
+      <main>
+        <div className="hero">
+          <h1>Seite nicht gefunden.</h1>
+          <p>Bitte prüfen Sie den erhaltenen Link.</p>
+        </div>
+      </main>
+    );
   return (
     <>
       <header className="site-header">
-        <a href="#" className="wordmark">
+        <a href="/handwerk" className="wordmark">
           <span className="brand-mark">
             <Mail size={19} />
           </span>
-          E-Mail-Assistenz
-          <span className="header-tag">WORKFLOW-DEMO</span>
+          Digitale Abläufe
+          <span className="header-tag">FÜRS HANDWERK</span>
         </a>
-        <a className="header-link" href="#workflow">
-          Demo entdecken <ArrowUpRight size={16} />
+        <a className="header-link" href="/handwerk#workflow">
+          Abläufe entdecken <ArrowUpRight size={16} />
         </a>
       </header>
       <main>
@@ -970,14 +1015,15 @@ export default function App() {
             WENIGER ROUTINE. MEHR ZEIT FÜRS HANDWERK.
           </div>
           <h1>
-            Vom Posteingang
+            Weniger Routine.
             <br />
-            zum <span>Antwortentwurf.</span>
+            <span>Mehr Zeit fürs Handwerk.</span>
           </h1>
           <p>
-            Kundenfragen verstehen. Vorhandenes Wissen nutzen.
-            <br className="desktop-break" /> Antworten vorbereiten – mit deinem
-            Team am Steuer.
+            Entdecke, wie digitale Abläufe deinen Büroalltag unterstützen
+            können.
+            <br className="desktop-break" /> Probiere die E-Mail-Demo aus – mit
+            deinem Team am Steuer.
           </p>
           <div className="hero-meta">
             <span>
@@ -994,9 +1040,9 @@ export default function App() {
             </span>
           </div>
         </div>
-        <div id="workflow">
-          <EmailWorkflowDemo />
-        </div>
+        <HandwerkWorkflows>
+          {(active) => <EmailWorkflowDemo active={active} />}
+        </HandwerkWorkflows>
         <footer>
           <span>Eine mögliche Lösung für wiederkehrende Kundenanfragen.</span>
           <span>Beispieldemo · Keine echten Kundendaten</span>

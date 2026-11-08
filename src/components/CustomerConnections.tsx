@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "motion/react";
-import { AiSymbol } from "./AiSymbol";
+import { AiSymbol, type AiActivity } from "./AiSymbol";
 import {
   customerExtractions,
   type ExtractionState,
@@ -21,6 +21,7 @@ export function CustomerConnections({
   onProgress: (state: ExtractionState) => void;
   onComplete: () => void;
 }) {
+  const [activity, setActivity] = useState<AiActivity>("thinking");
   const ref = useRef<HTMLDivElement>(null);
   const elapsed = useRef(0),
     reported = useRef(""),
@@ -29,8 +30,7 @@ export function CustomerConnections({
   callbacks.current = { onProgress, onComplete };
   const x = useMotionValue(0),
     y = useMotionValue(0),
-    opacity = useMotionValue(0),
-    statusX = useMotionValue(0);
+    opacity = useMotionValue(0);
   useEffect(() => {
     const host = ref.current?.parentElement;
     if (!host) return;
@@ -58,13 +58,10 @@ export function CustomerConnections({
       if (key !== reported.current) {
         reported.current = key;
         callbacks.current.onProgress({ index, completed: count, phase });
+        setActivity(phase === "source" ? "thinking" : "matching");
       }
       const box = host.getBoundingClientRect();
       const mobile = window.matchMedia("(max-width: 760px)").matches;
-      const status = ref.current?.querySelector("[data-transfer-status]");
-      const statusText = `${!running && !finished ? "Pausiert · " : ""}${done ? "Angaben übernommen" : customerExtractions[index].status}`;
-      if (status && status.textContent !== statusText)
-        status.textContent = statusText;
       const current = done ? null : customerExtractions[index];
       const active = inspected ?? current?.id;
       host.querySelectorAll<HTMLElement>("[data-crm-source]").forEach((el) => {
@@ -157,12 +154,8 @@ export function CustomerConnections({
       });
       if (cursor && !mobile && !reduced && !done) {
         const point = cursor as { x: number; y: number };
-        x.set(point.x - 26);
-        y.set(point.y - 26);
-        statusX.set(
-          Math.max(12, Math.min(box.width - 212, point.x - 100)) -
-            (point.x - 26),
-        );
+        x.set(point.x - 19);
+        y.set(point.y - 19);
         opacity.set(1);
       } else opacity.set(0);
       if (
@@ -201,7 +194,7 @@ export function CustomerConnections({
         .querySelectorAll("[data-extraction-active]")
         .forEach((el) => el.removeAttribute("data-extraction-active"));
     };
-  }, [running, finished, reduced, inspected, x, y, opacity, statusX]);
+  }, [running, finished, reduced, inspected, x, y, opacity]);
   return (
     <div
       ref={ref}
@@ -227,14 +220,7 @@ export function CustomerConnections({
         data-running={running && !finished}
         style={{ x, y, opacity }}
       >
-        <AiSymbol />
-        <motion.span
-          data-transfer-status
-          className="ai-current-status"
-          style={{ x: statusX }}
-        >
-          Angaben übernehmen
-        </motion.span>
+        <AiSymbol activity={!running && !finished ? "paused" : activity} />
       </motion.div>
     </div>
   );

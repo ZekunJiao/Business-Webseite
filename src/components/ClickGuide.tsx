@@ -29,10 +29,6 @@ export function ClickGuide({
     above: false,
     ready: false,
   });
-  const [message, setMessage] = useState(messages.mailbox);
-  useEffect(() => {
-    if (target) setMessage(messages[target]);
-  }, [target]);
   useEffect(() => {
     const host = ref.current?.parentElement;
     if (!host || !target) return;
@@ -47,10 +43,10 @@ export function ClickGuide({
       if (!destination) return;
       const box = host.getBoundingClientRect(),
         r = destination.getBoundingClientRect();
-      const width = Math.min(250, box.width - 24);
+      const width = 38;
       const height =
         ref.current?.querySelector<HTMLElement>(".click-guide-widget")
-          ?.offsetHeight ?? 80;
+          ?.offsetHeight ?? 56;
       const above = box.width < 700;
       const x = Math.max(
         12,
@@ -125,6 +121,7 @@ export function ClickGuide({
           destination?.focus({ preventScroll: true });
           onActivate();
         }}
+        aria-label={target ? messages[target].join(". ") : undefined}
         aria-hidden={!visible}
         tabIndex={visible ? 0 : -1}
         style={{ pointerEvents: visible ? "auto" : "none" }}
@@ -144,19 +141,8 @@ export function ClickGuide({
             ease: "easeInOut",
           }}
         >
-          <AiSymbol />
+          <AiSymbol activity={target === "resume" ? "paused" : "idle"} />
         </motion.span>
-        <span className="click-guide-bubble">
-          <small className="click-guide-state">
-            {target === "resume"
-              ? "Pausiert"
-              : target === "again"
-                ? "Abgeschlossen"
-                : "Bereit"}
-          </small>
-          <strong>{message[0]}</strong>
-          <span>{message[1]}</span>
-        </span>
       </motion.button>
     </div>
   );
