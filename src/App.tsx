@@ -2,14 +2,10 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   Mail,
-  Search,
   FilePenLine,
   UserRoundCheck,
   Play,
   Pause,
-  ArrowLeft,
-  ArrowRight,
-  RotateCcw,
   Check,
   ChevronDown,
   BookOpen,
@@ -18,8 +14,6 @@ import {
   LibraryBig,
   Inbox,
   Folder,
-  Maximize2,
-  UnfoldVertical,
   X,
   Sparkles,
   ContactRound,
@@ -28,10 +22,34 @@ import type { ReactNode } from "react";
 import { Button } from "./components/ui/button";
 import { Badge } from "./components/ui/badge";
 import { scenarios, sources } from "./data";
+import { DraftWriter } from "./components/DraftWriter";
 import { KnowledgeScan } from "./components/KnowledgeScan";
 import type { ScanState } from "./components/KnowledgeScan";
+import { customerExtractions, initialExtraction } from "./customerExtraction";
+import { CustomerConnections } from "./components/CustomerConnections";
 import { CustomerWorkspace } from "./components/CustomerWorkspace";
+import { MailArrival } from "./components/MailArrival";
+import { SourceMatchStamp } from "./components/SourceMatchStamp";
+import { ClickGuide } from "./components/ClickGuide";
+import type { GuideTarget } from "./components/ClickGuide";
 import type { ScenarioId } from "./data";
+function crmCopy(text: string, fragments: string[][]) {
+  const parts: ReactNode[] = [];
+  let offset = 0;
+  for (const [id, quote] of fragments) {
+    const start = text.indexOf(quote, offset);
+    if (start < 0) continue;
+    parts.push(text.slice(offset, start));
+    parts.push(
+      <span key={start} className="crm-source-fragment" data-crm-source={id}>
+        {quote}
+      </span>,
+    );
+    offset = start + quote.length;
+  }
+  parts.push(text.slice(offset));
+  return parts;
+}
 type AppNode = "mailbox" | "knowledge" | "crm" | "draft";
 const stageTitles = [
   "E-Mail auswählen",
@@ -157,9 +175,17 @@ export function EmailWorkflowDemo({
     [step, setStep] = useState(0),
     [playbackRun, setPlaybackRun] = useState(0),
     [playing, setPlaying] = useState(false),
+    [runStarted, setRunStarted] = useState(false),
     [opened, setOpened] = useState<AppNode[]>([]),
     [source, setSource] = useState<number | null>(null),
     [selected, setSelected] = useState<number | null>(null);
+  const [mailArrival, setMailArrival] = useState<
+    "idle" | "manual" | "playback"
+  >("idle");
+  const [extraction, setExtraction] = useState(initialExtraction);
+  const [inspectedField, setInspectedField] = useState<string | null>(null);
+  const [hoveredField, setHoveredField] = useState<string | null>(null);
+  const mailboxOpen = opened.includes("mailbox");
   const [scan, setScan] = useState<ScanState>({
     phase: "mail",
     index: -1,
@@ -176,10 +202,43 @@ export function EmailWorkflowDemo({
   const relevantSourceCount = new Set(
     data.answerSources.filter((i) => i !== null),
   ).size;
+  const guideTarget: GuideTarget =
+    playing || mailArrival !== "idle"
+      ? null
+      : !mailboxOpen
+        ? "mailbox"
+        : !runStarted
+          ? "example"
+          : step < last
+            ? "resume"
+            : "again";
+  const guideScenario: ScenarioId =
+    guideTarget === "again"
+      ? scenario === "partial"
+        ? "complete"
+        : "partial"
+      : scenario;
+  const scanStatus =
+    step === 2
+      ? "Schreibe Antwortentwurf aus Betriebswissen"
+      : step > 2 || scan.phase === "done"
+        ? "Passende Quellen gefunden"
+        : scan.phase === "mail"
+          ? "Untersuche Mail-Inhalt"
+          : scan.phase === "knowledge"
+            ? "Durchsuche Betriebswissen"
+            : "Ordne passende Quellen zu";
   const reveal = (id: AppNode) =>
     setOpened((v) => (v.includes(id) ? v : [...v, id]));
   useEffect(() => {
     if (!playing) return;
+    if (step === 0) {
+      if (mailArrival !== "idle") return;
+      if (!mailboxOpen) {
+        setMailArrival("playback");
+        return;
+      }
+    }
     const id: AppNode =
       step === 0 ? "mailbox" : step === 1 ? destination : "draft";
     setOpened((v) => (v.includes(id) ? v : [...v, id]));
@@ -191,18 +250,31 @@ export function EmailWorkflowDemo({
       setOpened((v) => [...new Set<AppNode>([...v, "mailbox", "knowledge"])]);
       return;
     }
-    const timer = setTimeout(() => setStep((s) => s + 1), 3000);
+    if (step === 1 && scenario === "partial") return;
+    if (step === 2 && !isRequest) return;
+    const timer = setTimeout(
+      () => setStep((s) => s + 1),
+      step === 0 ? 6000 : 4500,
+    );
     return () => clearTimeout(timer);
-  }, [playing, step, last, destination, playbackRun, isRequest]);
-  const go = (n: number) => {
-    setPlaying(false);
-    const next = Math.max(0, Math.min(n, last));
-    setStep(next);
-    reveal(next === 0 ? "mailbox" : next === 1 ? destination : "draft");
-  };
+  }, [
+    playing,
+    step,
+    last,
+    destination,
+    playbackRun,
+    isRequest,
+    mailArrival,
+    mailboxOpen,
+  ]);
   const choose = (id: ScenarioId, autoplay = false) => {
+    setRunStarted(autoplay);
+    setMailArrival("idle");
     setPlaying(autoplay);
     if (autoplay) setPlaybackRun((run) => run + 1);
+    setExtraction(initialExtraction);
+    setInspectedField(null);
+    setHoveredField(null);
     setScenario(id);
     setStep(0);
     setSource(null);
@@ -210,8 +282,20 @@ export function EmailWorkflowDemo({
     setScan({ phase: "mail", index: -1, matched: 0 });
     setOpened(["mailbox"]);
   };
+  const playExample = (id: ScenarioId) => {
+    if (id === scenario && runStarted && step < last) {
+      setPlaying((p) => !p);
+    } else {
+      choose(id, true);
+    }
+  };
   const toggle = (id: AppNode) => {
     setPlaying(false);
+    if (id === "mailbox" && !mailboxOpen) {
+      setMailArrival((current) => (current === "idle" ? "manual" : "idle"));
+      return;
+    }
+    setMailArrival("idle");
     setOpened((v) => (v.includes(id) ? v.filter((x) => x !== id) : [...v, id]));
   };
   const inspect = (i: number) => {
@@ -252,10 +336,23 @@ export function EmailWorkflowDemo({
             onClick={() => toggle(id)}
             aria-label={`${label} ${expanded ? "zuklappen" : "aufklappen"}`}
             aria-expanded={expanded}
+            aria-busy={
+              id === "mailbox" && mailArrival !== "idle" ? true : undefined
+            }
             aria-controls={`${id}-content`}
           >
             {id !== "mailbox" && <span className="port port-in" />}
             {icon}
+            {id === "mailbox" && mailArrival !== "idle" && (
+              <MailArrival
+                running={mailArrival === "manual" || playing}
+                reduced={!!reduced}
+                onComplete={() => {
+                  setMailArrival("idle");
+                  reveal("mailbox");
+                }}
+              />
+            )}
             <span className="expand-indicator">
               <ChevronDown size={13} />
             </span>
@@ -325,114 +422,59 @@ export function EmailWorkflowDemo({
   }
   return (
     <section className="demo map-demo" aria-label="Interaktive E-Mail-Demo">
-      <div className="demo-top">
-        <div>
-          <span className="eyebrow">DEINE SYSTEME. EIN ZUSAMMENSPIEL.</span>
-          <h2>Öffne die Knoten. Entdecke, was passiert.</h2>
-        </div>
-      </div>
-      <div className="map-toolbar">
-        <div className="transport-buttons">
-          <Button
-            onClick={() => {
-              if (step >= last) {
-                setStep(0);
-                setSource(null);
-                setSelected(null);
-                setScan({ phase: "mail", index: -1, matched: 0 });
-              }
-              setPlaying((p) => !p);
-            }}
-          >
-            {playing ? <Pause size={15} /> : <Play size={15} />}{" "}
-            {playing
-              ? "Pause"
-              : step >= last
-                ? "Erneut abspielen"
-                : "Beispiel abspielen"}
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="Vorheriger Schritt"
-            disabled={step === 0}
-            onClick={() => go(step - 1)}
-          >
-            <ArrowLeft size={16} />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="Nächster Schritt"
-            disabled={step >= last}
-            onClick={() => go(step + 1)}
-          >
-            <ArrowRight size={16} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Neu starten"
-            onClick={() => {
-              setPlaying(false);
-              setStep(0);
-              setOpened([]);
-              setSource(null);
-              setSelected(null);
-              setScan({ phase: "mail", index: -1, matched: 0 });
-            }}
-          >
-            <RotateCcw size={16} />
-          </Button>
-        </div>
-        <div className="map-view-controls">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setOpened(["mailbox", "knowledge", "crm", "draft"])}
-          >
-            <UnfoldVertical size={14} />
-            Alle öffnen
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setPlaying(false);
-              setOpened([]);
-            }}
-          >
-            <Maximize2 size={14} />
-            Übersicht
-          </Button>
-        </div>
-      </div>
       <div className={`map-canvas ${playing ? "is-playing" : ""}`}>
-        <div className="map-status" role="status">
-          <span className={`status-dot ${playing ? "running" : ""}`} />
-          {unknown && step === 1
-            ? "Kundenzuordnung offen"
-            : step === 1
-              ? isRequest
-                ? "Kunde und Vorgang zuordnen"
-                : "Betriebswissen nachschlagen"
-              : stageTitles[step]}
-          <span className="map-status-detail">
-            {playing ? "Wird verarbeitet" : `${step + 1} / ${last + 1}`}
-          </span>
-        </div>
+        <ClickGuide
+          target={guideTarget}
+          example={guideScenario}
+          reduced={!!reduced}
+          onActivate={() =>
+            guideTarget === "mailbox"
+              ? toggle("mailbox")
+              : playExample(guideScenario)
+          }
+        />
+        {runStarted && (
+          <div className="map-status" role="status">
+            <span className={`status-dot ${playing ? "running" : ""}`} />
+            {unknown && step === 1
+              ? "Kundenzuordnung offen"
+              : step === 1
+                ? isRequest
+                  ? scenario === "partial"
+                    ? extraction.phase === "done"
+                      ? "Angaben übernommen"
+                      : customerExtractions[extraction.index].status
+                    : "Kunde und Vorgang zuordnen"
+                  : "Betriebswissen nachschlagen"
+                : stageTitles[step]}
+            <span className="map-status-detail">
+              {playing
+                ? "Wird verarbeitet"
+                : step < last
+                  ? "Pausiert"
+                  : unknown
+                    ? "Manuelle Prüfung"
+                    : "Abgeschlossen"}
+            </span>
+          </div>
+        )}
         {!isRequest && step >= 1 && (
           <div className="scan-description" role="status">
             <Sparkles size={14} />
-            {step > 1 || scan.phase === "done"
-              ? "Anliegen und Wissensartikel zugeordnet"
-              : scan.phase === "mail"
-                ? "KI erfasst den Inhalt der Mail"
-                : scan.phase === "knowledge"
-                  ? `KI durchsucht ${sources.length} Wissensdateien`
-                  : "KI ordnet Anliegen den passenden Artikeln zu"}
+            {scanStatus}
             {!playing && step === 1 && <span> · pausiert</span>}
           </div>
+        )}
+        {scenario === "partial" && step >= 1 && (
+          <CustomerConnections
+            key={`extraction-${playbackRun}`}
+            running={playing && step === 1}
+            finished={step > 1}
+            reduced={!!reduced}
+            inspected={hoveredField ?? inspectedField}
+            onProgress={setExtraction}
+            onComplete={() => setStep(2)}
+          />
         )}
         {!isRequest && step >= 1 && (
           <KnowledgeScan
@@ -441,8 +483,20 @@ export function EmailWorkflowDemo({
             finished={step > 1}
             reduced={!!reduced}
             matches={data.answerSources}
+            status={`${!playing && step === 1 ? "Pausiert · " : ""}${scanStatus}`}
             onProgress={setScan}
             onComplete={() => setStep(2)}
+          />
+        )}
+        {!isRequest && step >= 2 && (
+          <DraftWriter
+            key={`writer-${scenario}-${playbackRun}`}
+            running={playing && step === 2}
+            finished={step > 2}
+            reduced={!!reduced}
+            answers={data.answers}
+            matches={data.answerSources}
+            onComplete={() => setStep(3)}
           />
         )}
         <div className="map-layout">
@@ -463,10 +517,12 @@ export function EmailWorkflowDemo({
                 <strong>Posteingang</strong>
                 <span>3 Beispiele</span>
               </div>
+              <div className="inbox-guide-space" aria-hidden="true" />
               <div className="mail-list" aria-label="Beispielmails">
                 {(Object.keys(scenarios) as ScenarioId[]).map((id, i) => (
                   <div
                     key={id}
+                    data-example={id}
                     className={`inbox-mail-row ${id === scenario ? "chosen" : ""}`}
                   >
                     <button
@@ -491,18 +547,40 @@ export function EmailWorkflowDemo({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="mail-play-button"
-                      aria-label={`Ablauf abspielen: ${scenarios[id].subject}`}
-                      title="Ablauf für diese Mail abspielen"
-                      onClick={() => choose(id, true)}
+                      className={`mail-play-button ${!playing ? "next-action" : ""}`}
+                      aria-label={`${id === scenario && runStarted && step < last ? (playing ? "Beispiel pausieren" : "Beispiel fortsetzen") : "Beispiel abspielen"}: ${scenarios[id].subject}`}
+                      title={
+                        id === scenario && playing
+                          ? "Beispiel pausieren"
+                          : "Beispiel für diese Mail starten"
+                      }
+                      onClick={() => playExample(id)}
                     >
-                      <Play size={15} />
+                      {id === scenario && playing ? (
+                        <Pause size={15} />
+                      ) : (
+                        <Play size={15} />
+                      )}
                     </Button>
                   </div>
                 ))}
               </div>
               <div
                 data-mail-scan-area
+                onMouseOver={(event) => {
+                  if (scenario !== "partial") return;
+                  const source = (
+                    event.target as HTMLElement
+                  ).closest<HTMLElement>("[data-crm-source]");
+                  const index = customerExtractions.findIndex((item) =>
+                    item.sources.some((id) => id === source?.dataset.crmSource),
+                  );
+                  if (index >= 0 && (step > 1 || extraction.completed > index))
+                    setHoveredField(customerExtractions[index].id);
+                }}
+                onMouseOut={() =>
+                  scenario === "partial" && setHoveredField(null)
+                }
                 className={`mail-reader ${!isRequest && step === 1 && scan.phase === "mail" ? "scan-surface-active" : ""}`}
               >
                 <div className="reader-meta">
@@ -513,25 +591,65 @@ export function EmailWorkflowDemo({
                   </div>
                 </div>
                 <h3>{data.subject}</h3>
-                <p>{data.intro}</p>
-                {data.questions.map((q, i) => (
-                  <button
-                    key={q}
-                    data-mail-question={i}
-                    className={`mail-question ${selected === i ? "linked" : ""} ${!isRequest && step >= 1 && (step > 1 || scan.matched > i) ? "ai-matched" : ""}`}
-                    onClick={() => inspect(i)}
-                  >
-                    {q}
-                    {!isRequest &&
-                      step >= 1 &&
-                      (step > 1 || scan.matched > i) && (
-                        <span className="scan-match-label">
-                          Anliegen {i + 1} → Artikel{" "}
-                          {(data.answerSources[i] ?? i) + 1}
-                        </span>
-                      )}
-                  </button>
-                ))}
+                <p data-mail-intro>
+                  {scenario === "partial"
+                    ? crmCopy(data.intro, [
+                        ["plant", "Luft/Wasser-Wärmepumpe am Musterweg 14"],
+                        [
+                          "plant",
+                          "Baujahr: 2021, das genaue Modell muss ich nachsehen.",
+                        ],
+                      ])
+                    : data.intro}
+                </p>
+                {data.questions.map((q, i) => {
+                  const sourceIndex = data.answerSources[i];
+                  const matchedArticle =
+                    sourceIndex == null ? null : sources[sourceIndex];
+                  return (
+                    <button
+                      key={q}
+                      data-mail-question={i}
+                      className={`mail-question ${selected === i ? "linked" : ""} ${!isRequest && step >= 1 && (step > 1 || scan.matched > i) ? "ai-matched" : ""}`}
+                      onClick={() => inspect(i)}
+                    >
+                      <span className="mail-question-copy">
+                        {scenario === "partial"
+                          ? crmCopy(
+                              q,
+                              i === 0
+                                ? [
+                                    [
+                                      "request",
+                                      "Bitte senden Sie uns ein Wartungsangebot.",
+                                    ],
+                                    [
+                                      "photo",
+                                      "Ein Typenschildfoto reiche ich bei Bedarf nach.",
+                                    ],
+                                  ]
+                                : i === 1
+                                  ? [["noise", q]]
+                                  : i === 2
+                                    ? [["time", q]]
+                                    : [],
+                            )
+                          : q}
+                      </span>
+                      {!isRequest &&
+                        step >= 1 &&
+                        matchedArticle &&
+                        (step > 1 || scan.matched > i) && (
+                          <SourceMatchStamp
+                            concern={i + 1}
+                            article={matchedArticle.title}
+                            running={playing}
+                            reduced={!!reduced}
+                          />
+                        )}
+                    </button>
+                  );
+                })}
                 <p>
                   Vielen Dank und freundliche Grüße
                   <br />
@@ -591,7 +709,7 @@ export function EmailWorkflowDemo({
                             <strong>{s.title}</strong>
                             <small>
                               {matched
-                                ? `Artikel ${i + 1} · passt zu Anliegen ${concernIndex + 1}`
+                                ? `Passt zu Anliegen ${concernIndex + 1}`
                                 : knowledgeFiltered
                                   ? "Für diese Mail nicht benötigt"
                                   : "Interne Wissensquelle"}
@@ -668,6 +786,20 @@ export function EmailWorkflowDemo({
                   <CustomerWorkspace
                     key={scenario}
                     processed={step >= 1}
+                    extraction={
+                      step > 1 || scenario !== "partial"
+                        ? { ...extraction, completed: 4, phase: "done" }
+                        : extraction
+                    }
+                    extracting={scenario === "partial" && step === 1}
+                    running={playing}
+                    inspected={hoveredField ?? inspectedField}
+                    onSelectField={(id) =>
+                      setInspectedField((current) =>
+                        current === id ? null : id,
+                      )
+                    }
+                    onHoverField={setHoveredField}
                     onInteract={() => setPlaying(false)}
                   />
                 )}
@@ -694,7 +826,9 @@ export function EmailWorkflowDemo({
                     <span>
                       {step === 3
                         ? "In Entwürfen gespeichert"
-                        : "Antwort vorbereitet"}
+                        : isRequest
+                          ? "Antwort vorbereitet"
+                          : "AI schreibt den Entwurf …"}
                     </span>
                   </div>
                   <div className="draft-fields">
@@ -720,18 +854,49 @@ export function EmailWorkflowDemo({
                           if (!isRequest && sourceIndex != null)
                             setSource(sourceIndex);
                         }}
+                        data-draft-answer={i}
                         className={`draft-answer ${data.openAnswerIndices.includes(i) ? "missing" : ""} ${selected === i ? "linked" : ""}`}
                       >
-                        {answer}
+                        {!isRequest ? (
+                          <span className="draft-writing-copy">
+                            <span
+                              className="draft-writing-space"
+                              aria-hidden="true"
+                            >
+                              {answer}
+                            </span>
+                            <span
+                              className="draft-writing-text"
+                              data-draft-writing-text={i}
+                              aria-hidden="true"
+                            />
+                            <span className="sr-only">{answer}</span>
+                          </span>
+                        ) : (
+                          answer
+                        )}
                       </button>
                     ))}
-                    <p>
+                    <p
+                      style={
+                        !isRequest && step === 2
+                          ? { visibility: "hidden" }
+                          : undefined
+                      }
+                    >
                       Freundliche Grüße
                       <br />
                       Ihr Serviceteam
                     </p>
                   </div>
-                  <div className="draft-review">
+                  <div
+                    className="draft-review"
+                    style={
+                      !isRequest && step === 2
+                        ? { visibility: "hidden" }
+                        : undefined
+                    }
+                  >
                     <UserRoundCheck size={19} />
                     <div>
                       <strong>
@@ -758,21 +923,8 @@ export function EmailWorkflowDemo({
                   <p>
                     {unknown && step >= 1
                       ? "Die Mail wurde zur manuellen Prüfung markiert. Es wurde kein Entwurf erstellt."
-                      : "Wähle eine Beispielmail im Posteingang und spiele den Ablauf ab."}
+                      : "Öffne den Posteingang und starte ein Beispiel mit ▶ neben einer Mail."}
                   </p>
-                  {!(unknown && step >= 1) && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setStep(0);
-                        setPlaying(true);
-                      }}
-                    >
-                      <Play size={14} />
-                      Beispiel verarbeiten
-                    </Button>
-                  )}
                 </div>
               )}
             </>,

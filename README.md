@@ -23,7 +23,9 @@ React, TypeScript und Vite; originale shadcn/ui-Buttons und -Badges mit Tailwind
 
 Die Map verbindet vier aufklappbare App-Knoten: Posteingang, Wissensbasis, CRM und Antwortentwurf. Nach dem Posteingang verzweigt sie nach dem E-Mail-Anliegen: allgemeine Fragen nutzen die Wissensbasis, konkrete Wartungsanfragen werden im CRM als Vorgang vorbereitet. Beide Zweige münden in den Antwortentwurf. Die drei Beispielszenarien bestimmen den Pfad deterministisch; es findet keine echte KI-Klassifikation statt. Der Posteingang zeigt eine Outlook-artige Oberfläche mit drei auswählbaren Beispielmails. Dokumente lassen sich in der Wissensbasis öffnen; der Entwurf zeigt vorbereitete Antworten und offene Angaben.
 
-Abspielen öffnet die jeweils beteiligten Systeme automatisch und animiert den Informationsfluss. Pause, Weiter, Zurück und Neustart steuern denselben Ablaufzustand. Alle Knoten können unabhängig geöffnet oder geschlossen werden. „Alle öffnen“ und „Übersicht“ steuern die Darstellung. Bei unklarer Kundenzuordnung endet der automatische Weg; Prüfung und Versand bleiben manuell.
+Die Demo wird direkt in der Map bedient. Ein schwebender Wegweiser mit violettem Funkensymbol fliegt zuerst zum Outlook-Knoten und nach dem Öffnen zu den Play-Buttons neben den Beispielmails. Seine Sprechblase nennt den nächsten Klick. Während ein Beispiel läuft, blendet er sich aus; bei einer Pause zeigt er auf den Fortsetzen-Button, nach Abschluss auf eine andere Beispielmail. Der Wegweiser ist selbst anklickbar und löst dieselbe Aktion wie das gezeigte Ziel aus. Auf schmalen Bildschirmen steht er oberhalb des Ziels; bei reduzierter Bewegung ohne Flug und Schweben. Diese starten jeweils ein Beispiel, öffnen die beteiligten Systeme und animieren den Informationsfluss. Derselbe Button pausiert das laufende Beispiel und setzt es fort; abgeschlossene Beispiele lassen sich erneut starten. Die Knoten bleiben unabhängig aufklappbar. Bei unklarer Kundenzuordnung endet der automatische Weg; Prüfung und Versand bleiben manuell. Es gibt keine übergeordnete Steuerleiste und keine zusätzliche Demoüberschrift.
+
+Beim Öffnen des geschlossenen Posteingangs fliegen zuerst drei Briefsymbole in den Outlook-Knoten. Nach etwa 2,2 Sekunden klappt die Mailübersicht darunter auf. Bei reduzierter Bewegung öffnet sich der Posteingang direkt.
 
 Alle Inhalte sind fiktiv und lokal. Es werden keine E-Mails verschickt, keine echten Kundendaten gespeichert und keine KI-, CRM- oder Outlook-APIs aufgerufen. Die vereinfachten Leistungsbeschreibungen sind Demonstrationsinhalte, keine fachliche Wartungsanleitung.
 
@@ -41,8 +43,25 @@ Der bisherige CRM-Knoten heißt in der Oberfläche „Kunden & Aufträge“ und 
 
 Vor der Verarbeitung sind zwei abgeschlossene Vorgänge sichtbar. Nach dem Kundenabgleich wird eine neue Wartungsanfrage mit dem Status „Angebot vorbereiten“ ergänzt. Die Vorgangsdetails zeigen erfasste Angaben, ursprüngliche Kundenmail und nächste Aufgabe. Eine Anfrage ist noch kein beauftragter Auftrag. Bei unklarer Zuordnung werden keine Kundendetails angezeigt.
 
+Die Beispielmails und Antwortentwürfe sind für die Demo gekürzt; Anliegen, Zuordnungen und offene Rückfragen bleiben erhalten. Mailtext und Entwurfsantworten verwenden 14 px, die AI-Statusanzeige 13 px. Nach dem Start einer Mail bleiben sechs Sekunden zum Lesen, bevor die Verarbeitung beginnt. Die weiteren automatischen Übergänge warten jeweils 4,5 Sekunden.
+
 ## Animierte Wissenssuche
+
+Wegweiser und Scan verwenden dasselbe vergrößerte Funkensymbol mit gut lesbarem „AI“ darunter. Am fliegenden Scan steht der aktuelle Status: „Untersuche Mail-Inhalt“, „Durchsuche Betriebswissen“ oder „Ordne passende Quellen zu“. Eine Pause wird ausdrücklich angezeigt; der Wegweiser zeigt zusätzlich „Bereit“, „Pausiert“ oder „Abgeschlossen“. Der Scanstatus steht auch als zugängliche Statusmeldung über der Map.
 
 Im Wissensbasis-Zweig bewegt sich ein KI-Symbol während Schritt 2 auf einer frei geschwungenen, zufällig erzeugten Flugbahn über die Mail und anschließend über zwölf Wissensdateien. Der Scan folgt weder den Absätzen noch der Dateireihenfolge. Danach werden die vier Anliegen mit vier passenden, in der Liste verteilten Quellen verbunden. Die acht übrigen Dokumente bleiben aufklappbar und werden als für diese Mail nicht benötigt gekennzeichnet. Eine Ergebnisanzeige macht die Auswahl sichtbar.
 
-Nummerierte Hinweise und Verbindungslinien bleiben nach dem Scan sichtbar. Dieser Demonstrationsschritt dauert ungefähr 18 Sekunden. Pause hält Flugbahn und Fortschritt an; Fortsetzen setzt denselben Durchlauf fort. Neustart oder eine neue Mail erzeugt eine neue Flugbahn. Bei reduzierter Bewegung wird der Vorgang ohne fliegendes Symbol und schneller dargestellt. Alle Zuordnungen stammen aus den lokalen Beispieldaten, nicht aus einem echten KI-Aufruf.
+Zuordnungen mit Artikeltiteln und Verbindungslinien bleiben nach dem Scan sichtbar. Dieser Demonstrationsschritt dauert ungefähr 24 Sekunden. Pause hält Flugbahn und Fortschritt an; Fortsetzen setzt denselben Durchlauf fort. Neustart oder eine neue Mail erzeugt eine neue Flugbahn. Bei reduzierter Bewegung wird der Vorgang ohne fliegendes Symbol und schneller dargestellt. Alle Zuordnungen stammen aus den lokalen Beispieldaten, nicht aus einem echten KI-Aufruf.
+
+Bei jeder Zuordnung erscheint „Anliegen N → Artikeltitel“ zunächst groß und halbtransparent über dem jeweiligen Absatz. Innerhalb von etwa 1,55 Sekunden schrumpft der Text und landet als dauerhafte Quellenzuordnung darunter. Der Absatz bleibt sichtbar, die Zuordnung reserviert ihren Platz vorab. Pause hält auch den Stempel an; bei reduzierter Bewegung oder erneutem Öffnen eines pausierten Fensters erscheint die Zuordnung direkt.
+
+Die Wissensdemo verbindet relevante Artikel auch mit den daraus vorbereiteten Antwortabsätzen im Outlook-Entwurf.
+
+Beim Erstellen der wissensgestützten Antwort sammelt das AI-Symbol pro Absatz Informationen am passenden Artikel und folgt anschließend dem schrittweise eingeblendeten Text. Pause/Fortsetzen erhält den Schreibstand; bei reduzierter Bewegung erscheint der vollständige Entwurf direkt.
+
+
+## Geführte Übernahme in Kunden & Aufträge
+
+Die Wartungsanfrage zeigt vier Übernahmen in Leserichtung: Anlage, Rückfrage, Anliegen und Zeitfenster. Pro Feld wird die Quelle 700 ms hervorgehoben, die AI folgt 1.100 ms einer durchgezogenen Verbindung und das Feld erscheint innerhalb der folgenden 800 ms. Nach 800 ms Abschlussansicht geht es weiter zum Entwurf (insgesamt 11,2 Sekunden statt des bisherigen 4,5-Sekunden-Übergangs).
+
+Das Anliegen verweist auf Wartungsangebot und Startgeräusch; die zusätzliche Quelle erscheint bei aktiver Übernahme oder Auswahl. Fertige Linien bleiben dezent. Felder lassen sich mit Maus, Tastatur oder Touch auswählen und zeigen dann die Quelle. Reservierte Feldhöhen verhindern Layoutsprünge. Pause/Fortsetzen erhält den Fortschritt, ein Neustart setzt ihn zurück. Auf Mobilgeräten ersetzen lokale Hervorhebungen und Quellenhinweise den Flug zwischen den Fenstern; bei reduzierter Bewegung erscheint das Ergebnis direkt.
