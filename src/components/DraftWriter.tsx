@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "motion/react";
-import { AiSymbol } from "./AiSymbol";
+import { AiSymbol, type AiActivity } from "./AiSymbol";
 
 export function DraftWriter({
   running,
@@ -21,11 +21,10 @@ export function DraftWriter({
   const elapsed = useRef(0);
   const complete = useRef(false);
   const callback = useRef(onComplete);
-  const [status, setStatus] = useState("Sammle Betriebswissen");
+  const [activity, setActivity] = useState<AiActivity>("searching");
   const x = useMotionValue(0),
     y = useMotionValue(0);
-  const opacity = useMotionValue(0),
-    statusX = useMotionValue(0);
+  const opacity = useMotionValue(0);
   useEffect(() => {
     callback.current = onComplete;
   }, [onComplete]);
@@ -54,11 +53,7 @@ export function DraftWriter({
         remaining -= durations[index++];
       }
       const writing = remaining >= 1800;
-      setStatus(
-        done
-          ? "Entwurf vorbereitet"
-          : `${running ? "" : "Pausiert · "}${writing ? "Schreibe Antwort" : "Sammle Betriebswissen"} · ${index + 1}/${answers.length}`,
-      );
+      setActivity(done ? "idle" : writing ? "writing" : "searching");
       const box = host.getBoundingClientRect();
       const texts = answers.map((_, i) =>
         host.querySelector<HTMLElement>(`[data-draft-writing-text="${i}"]`),
@@ -114,12 +109,9 @@ export function DraftWriter({
         } else {
           px += Math.sin(remaining / 200) * 14;
         }
-        x.set(Math.max(26, Math.min(box.width - 36, px - box.left)) - 26);
-        y.set(py - box.top - 26);
-        statusX.set(
-          Math.max(12, Math.min(box.width - 212, px - box.left - 100)) -
-            x.get(),
-        );
+        const point = { x: Math.max(26, Math.min(box.width - 36, px - box.left)), y: py - box.top };
+        x.set(point.x - 19);
+        y.set(point.y - 19);
         opacity.set(1);
       } else opacity.set(0);
       ref.current
@@ -169,7 +161,7 @@ export function DraftWriter({
         .querySelectorAll("[data-writer-active]")
         .forEach((el) => el.removeAttribute("data-writer-active"));
     };
-  }, [running, finished, reduced, answers, matches, x, y, opacity, statusX]);
+  }, [running, finished, reduced, answers, matches, x, y, opacity]);
 
   return (
     <div
@@ -187,10 +179,7 @@ export function DraftWriter({
         data-running={running && !finished}
         style={{ x, y, opacity }}
       >
-        <AiSymbol />
-        <motion.span className="ai-current-status" style={{ x: statusX }}>
-          {status}
-        </motion.span>
+        <AiSymbol activity={!running && !finished ? "paused" : activity} />
       </motion.div>
     </div>
   );

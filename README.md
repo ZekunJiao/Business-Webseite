@@ -1,6 +1,8 @@
-# Interaktive E-Mail-Workflow-Demo
+# Handwerk · Interaktive E-Mail-Demo
 
-Lokaler, wiederverwendbarer Demoabschnitt für eine spätere Branchenseite. Noch keine vollständige Geschäftswebsite und keine Entscheidung über das Hosting der späteren Website.
+Die Handwerk-Demo liegt unter `/handwerk`. Daneben ist `/hausverwaltung` als eigenständige Vorlagenseite initialisiert: mit Einstieg und Platzhaltern für Anwendungsfälle, Demos sowie Vorstellung/Kontakt. Es gibt keine Navigation zwischen den Branchenseiten; `/hausverwaltung` wird nur über die direkt eingegebene oder zugesandte Adresse erreicht. Das ist keine Zugriffsbeschränkung.
+
+`/` und der frühere Pfad `/workflow` leiten weiterhin auf `/handwerk` weiter; `#workflow` bleibt dort ein Sprunganker zur Demo. Beide Branchenpfade können direkt aufgerufen und neu geladen werden (Vite stellt dafür den SPA-Fallback bereit). Unbekannte Pfade zeigen eine neutrale Fehlerseite ohne Branchenlinks. Für ein späteres statisches Hosting muss der SPA-Fallback auf `index.html` konfiguriert werden; ein Hosting-Anbieter und eine Inbound-Startseite sind noch nicht festgelegt.
 
 ## Start und Prüfung
 
@@ -19,11 +21,21 @@ npm run preview
 
 React, TypeScript und Vite; originale shadcn/ui-Buttons und -Badges mit Tailwind CSS; Motion und SVG für die Workflow-Map. Die UI-Komponenten wurden mit der offiziellen shadcn-CLI hinzugefügt.
 
+## Workflow-Tabs
+
+Unter `/handwerk` stehen browserähnliche Tabs für „E-Mail-Anfragen“, „Telefonassistenz“ und „Angebote“ über einem gemeinsamen Demobereich. Die E-Mail-Demo ist zunächst ausgewählt. Die beiden anderen Tabs enthalten ausdrücklich als „Demo in Vorbereitung“ gekennzeichnete Platzhalter. Es gibt keine aufklappbare Workflow-Auswahl.
+
+Die Tab-Leiste bleibt beim Scrollen innerhalb des Demobereichs am oberen Rand sichtbar und lässt sich auf schmalen Bildschirmen horizontal scrollen. Pfeiltasten wechseln zwischen den Tabs; Pos1/Ende wählen den ersten/letzten Tab. Tab und Panel sind über ARIA verknüpft. Die Bedienung verwendet vorhandene shadcn/ui-Buttons.
+
+Beim Wechsel bleibt der Zustand der E-Mail-Demo erhalten; laufende Wiedergabe pausiert und wird beim Zurückwechseln nicht automatisch fortgesetzt. Ein noch laufender Posteingangs-Introflug wird abgebrochen. `EmailWorkflowDemo` unterstützt dafür die optionale Property `active` (Standard `true`).
+
+Direktlinks wählen einen Tab über `?demo=telefonassistenz` bzw. `?demo=angebote`; ohne Parameter oder mit einem unbekannten Wert öffnet sich E-Mail. Ein Tabwechsel aktualisiert die Adresse, Zurück/Vorwärts stellt die Auswahl wieder her. `#workflow` springt weiterhin zum gesamten Demobereich. Die Branchenseiten bleiben ohne gegenseitige Links.
+
 `EmailWorkflowDemo` aus `src/App.tsx` lässt sich als Abschnitt wiederverwenden. Die optionale Property `initialScenario` akzeptiert `partial` (Standard), `complete` und `unknown`. Szenarien und Quellen stehen in `src/data.ts`. `partial` zeigt eine Wartungsanfrage über das CRM, `complete` eine allgemeine Leistungsfrage über die Wissensbasis und `unknown` eine nicht eindeutig zuordenbare Anfrage.
 
 Die Map verbindet vier aufklappbare App-Knoten: Posteingang, Wissensbasis, CRM und Antwortentwurf. Nach dem Posteingang verzweigt sie nach dem E-Mail-Anliegen: allgemeine Fragen nutzen die Wissensbasis, konkrete Wartungsanfragen werden im CRM als Vorgang vorbereitet. Beide Zweige münden in den Antwortentwurf. Die drei Beispielszenarien bestimmen den Pfad deterministisch; es findet keine echte KI-Klassifikation statt. Der Posteingang zeigt eine Outlook-artige Oberfläche mit drei auswählbaren Beispielmails. Dokumente lassen sich in der Wissensbasis öffnen; der Entwurf zeigt vorbereitete Antworten und offene Angaben.
 
-Die Demo wird direkt in der Map bedient. Ein schwebender Wegweiser mit violettem Funkensymbol fliegt zuerst zum Outlook-Knoten und nach dem Öffnen zu den Play-Buttons neben den Beispielmails. Seine Sprechblase nennt den nächsten Klick. Während ein Beispiel läuft, blendet er sich aus; bei einer Pause zeigt er auf den Fortsetzen-Button, nach Abschluss auf eine andere Beispielmail. Der Wegweiser ist selbst anklickbar und löst dieselbe Aktion wie das gezeigte Ziel aus. Auf schmalen Bildschirmen steht er oberhalb des Ziels; bei reduzierter Bewegung ohne Flug und Schweben. Diese starten jeweils ein Beispiel, öffnen die beteiligten Systeme und animieren den Informationsfluss. Derselbe Button pausiert das laufende Beispiel und setzt es fort; abgeschlossene Beispiele lassen sich erneut starten. Die Knoten bleiben unabhängig aufklappbar. Bei unklarer Kundenzuordnung endet der automatische Weg; Prüfung und Versand bleiben manuell. Es gibt keine übergeordnete Steuerleiste und keine zusätzliche Demoüberschrift.
+Die Demo wird direkt in der Map bedient. Ein schwebender Wegweiser mit violettem Funkensymbol fliegt zuerst zum Outlook-Knoten und nach dem Öffnen zu den Play-Buttons neben den Beispielmails. Ein kleiner Pfeil zeigt auf den nächsten Klick; das frühere Textkästchen entfällt. Die Klickanweisung bleibt als zugänglicher Name erhalten. Während ein Beispiel läuft, blendet er sich aus; bei einer Pause zeigt er auf den Fortsetzen-Button, nach Abschluss auf eine andere Beispielmail. Der Wegweiser ist selbst anklickbar und löst dieselbe Aktion wie das gezeigte Ziel aus. Auf schmalen Bildschirmen steht er oberhalb des Ziels; bei reduzierter Bewegung ohne Flug und Schweben. Diese starten jeweils ein Beispiel, öffnen die beteiligten Systeme und animieren den Informationsfluss. Derselbe Button pausiert das laufende Beispiel und setzt es fort; abgeschlossene Beispiele lassen sich erneut starten. Die Knoten bleiben unabhängig aufklappbar. Bei unklarer Kundenzuordnung endet der automatische Weg; Prüfung und Versand bleiben manuell. Es gibt keine übergeordnete Steuerleiste und keine zusätzliche Demoüberschrift.
 
 Beim Öffnen des geschlossenen Posteingangs fliegen zuerst drei Briefsymbole in den Outlook-Knoten. Nach etwa 2,2 Sekunden klappt die Mailübersicht darunter auf. Bei reduzierter Bewegung öffnet sich der Posteingang direkt.
 
@@ -47,7 +59,7 @@ Die Beispielmails und Antwortentwürfe sind für die Demo gekürzt; Anliegen, Zu
 
 ## Animierte Wissenssuche
 
-Wegweiser und Scan verwenden dasselbe vergrößerte Funkensymbol mit gut lesbarem „AI“ darunter. Am fliegenden Scan steht der aktuelle Status: „Untersuche Mail-Inhalt“, „Durchsuche Betriebswissen“ oder „Ordne passende Quellen zu“. Eine Pause wird ausdrücklich angezeigt; der Wegweiser zeigt zusätzlich „Bereit“, „Pausiert“ oder „Abgeschlossen“. Der Scanstatus steht auch als zugängliche Statusmeldung über der Map.
+Wegweiser und Animationen verwenden ein kompaktes AI-Symbol (38 px statt 52 px, AI-Beschriftung 11 px). Sichtbare Textkästchen neben dem Symbol entfallen. Das Symbol zeigt den Zustand: pulsierendes Gehirn beim Verarbeiten, eine bewegte Lupe beim Suchen, das normale Funkensymbol beim Verbinden, einen Stift beim Schreiben und ein Pausensymbol beim Anhalten. Bei reduzierter Bewegung bleiben die Icons statisch. Die Statusmeldung zur Wissenssuche bleibt für Screenreader verfügbar.
 
 Im Wissensbasis-Zweig bewegt sich ein KI-Symbol während Schritt 2 auf einer frei geschwungenen, zufällig erzeugten Flugbahn über die Mail und anschließend über zwölf Wissensdateien. Der Scan folgt weder den Absätzen noch der Dateireihenfolge. Danach werden die vier Anliegen mit vier passenden, in der Liste verteilten Quellen verbunden. Die acht übrigen Dokumente bleiben aufklappbar und werden als für diese Mail nicht benötigt gekennzeichnet. Eine Ergebnisanzeige macht die Auswahl sichtbar.
 
@@ -59,9 +71,10 @@ Die Wissensdemo verbindet relevante Artikel auch mit den daraus vorbereiteten An
 
 Beim Erstellen der wissensgestützten Antwort sammelt das AI-Symbol pro Absatz Informationen am passenden Artikel und folgt anschließend dem schrittweise eingeblendeten Text. Pause/Fortsetzen erhält den Schreibstand; bei reduzierter Bewegung erscheint der vollständige Entwurf direkt.
 
-
 ## Geführte Übernahme in Kunden & Aufträge
 
 Die Wartungsanfrage zeigt vier Übernahmen in Leserichtung: Anlage, Rückfrage, Anliegen und Zeitfenster. Pro Feld wird die Quelle 700 ms hervorgehoben, die AI folgt 1.100 ms einer durchgezogenen Verbindung und das Feld erscheint innerhalb der folgenden 800 ms. Nach 800 ms Abschlussansicht geht es weiter zum Entwurf (insgesamt 11,2 Sekunden statt des bisherigen 4,5-Sekunden-Übergangs).
 
 Das Anliegen verweist auf Wartungsangebot und Startgeräusch; die zusätzliche Quelle erscheint bei aktiver Übernahme oder Auswahl. Fertige Linien bleiben dezent. Felder lassen sich mit Maus, Tastatur oder Touch auswählen und zeigen dann die Quelle. Reservierte Feldhöhen verhindern Layoutsprünge. Pause/Fortsetzen erhält den Fortschritt, ein Neustart setzt ihn zurück. Auf Mobilgeräten ersetzen lokale Hervorhebungen und Quellenhinweise den Flug zwischen den Fenstern; bei reduzierter Bewegung erscheint das Ergebnis direkt.
+
+Die fliegenden AI-Symbole folgen ihrer Flugbahn ohne Ausweichsprünge und dürfen dabei Bedienelemente überfliegen. Nach Abschluss der jeweiligen Animation werden sie ausgeblendet, damit keine Buttons oder Textfelder verdeckt bleiben.

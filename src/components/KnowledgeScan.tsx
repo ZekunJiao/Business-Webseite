@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "motion/react";
-import { AiSymbol } from "./AiSymbol";
+import { AiSymbol, type AiActivity } from "./AiSymbol";
 export type ScanState = {
   phase: "mail" | "knowledge" | "matching" | "done";
   index: number;
@@ -82,7 +82,6 @@ export function KnowledgeScan({
   finished,
   reduced,
   matches,
-  status,
   onProgress,
   onComplete,
 }: {
@@ -90,10 +89,10 @@ export function KnowledgeScan({
   finished: boolean;
   reduced: boolean;
   matches: (number | null)[];
-  status: string;
   onProgress: (state: ScanState) => void;
   onComplete: () => void;
 }) {
+  const [activity, setActivity] = useState<AiActivity>("thinking");
   const [routes] = useState(() => ({
     mail: createWanderRoute(),
     knowledge: createWanderRoute(),
@@ -105,7 +104,6 @@ export function KnowledgeScan({
     callbacks = useRef({ onProgress, onComplete });
   const x = useMotionValue(0),
     y = useMotionValue(0),
-    statusX = useMotionValue(0),
     opacity = useMotionValue(0);
   useEffect(() => {
     callbacks.current = { onProgress, onComplete };
@@ -148,6 +146,13 @@ export function KnowledgeScan({
         reported.current = key;
         if (ref.current) ref.current.dataset.scanPhase = phase;
         callbacks.current.onProgress({ phase, index, matched });
+        setActivity(
+          phase === "mail"
+            ? "thinking"
+            : phase === "knowledge"
+              ? "searching"
+              : "matching",
+        );
       }
       const box = host.getBoundingClientRect();
       const rect = (selector: string): ScanRect | null => {
@@ -201,9 +206,8 @@ export function KnowledgeScan({
         }
       }
       if (point && !reduced && !finished) {
-        x.set(point.x - 26);
-        y.set(point.y - 26);
-        statusX.set(clamp(point.x - 100, 12, box.width - 212) - (point.x - 26));
+        x.set(point.x - 19);
+        y.set(point.y - 19);
         opacity.set(1);
       } else opacity.set(0);
       // Keep source matching lines anchored while nodes expand or the page resizes.
@@ -256,7 +260,7 @@ export function KnowledgeScan({
       mutations.disconnect();
       window.removeEventListener("resize", refresh);
     };
-  }, [running, finished, reduced, matches, routes, x, y, statusX, opacity]);
+  }, [running, finished, reduced, matches, routes, x, y, opacity]);
   return (
     <div ref={ref} className="knowledge-scan-overlay" aria-hidden="true">
       <svg className="scan-connections">
@@ -269,10 +273,7 @@ export function KnowledgeScan({
         data-running={running && !finished}
         style={{ x, y, opacity }}
       >
-        <AiSymbol />
-        <motion.span className="ai-current-status" style={{ x: statusX }}>
-          {status}
-        </motion.span>
+        <AiSymbol activity={!running && !finished ? "paused" : activity} />
       </motion.div>
     </div>
   );
