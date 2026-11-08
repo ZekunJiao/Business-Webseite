@@ -22,6 +22,10 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
+import {
+  customerExtractions,
+  type ExtractionState,
+} from "../customerExtraction";
 import { scenarios } from "../data";
 const customer = scenarios.partial;
 const history = [
@@ -57,14 +61,27 @@ const history = [
 export function CustomerWorkspace({
   processed,
   onInteract,
+  extraction,
+  extracting,
+  running,
+  inspected,
+  onSelectField,
+  onHoverField,
 }: {
   processed: boolean;
+  extraction: ExtractionState;
+  extracting: boolean;
+  running: boolean;
+  inspected: string | null;
+  onSelectField: (id: string) => void;
+  onHoverField: (id: string | null) => void;
   onInteract: () => void;
 }) {
   const [view, setView] = useState<"list" | "customer">("list");
   const [recordId, setRecordId] = useState<string | null>(null);
   useEffect(() => {
-    if (!processed) setRecordId((id) => (id === "new" ? null : id));
+    if (processed) setRecordId("new");
+    else setRecordId((id) => (id === "new" ? null : id));
   }, [processed]);
   const reduced = useReducedMotion();
   const records = processed ? history : history.slice(0, 2);
@@ -182,17 +199,72 @@ export function CustomerWorkspace({
           {record.id === "new" ? (
             <>
               <dl className="record-facts">
-                {customer.crmFields
-                  .filter(
-                    (field) =>
-                      !["Kundin", "Objekt", "Offen"].includes(field.label),
-                  )
-                  .map((field) => (
-                    <div key={field.label}>
-                      <dt>{field.label}</dt>
-                      <dd>{field.value}</dd>
+                {customerExtractions.map((item, i) => {
+                  const field = customer.crmFields.find(
+                    (f) => f.label === item.field,
+                  )!;
+                  const captured = extraction.completed > i;
+                  return (
+                    <div
+                      key={item.id}
+                      data-crm-field={field.label}
+                      data-crm-field-id={item.id}
+                      className={`extraction-field ${captured ? "is-captured" : ""}`}
+                      data-inspected={inspected === item.id || undefined}
+                    >
+                      <dt>
+                        {field.label}
+                        <Check
+                          size={13}
+                          className="extraction-check"
+                          aria-hidden="true"
+                          style={{ opacity: captured ? 1 : 0 }}
+                        />
+                      </dt>
+                      <dd>
+                        <button
+                          type="button"
+                          className="extraction-inspect"
+                          disabled={!captured}
+                          aria-label={`${field.label}: ${field.value}. Textquelle anzeigen`}
+                          aria-pressed={inspected === item.id}
+                          onMouseEnter={() => captured && onHoverField(item.id)}
+                          onMouseLeave={() => onHoverField(null)}
+                          onFocus={() => onHoverField(item.id)}
+                          onBlur={() => onHoverField(null)}
+                          onClick={() => onSelectField(item.id)}
+                        >
+                          <span
+                            className="extraction-reserved"
+                            aria-hidden="true"
+                          >
+                            {field.value}
+                          </span>
+                          <span
+                            className="extraction-value"
+                            style={{
+                              visibility: captured ? "visible" : "hidden",
+                              animationPlayState: running
+                                ? "running"
+                                : "paused",
+                            }}
+                          >
+                            {field.value}
+                          </span>
+                          {!captured && (
+                            <span
+                              className="extraction-placeholder"
+                              aria-hidden="true"
+                            />
+                          )}
+                        </button>
+                      </dd>
+                      <span className="extraction-source-label">
+                        Quelle: {item.reference}
+                      </span>
                     </div>
-                  ))}
+                  );
+                })}
               </dl>
               <details className="record-original">
                 <summary>
@@ -218,7 +290,14 @@ export function CustomerWorkspace({
               ))}
             </ul>
           )}
-          <div className="record-next">
+          <div
+            className="record-next"
+            style={
+              extracting && extraction.phase !== "done"
+                ? { visibility: "hidden" }
+                : undefined
+            }
+          >
             <strong>Nächste Aufgabe</strong>
             <p>{record.next}</p>
           </div>

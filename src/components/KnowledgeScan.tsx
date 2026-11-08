@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "motion/react";
-import { Sparkles } from "lucide-react";
+import { AiSymbol } from "./AiSymbol";
 export type ScanState = {
   phase: "mail" | "knowledge" | "matching" | "done";
   index: number;
@@ -82,6 +82,7 @@ export function KnowledgeScan({
   finished,
   reduced,
   matches,
+  status,
   onProgress,
   onComplete,
 }: {
@@ -89,6 +90,7 @@ export function KnowledgeScan({
   finished: boolean;
   reduced: boolean;
   matches: (number | null)[];
+  status: string;
   onProgress: (state: ScanState) => void;
   onComplete: () => void;
 }) {
@@ -103,6 +105,7 @@ export function KnowledgeScan({
     callbacks = useRef({ onProgress, onComplete });
   const x = useMotionValue(0),
     y = useMotionValue(0),
+    statusX = useMotionValue(0),
     opacity = useMotionValue(0);
   useEffect(() => {
     callbacks.current = { onProgress, onComplete };
@@ -116,7 +119,7 @@ export function KnowledgeScan({
     }
     let frame = 0,
       previous = 0;
-    const duration = reduced ? 3200 : 18000;
+    const duration = reduced ? 3200 : 24000;
     const tick = (now: number) => {
       if (previous && running && !finished)
         elapsed.current = Math.min(
@@ -198,8 +201,9 @@ export function KnowledgeScan({
         }
       }
       if (point && !reduced && !finished) {
-        x.set(point.x - 18);
-        y.set(point.y - 18);
+        x.set(point.x - 26);
+        y.set(point.y - 26);
+        statusX.set(clamp(point.x - 100, 12, box.width - 212) - (point.x - 26));
         opacity.set(1);
       } else opacity.set(0);
       // Keep source matching lines anchored while nodes expand or the page resizes.
@@ -231,6 +235,13 @@ export function KnowledgeScan({
       }
     });
     observer.observe(host);
+    const mutations = new MutationObserver(() => {
+      if (!running || finished) {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(tick);
+      }
+    });
+    mutations.observe(host, { childList: true, subtree: true });
     const refresh = () => {
       if (!running || finished) {
         cancelAnimationFrame(frame);
@@ -242,9 +253,10 @@ export function KnowledgeScan({
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
+      mutations.disconnect();
       window.removeEventListener("resize", refresh);
     };
-  }, [running, finished, reduced, matches, routes, x, y, opacity]);
+  }, [running, finished, reduced, matches, routes, x, y, statusX, opacity]);
   return (
     <div ref={ref} className="knowledge-scan-overlay" aria-hidden="true">
       <svg className="scan-connections">
@@ -257,8 +269,10 @@ export function KnowledgeScan({
         data-running={running && !finished}
         style={{ x, y, opacity }}
       >
-        <Sparkles size={21} />
-        <span>KI</span>
+        <AiSymbol />
+        <motion.span className="ai-current-status" style={{ x: statusX }}>
+          {status}
+        </motion.span>
       </motion.div>
     </div>
   );
