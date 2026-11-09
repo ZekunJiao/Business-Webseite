@@ -1,3 +1,4 @@
+import { DEMO_PLAYBACK_SPEED } from "../lib/demoTiming";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "motion/react";
 
@@ -50,7 +51,8 @@ export function SourceMatchStamp({
     let frame = 0,
       previous = 0;
     const tick = (now: number) => {
-      if (previous) elapsed.current += Math.min(now - previous, 100);
+      if (previous)
+        elapsed.current += Math.min(now - previous, 100) * DEMO_PLAYBACK_SPEED;
       previous = now;
       const progress = Math.min(1, elapsed.current / 1550);
       // Let the large stamp register, then shrink and glide into the footer.

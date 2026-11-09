@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   Mail,
@@ -33,6 +33,12 @@ import { SourceMatchStamp } from "./components/SourceMatchStamp";
 import { ClickGuide } from "./components/ClickGuide";
 import type { GuideTarget } from "./components/ClickGuide";
 import type { ScenarioId } from "./data";
+import {
+  DEMO_PLAYBACK_SPEED,
+  FIRST_CONNECTION_PULSE_SECONDS,
+  INITIAL_STAGE_MS,
+  NEXT_STAGE_MS,
+} from "./lib/demoTiming";
 import HausverwaltungPage from "./pages/HausverwaltungPage";
 import { HandwerkWorkflows } from "./components/HandwerkWorkflows";
 function crmCopy(text: string, fragments: string[][]) {
@@ -152,7 +158,7 @@ function MapConnections({
                   ? 1
                   : 0,
             }}
-            transition={{ duration: reduced ? 0 : 0.5 }}
+            transition={{ duration: reduced ? 0 : 0.5 / DEMO_PLAYBACK_SPEED }}
           />
           {playing && !reduced && p.active && step === p.index && (
             <motion.path
@@ -160,7 +166,13 @@ function MapConnections({
               className="wire-pulse"
               initial={{ pathLength: 0 }}
               animate={{ pathLength: 1 }}
-              transition={{ duration: 1.5, repeat: Infinity }}
+              transition={{
+                duration:
+                  p.index === 0
+                    ? FIRST_CONNECTION_PULSE_SECONDS
+                    : 1.5 / DEMO_PLAYBACK_SPEED,
+                repeat: p.index === 0 ? 1 : Infinity,
+              }}
             />
           )}
         </g>
@@ -201,6 +213,20 @@ export function EmailWorkflowDemo({
     last = unknown ? 1 : 3,
     isRequest = scenario !== "complete",
     destination: AppNode = isRequest ? "crm" : "knowledge";
+  const draftSources = useMemo(
+    () =>
+      scenario === "complete"
+        ? data.answerSources.map(
+            (index) => `[data-knowledge-source="${index}"]`,
+          )
+        : [
+            '[data-crm-field-id="photo"]',
+            '[data-crm-field-id="request"]',
+            '[data-crm-field-id="time"]',
+            ".customer-workspace .record-next",
+          ],
+    [scenario, data],
+  );
   const knowledgeFiltered =
     !isRequest && (step > 1 || (step === 1 && scan.phase === "done"));
   const relevantSourceCount = new Set(
@@ -224,7 +250,9 @@ export function EmailWorkflowDemo({
       : scenario;
   const scanStatus =
     step === 2
-      ? "Schreibe Antwortentwurf aus Betriebswissen"
+      ? isRequest
+        ? "Schreibe Antwortentwurf aus Kundenangaben"
+        : "Schreibe Antwortentwurf aus Betriebswissen"
       : step > 2 || scan.phase === "done"
         ? "Passende Quellen gefunden"
         : scan.phase === "mail"
@@ -261,10 +289,10 @@ export function EmailWorkflowDemo({
       return;
     }
     if (step === 1 && scenario === "partial") return;
-    if (step === 2 && !isRequest) return;
+    if (step === 2 && !unknown) return;
     const timer = setTimeout(
       () => setStep((s) => s + 1),
-      step === 0 ? 6000 : 4500,
+      step === 0 ? INITIAL_STAGE_MS : NEXT_STAGE_MS,
     );
     return () => clearTimeout(timer);
   }, [
@@ -497,14 +525,14 @@ export function EmailWorkflowDemo({
             onComplete={() => setStep(2)}
           />
         )}
-        {!isRequest && step >= 2 && (
+        {!unknown && step >= 2 && (
           <DraftWriter
             key={`writer-${scenario}-${playbackRun}`}
             running={playing && step === 2}
             finished={step > 2}
             reduced={!!reduced}
             answers={data.answers}
-            matches={data.answerSources}
+            sourceSelectors={draftSources}
             onComplete={() => setStep(3)}
           />
         )}
@@ -835,9 +863,7 @@ export function EmailWorkflowDemo({
                     <span>
                       {step === 3
                         ? "In Entwürfen gespeichert"
-                        : isRequest
-                          ? "Antwort vorbereitet"
-                          : "AI schreibt den Entwurf …"}
+                        : "AI schreibt den Entwurf …"}
                     </span>
                   </div>
                   <div className="draft-fields">
@@ -866,7 +892,7 @@ export function EmailWorkflowDemo({
                         data-draft-answer={i}
                         className={`draft-answer ${data.openAnswerIndices.includes(i) ? "missing" : ""} ${selected === i ? "linked" : ""}`}
                       >
-                        {!isRequest ? (
+                        {
                           <span className="draft-writing-copy">
                             <span
                               className="draft-writing-space"
@@ -881,17 +907,11 @@ export function EmailWorkflowDemo({
                             />
                             <span className="sr-only">{answer}</span>
                           </span>
-                        ) : (
-                          answer
-                        )}
+                        }
                       </button>
                     ))}
                     <p
-                      style={
-                        !isRequest && step === 2
-                          ? { visibility: "hidden" }
-                          : undefined
-                      }
+                      style={step === 2 ? { visibility: "hidden" } : undefined}
                     >
                       Freundliche Grüße
                       <br />
@@ -900,11 +920,7 @@ export function EmailWorkflowDemo({
                   </div>
                   <div
                     className="draft-review"
-                    style={
-                      !isRequest && step === 2
-                        ? { visibility: "hidden" }
-                        : undefined
-                    }
+                    style={step === 2 ? { visibility: "hidden" } : undefined}
                   >
                     <UserRoundCheck size={19} />
                     <div>

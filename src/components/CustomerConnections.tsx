@@ -1,3 +1,4 @@
+import { DEMO_PLAYBACK_SPEED } from "../lib/demoTiming";
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "motion/react";
 import { AiSymbol, type AiActivity } from "./AiSymbol";
@@ -40,7 +41,7 @@ export function CustomerConnections({
       if (previous && running && !finished)
         elapsed.current = Math.min(
           11200,
-          elapsed.current + Math.min(now - previous, 100),
+          elapsed.current + Math.min(now - previous, 100) * DEMO_PLAYBACK_SPEED,
         );
       previous = now;
       const done = finished || reduced || elapsed.current >= 10400;

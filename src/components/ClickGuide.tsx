@@ -105,8 +105,8 @@ export function ClickGuide({
           reduced
             ? { duration: 0 }
             : {
-                x: { type: "spring", stiffness: 85, damping: 17 },
-                y: { type: "spring", stiffness: 85, damping: 17 },
+                x: { type: "spring", stiffness: 125, damping: 21 },
+                y: { type: "spring", stiffness: 125, damping: 21 },
                 opacity: { duration: 0.18 },
                 scale: { duration: 0.2 },
               }

@@ -1,3 +1,4 @@
+import { DEMO_PLAYBACK_SPEED } from "../lib/demoTiming";
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "motion/react";
 import { AiSymbol, type AiActivity } from "./AiSymbol";
@@ -122,7 +123,7 @@ export function KnowledgeScan({
       if (previous && running && !finished)
         elapsed.current = Math.min(
           duration,
-          elapsed.current + Math.min(now - previous, 100),
+          elapsed.current + Math.min(now - previous, 100) * DEMO_PLAYBACK_SPEED,
         );
       previous = now;
       const p = finished ? 1 : elapsed.current / duration;

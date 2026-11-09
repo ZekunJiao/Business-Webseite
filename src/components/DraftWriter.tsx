@@ -1,3 +1,4 @@
+import { DEMO_PLAYBACK_SPEED } from "../lib/demoTiming";
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "motion/react";
 import { AiSymbol, type AiActivity } from "./AiSymbol";
@@ -7,14 +8,14 @@ export function DraftWriter({
   finished,
   reduced,
   answers,
-  matches,
+  sourceSelectors,
   onComplete,
 }: {
   running: boolean;
   finished: boolean;
   reduced: boolean;
   answers: string[];
-  matches: (number | null)[];
+  sourceSelectors: string[];
   onComplete: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -43,7 +44,7 @@ export function DraftWriter({
       if (previous && running && !finished)
         elapsed.current = Math.min(
           duration,
-          elapsed.current + Math.min(now - previous, 100),
+          elapsed.current + Math.min(now - previous, 100) * DEMO_PLAYBACK_SPEED,
         );
       previous = now;
       const done = finished || reduced || elapsed.current >= duration;
@@ -70,17 +71,17 @@ export function DraftWriter({
         if (el.textContent !== text) el.textContent = text;
       });
       host
-        .querySelectorAll<HTMLElement>("[data-knowledge-source]")
+        .querySelectorAll<HTMLElement>(
+          "[data-knowledge-source], [data-crm-field-id], .record-next",
+        )
         .forEach((el) => {
           el.toggleAttribute(
             "data-writer-active",
-            !done && Number(el.dataset.knowledgeSource) === matches[index],
+            !done && el === host.querySelector(sourceSelectors[index]),
           );
         });
       const target = texts[index];
-      const source = host.querySelector<HTMLElement>(
-        `[data-knowledge-source="${matches[index]}"]`,
-      );
+      const source = host.querySelector<HTMLElement>(sourceSelectors[index]);
       if (!done && target && source && !reduced) {
         const a = source.getBoundingClientRect(),
           b = target.getBoundingClientRect();
@@ -109,7 +110,10 @@ export function DraftWriter({
         } else {
           px += Math.sin(remaining / 200) * 14;
         }
-        const point = { x: Math.max(26, Math.min(box.width - 36, px - box.left)), y: py - box.top };
+        const point = {
+          x: Math.max(26, Math.min(box.width - 36, px - box.left)),
+          y: py - box.top,
+        };
         x.set(point.x - 19);
         y.set(point.y - 19);
         opacity.set(1);
@@ -118,7 +122,7 @@ export function DraftWriter({
         ?.querySelectorAll<SVGPathElement>("[data-draft-connection]")
         .forEach((path, i) => {
           const a = host
-            .querySelector(`[data-knowledge-source="${matches[i]}"]`)
+            .querySelector(sourceSelectors[i])
             ?.getBoundingClientRect();
           const b = host
             .querySelector(`[data-draft-answer="${i}"]`)
@@ -161,7 +165,7 @@ export function DraftWriter({
         .querySelectorAll("[data-writer-active]")
         .forEach((el) => el.removeAttribute("data-writer-active"));
     };
-  }, [running, finished, reduced, answers, matches, x, y, opacity]);
+  }, [running, finished, reduced, answers, sourceSelectors, x, y, opacity]);
 
   return (
     <div

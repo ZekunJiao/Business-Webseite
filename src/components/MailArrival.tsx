@@ -1,3 +1,4 @@
+import { DEMO_PLAYBACK_SPEED } from "../lib/demoTiming";
 import { useEffect, useRef } from "react";
 import { motion, useMotionValue, useTransform } from "motion/react";
 import type { MotionValue } from "motion/react";
@@ -57,7 +58,8 @@ export function MailArrival({
     let frame = 0,
       previous = 0;
     const tick = (now: number) => {
-      if (previous) elapsed.current += Math.min(now - previous, 100);
+      if (previous)
+        elapsed.current += Math.min(now - previous, 100) * DEMO_PLAYBACK_SPEED;
       previous = now;
       clock.set(elapsed.current);
       if (elapsed.current >= 2200) complete.current();

@@ -2125,3 +2125,9 @@ footer {
     animation: none !important;
   }
 }
+
+.extraction-field[data-writer-active],
+.record-next[data-writer-active] {
+  background: #e6f4ef;
+  box-shadow: inset 3px 0 #328b80;
+}
