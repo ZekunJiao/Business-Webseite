@@ -1949,3 +1949,16 @@ footer {
     transition: none;
   }
 }
+
+.industry-nav { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:20px clamp(20px,5vw,80px); border-bottom:1px solid #dce3e9; background:white; }
+.industry-nav a { color:#142b43; text-decoration:none; font-weight:600; }
+.industry-nav div { display:flex; gap:24px; flex-wrap:wrap; }
+.industry-nav a:hover { color:#1671c5; }
+.industry-nav a:focus-visible,.industry-cards a:focus-visible { outline:3px solid #1671c5; outline-offset:5px; }
+.industry-main { max-width:1400px; margin:auto; padding:0 clamp(20px,5vw,70px); }
+.industry-cards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; margin:0 auto 80px; max-width:1000px; }
+.industry-cards a { display:block; padding:32px; background:white; border:1px solid #dce3e9; border-radius:18px; text-decoration:none; color:inherit; }
+.industry-cards a:hover { border-color:#1671c5; }
+.industry-cards h2 { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:20px 0 12px; }
+.industry-cards p { color:#53677a; line-height:1.7; }
+@media(max-width:600px) { .industry-cards { grid-template-columns:1fr; } .industry-nav { align-items:flex-start; flex-direction:column; } }

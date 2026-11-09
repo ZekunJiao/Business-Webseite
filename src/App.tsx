@@ -948,11 +948,11 @@ export function EmailWorkflowDemo({
     </section>
   );
 }
-export default function App() {
+function HandwerkPage() {
   return (
     <>
       <header className="site-header">
-        <a href="#" className="wordmark">
+        <a href="/" className="wordmark">
           <span className="brand-mark">
             <Mail size={19} />
           </span>
@@ -1004,4 +1004,33 @@ export default function App() {
       </main>
     </>
   );
+}
+
+function IndustryNavigation() {
+  return <nav className="industry-nav" aria-label="Bereiche">
+    <a href="/">Zekun Jiao</a>
+    <div><a href="/handwerk">Handwerk</a><a href="/hausverwaltung">Hausverwaltung</a></div>
+  </nav>;
+}
+
+export default function App() {
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  if (path === "/handwerk") return <><IndustryNavigation /><HandwerkPage /></>;
+  const home = path === "/";
+  const housing = path === "/hausverwaltung";
+  return <>
+    <IndustryNavigation />
+    <main className="industry-main">
+      <div className="hero">
+        <div className="eyebrow">{home ? "SOFTWARE · KI · AUTOMATISIERUNG" : housing ? "BRANCHENBEREICH" : "404"}</div>
+        <h1>{home ? <>Technik, die<br /><span>Arbeit erleichtert.</span></> : housing ? "Hausverwaltung" : "Seite nicht gefunden"}</h1>
+        <p>{home ? "Ich bin Zekun Jiao. Ich verbinde Softwareentwicklung und Produktdenken, um Geschäftsprozesse verständlicher und einfacher zu machen." : housing ? "Hier entsteht ein eigener Bereich für mögliche Lösungen in der Hausverwaltung. Inhalte und interaktive Demonstrationen folgen." : "Unter dieser Adresse gibt es noch keine Seite."}</p>
+      </div>
+      {home ? <section className="industry-cards" aria-label="Branchen entdecken">
+        <a href="/handwerk"><span className="eyebrow">INTERAKTIVE BEISPIELDEMO</span><h2>Handwerk <ArrowUpRight size={22} /></h2><p>Vom Posteingang zum Antwortentwurf: Erkunde einen möglichen Ablauf für Kundenanfragen.</p></a>
+        <a href="/hausverwaltung"><span className="eyebrow">IM AUFBAU</span><h2>Hausverwaltung <ArrowUpRight size={22} /></h2><p>Ein eigener Bereich für die Hausverwaltung. Anwendungsfälle und Demos folgen.</p></a>
+      </section> : <a className="header-link" href="/">Zur Startseite <ArrowUpRight size={16} /></a>}
+      <footer><span>Zekun Jiao · Software, KI und Automatisierung</span><span>Branchenbereiche zur Erkundung möglicher Lösungen</span></footer>
+    </main>
+  </>;
 }

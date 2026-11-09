@@ -65,3 +65,11 @@ Beim Erstellen der wissensgestützten Antwort sammelt das AI-Symbol pro Absatz I
 Die Wartungsanfrage zeigt vier Übernahmen in Leserichtung: Anlage, Rückfrage, Anliegen und Zeitfenster. Pro Feld wird die Quelle 700 ms hervorgehoben, die AI folgt 1.100 ms einer durchgezogenen Verbindung und das Feld erscheint innerhalb der folgenden 800 ms. Nach 800 ms Abschlussansicht geht es weiter zum Entwurf (insgesamt 11,2 Sekunden statt des bisherigen 4,5-Sekunden-Übergangs).
 
 Das Anliegen verweist auf Wartungsangebot und Startgeräusch; die zusätzliche Quelle erscheint bei aktiver Übernahme oder Auswahl. Fertige Linien bleiben dezent. Felder lassen sich mit Maus, Tastatur oder Touch auswählen und zeigen dann die Quelle. Reservierte Feldhöhen verhindern Layoutsprünge. Pause/Fortsetzen erhält den Fortschritt, ein Neustart setzt ihn zurück. Auf Mobilgeräten ersetzen lokale Hervorhebungen und Quellenhinweise den Flug zwischen den Fenstern; bei reduzierter Bewegung erscheint das Ergebnis direkt.
+
+## Seitenstruktur
+
+- `/`: Branchenneutrale Startseite mit Links zu den Branchenbereichen.
+- `/handwerk`: Bestehende interaktive E-Mail-Workflow-Demo.
+- `/hausverwaltung`: Eigene Einstiegsseite, vorerst als Bereich im Aufbau.
+
+Die Pfade sind Unterseiten derselben Domain, keine Subdomains. Die Zuordnung erfolgt schlank über den URL-Pfad ohne zusätzliche Router-Abhängigkeit. Beim späteren Hosting müssen Seitenaufrufe auf `index.html` zurückfallen (SPA-Fallback), damit direkte Links und Neuladen funktionieren. Die Branchenbereiche legen keine ausschließliche Spezialisierung fest.
