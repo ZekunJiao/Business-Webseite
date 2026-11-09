@@ -54,7 +54,7 @@ export const scenarios: Record<ScenarioId, Scenario> = {
         label: "Zeitfenster",
         value: "Di ab 14 Uhr / Fr vormittags · noch kein Termin",
       },
-      { label: "Rückfrage", value: "Foto des Typenschilds anfordern" },
+      { label: "Rückfrage an Kundin", value: "Foto des Typenschilds anfordern" },
       {
         label: "Offen",
         value: "Fachliche Einschätzung, Zeitbedarf und Kostenfreigabe",

@@ -1,6 +1,9 @@
+// Reihenfolge = Reihenfolge der Übernahme. "info" sind Angaben aus der Mail,
+// "task" sind daraus abgeleitete Aufgaben.
 export const customerExtractions = [
   {
     id: "plant",
+    group: "info",
     field: "Anlage",
     sources: ["plant"],
     primary: "plant",
@@ -8,15 +11,8 @@ export const customerExtractions = [
     reference: "Anlagenbeschreibung in der Einleitung",
   },
   {
-    id: "photo",
-    field: "Rückfrage",
-    sources: ["photo"],
-    primary: "photo",
-    status: "Übernehme Rückfrage",
-    reference: "„Ein Typenschildfoto reiche ich bei Bedarf nach.“",
-  },
-  {
     id: "request",
+    group: "info",
     field: "Anliegen",
     sources: ["request", "noise"],
     primary: "noise",
@@ -25,11 +21,21 @@ export const customerExtractions = [
   },
   {
     id: "time",
+    group: "info",
     field: "Zeitfenster",
     sources: ["time"],
     primary: "time",
     status: "Übernehme Zeitfenster",
     reference: "Absatz zu Dienstag- und Freitagsterminen",
+  },
+  {
+    id: "photo",
+    group: "task",
+    field: "Rückfrage an Kundin",
+    sources: ["photo"],
+    primary: "photo",
+    status: "Übernehme Rückfrage",
+    reference: "„Ein Typenschildfoto reiche ich bei Bedarf nach.“",
   },
 ] as const;
 export type ExtractionState = {

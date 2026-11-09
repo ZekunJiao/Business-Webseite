@@ -59,7 +59,7 @@ export function SourceMatchStamp({
       const t = Math.max(0, (progress - 0.18) / 0.82);
       const ease = t * t * (3 - 2 * t);
       y.set(startY.current * (1 - ease));
-      fontSize.set(25 - 14 * ease);
+      fontSize.set(25 - 13 * ease);
       lineHeight.set(1.25 + 0.25 * ease);
       rotate.set(-7 * (1 - ease));
       opacity.set(0.2 + 0.8 * ease);

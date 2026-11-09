@@ -41,6 +41,11 @@ import {
 } from "./lib/demoTiming";
 import HausverwaltungPage from "./pages/HausverwaltungPage";
 import { HandwerkWorkflows } from "./components/HandwerkWorkflows";
+import { AuthorBlock } from "./components/AuthorBlock";
+import { DemoResult } from "./components/DemoResult";
+import { MobileEmailFlow } from "./components/MobileEmailFlow";
+import { MOBILE_QUERY, useMediaQuery } from "./lib/useMediaQuery";
+import { contact } from "./contact";
 function crmCopy(text: string, fragments: string[][]) {
   const parts: ReactNode[] = [];
   let offset = 0;
@@ -208,6 +213,7 @@ export function EmailWorkflowDemo({
     matched: 0,
   });
   const reduced = useReducedMotion(),
+    mobile = useMediaQuery(MOBILE_QUERY),
     data = scenarios[scenario],
     unknown = scenario === "unknown",
     last = unknown ? 1 : 3,
@@ -305,6 +311,52 @@ export function EmailWorkflowDemo({
     mailArrival,
     mailboxOpen,
   ]);
+  // Während der automatischen Wiedergabe folgt die Seite dem aktiven Fenster.
+  // Pausieren oder eigene Klicks beenden das Mitscrollen.
+  const followPlayback = useRef(false);
+  useEffect(() => {
+    if (playing) followPlayback.current = true;
+    else if (step < last) followPlayback.current = false;
+  }, [playing, step, last]);
+  useEffect(() => {
+    if (mobile || !active || reduced || !runStarted) return;
+    if (!followPlayback.current) return;
+    const timer = setTimeout(() => {
+      const bar = document.querySelector(".workflow-tab-bar");
+      const status = document.querySelector(".map-status");
+      const top =
+        (bar?.getBoundingClientRect().height ?? 0) +
+        (status?.getBoundingClientRect().height ?? 0) +
+        20;
+      const height = window.innerHeight;
+      let delta = 0;
+      if (step >= last) {
+        const result = document.querySelector(".demo-result");
+        if (!result) return;
+        const r = result.getBoundingClientRect();
+        if (r.height <= height - top - 12) {
+          if (r.bottom > height - 12) delta = r.bottom - (height - 12);
+          else if (r.top < top) delta = r.top - top;
+        } else delta = r.top - top;
+      } else {
+        const id = step === 0 ? "mailbox" : step === 1 ? destination : "draft";
+        const node = document.querySelector(`.map-canvas .map-node.${id}`);
+        if (!node) return;
+        const r = node.getBoundingClientRect();
+        if (r.height <= height - top - 12) {
+          if (r.bottom > height - 12) delta = r.bottom - (height - 12);
+          else if (r.top < top) delta = r.top - top;
+        } else {
+          const win = node.querySelector(".app-window") ?? node;
+          const w = win.getBoundingClientRect();
+          if (w.top < top || w.top > height * 0.5) delta = w.top - top;
+        }
+      }
+      if (Math.abs(delta) > 24)
+        window.scrollBy({ top: delta, behavior: "smooth" });
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [step, last, destination, mobile, active, reduced, runStarted]);
   const choose = (id: ScenarioId, autoplay = false) => {
     setRunStarted(autoplay);
     setMailArrival("idle");
@@ -401,7 +453,7 @@ export function EmailWorkflowDemo({
             {id === "mailbox"
               ? "Microsoft Outlook"
               : id === "crm"
-                ? "Excel · Handwerkersoftware · CRM"
+                ? "z. B. Excel oder Handwerkersoftware"
                 : id === "knowledge"
                   ? "Interne Dokumente"
                   : "Microsoft Outlook"}
@@ -429,7 +481,7 @@ export function EmailWorkflowDemo({
                 )}
                 <strong>
                   {id === "crm"
-                    ? "Kunden & Aufträge"
+                    ? "Kunden & Vorgänge"
                     : id === "knowledge"
                       ? "Betriebswissen"
                       : "Outlook"}
@@ -458,6 +510,7 @@ export function EmailWorkflowDemo({
       </div>
     );
   }
+  if (mobile) return <MobileEmailFlow initialScenario={scenario} />;
   return (
     <section className="demo map-demo" aria-label="Interaktive E-Mail-Demo">
       <div className={`map-canvas ${playing ? "is-playing" : ""}`}>
@@ -783,7 +836,7 @@ export function EmailWorkflowDemo({
             )}
             {node(
               "crm",
-              "Kunden & Aufträge",
+              "Kunden & Vorgänge",
               <span className="crm-symbol">
                 <ContactRound size={43} strokeWidth={1.4} />
                 <span className="crm-folder-icon">
@@ -793,7 +846,7 @@ export function EmailWorkflowDemo({
               <>
                 <div className="crm-section-heading">
                   <Folder size={16} />
-                  <strong>Anfragen</strong>
+                  <strong>Vorgänge</strong>
                   <Badge variant="outline">
                     {isRequest && step >= 1 && !unknown
                       ? "1 neuer Vorgang"
@@ -918,6 +971,12 @@ export function EmailWorkflowDemo({
                       Ihr Serviceteam
                     </p>
                   </div>
+                  {data.openAnswerIndices.length > 0 && (
+                    <p className="draft-legend">
+                      <span aria-hidden="true" />
+                      Orange = noch offen. Hier ergänzt dein Team.
+                    </p>
+                  )}
                   <div
                     className="draft-review"
                     style={step === 2 ? { visibility: "hidden" } : undefined}
@@ -963,10 +1022,19 @@ export function EmailWorkflowDemo({
           </span>
         </div>
       </div>
+      {runStarted && step >= last && !playing && (
+        <DemoResult
+          scenario={scenario}
+          relevantSources={relevantSourceCount}
+          totalSources={sources.length}
+          openAnswers={data.openAnswerIndices.length}
+        />
+      )}
       <div className="demo-bottom">
         <span>
           <CircleHelp size={15} />
-          Anfragen zu Kunden und Vorgängen. Allgemeine Fragen zur Wissensbasis.
+          Konkrete Anfragen laufen über die Kundenverwaltung, allgemeine Fragen
+          über die Wissensbasis (gestrichelter Weg).
         </span>
         <span>Prüfung und Versand bleiben bei deinem Team.</span>
       </div>
@@ -1072,6 +1140,10 @@ export default function App() {
         <a className="header-link" href="/handwerk#workflow">
           Abläufe entdecken <ArrowUpRight size={16} />
         </a>
+        <span className="header-author">
+          <span>von {contact.name}</span>
+          <a href="#kontakt">Kontakt</a>
+        </span>
       </header>
       <main>
         <div className="hero">
@@ -1108,8 +1180,12 @@ export default function App() {
         <HandwerkWorkflows>
           {(active) => <EmailWorkflowDemo active={active} />}
         </HandwerkWorkflows>
+        <AuthorBlock id="kontakt" />
         <footer>
-          <span>Eine mögliche Lösung für wiederkehrende Kundenanfragen.</span>
+          <span>
+            Eine mögliche Lösung für wiederkehrende Kundenanfragen ·{" "}
+            <a href="/">{contact.name}</a>
+          </span>
           <span>Beispieldemo · Keine echten Kundendaten</span>
         </footer>
       </main>
