@@ -2,7 +2,7 @@
 
 Die Handwerk-Demo liegt unter `/handwerk`. Daneben ist `/hausverwaltung` als eigenständige Vorlagenseite initialisiert: mit Einstieg und Platzhaltern für Anwendungsfälle, Demos sowie Vorstellung/Kontakt. Es gibt keine Navigation zwischen den Branchenseiten; `/hausverwaltung` wird nur über die direkt eingegebene oder zugesandte Adresse erreicht. Das ist keine Zugriffsbeschränkung.
 
-`/` und der frühere Pfad `/workflow` leiten weiterhin auf `/handwerk` weiter; `#workflow` bleibt dort ein Sprunganker zur Demo. Beide Branchenpfade können direkt aufgerufen und neu geladen werden (Vite stellt dafür den SPA-Fallback bereit). Unbekannte Pfade zeigen eine neutrale Fehlerseite ohne Branchenlinks. Für ein späteres statisches Hosting muss der SPA-Fallback auf `index.html` konfiguriert werden; ein Hosting-Anbieter und eine Inbound-Startseite sind noch nicht festgelegt.
+Die branchenneutrale Startseite `/` verlinkt auf beide Branchen. Der frühere Pfad `/workflow` leitet auf `/handwerk` weiter; `#workflow` bleibt dort ein Sprunganker zur Demo. Beide Branchenpfade können direkt aufgerufen und neu geladen werden (Vite stellt dafür den SPA-Fallback bereit). Unbekannte Pfade zeigen eine neutrale Fehlerseite ohne Branchenlinks. Für ein späteres statisches Hosting muss der SPA-Fallback auf `index.html` konfiguriert werden; ein Hosting-Anbieter ist noch nicht festgelegt.
 
 ## Start und Prüfung
 

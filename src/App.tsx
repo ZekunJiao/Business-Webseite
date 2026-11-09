@@ -976,30 +976,79 @@ export function EmailWorkflowDemo({
 export default function App() {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
   const isHausverwaltung = path === "/hausverwaltung";
-  const isHandwerk = ["/", "/workflow", "/handwerk"].includes(path);
+  const isHome = path === "/";
+  const isHandwerk = ["/workflow", "/handwerk"].includes(path);
   useEffect(() => {
-    if (path === "/" || path === "/workflow") {
+    if (path === "/workflow") {
       window.history.replaceState(
         null,
         "",
         `/handwerk${window.location.search}${window.location.hash}`,
       );
     }
-    document.title = isHausverwaltung
-      ? "Hausverwaltung · Vorlagenseite"
-      : isHandwerk
-        ? "Handwerk · Abläufe interaktiv entdecken"
-        : "Seite nicht gefunden";
+    document.title = isHome
+      ? "Zekun Jiao · Software, KI und Automatisierung"
+      : isHausverwaltung
+        ? "Hausverwaltung · Vorlagenseite"
+        : isHandwerk
+          ? "Handwerk · Abläufe interaktiv entdecken"
+          : "Seite nicht gefunden";
     const description = document.querySelector<HTMLMetaElement>(
       'meta[name="description"]',
     );
     if (description)
-      description.content = isHausverwaltung
-        ? "Eigenständige Vorlagenseite für Hausverwaltungen. Inhalte und Demonstrationen sind in Vorbereitung."
-        : isHandwerk
-          ? "Digitale Abläufe fürs Handwerk entdecken: E-Mail-Anfragen als interaktive Beispieldemo erleben."
-          : "Die angefragte Seite wurde nicht gefunden.";
-  }, [path, isHausverwaltung, isHandwerk]);
+      description.content = isHome
+        ? "Software, KI und Automatisierung für verständliche Geschäftsprozesse."
+        : isHausverwaltung
+          ? "Eigenständige Vorlagenseite für Hausverwaltungen. Inhalte und Demonstrationen sind in Vorbereitung."
+          : isHandwerk
+            ? "Digitale Abläufe fürs Handwerk entdecken: E-Mail-Anfragen als interaktive Beispieldemo erleben."
+            : "Die angefragte Seite wurde nicht gefunden.";
+  }, [path, isHome, isHausverwaltung, isHandwerk]);
+  if (isHome)
+    return (
+      <main>
+        <div className="hero">
+          <div className="eyebrow">SOFTWARE · KI · AUTOMATISIERUNG</div>
+          <h1>
+            Technik, die
+            <br />
+            <span>Arbeit erleichtert.</span>
+          </h1>
+          <p>
+            Ich bin Zekun Jiao. Ich verbinde Softwareentwicklung und
+            Produktdenken, um Geschäftsprozesse verständlicher und einfacher zu
+            machen.
+          </p>
+        </div>
+        <section className="industry-cards" aria-label="Branchen entdecken">
+          <a href="/handwerk">
+            <span className="eyebrow">INTERAKTIVE BEISPIELDEMO</span>
+            <h2>
+              Handwerk <ArrowUpRight size={22} />
+            </h2>
+            <p>
+              Vom Posteingang zum Antwortentwurf: Erkunde einen möglichen Ablauf
+              für Kundenanfragen.
+            </p>
+          </a>
+          <a href="/hausverwaltung">
+            <span className="eyebrow">IM AUFBAU</span>
+            <h2>
+              Hausverwaltung <ArrowUpRight size={22} />
+            </h2>
+            <p>
+              Ein eigener Bereich für die Hausverwaltung. Anwendungsfälle und
+              Demos folgen.
+            </p>
+          </a>
+        </section>
+        <footer>
+          <span>Zekun Jiao · Software, KI und Automatisierung</span>
+          <span>Branchenbereiche zur Erkundung möglicher Lösungen</span>
+        </footer>
+      </main>
+    );
   if (isHausverwaltung) return <HausverwaltungPage />;
   if (!isHandwerk)
     return (
