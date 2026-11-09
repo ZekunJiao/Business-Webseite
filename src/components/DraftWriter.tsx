@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "motion/react";
 import { AiSymbol } from "./AiSymbol";
+import { keepCursorClear } from "../lib/keepCursorClear";
 
 export function DraftWriter({
   running,
@@ -114,13 +115,21 @@ export function DraftWriter({
         } else {
           px += Math.sin(remaining / 200) * 14;
         }
-        x.set(Math.max(26, Math.min(box.width - 36, px - box.left)) - 26);
-        y.set(py - box.top - 26);
-        statusX.set(
-          Math.max(12, Math.min(box.width - 212, px - box.left - 100)) -
-            x.get(),
+        const safe = keepCursorClear(
+          {
+            x: Math.max(26, Math.min(box.width - 36, px - box.left)),
+            y: py - box.top,
+          },
+          host,
         );
-        opacity.set(1);
+        if (safe) {
+          x.set(safe.x - 26);
+          y.set(safe.y - 26);
+          statusX.set(
+            Math.max(12, Math.min(box.width - 212, safe.x - 100)) - x.get(),
+          );
+          opacity.set(1);
+        } else opacity.set(0);
       } else opacity.set(0);
       ref.current
         ?.querySelectorAll<SVGPathElement>("[data-draft-connection]")

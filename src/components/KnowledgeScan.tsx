@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "motion/react";
 import { AiSymbol } from "./AiSymbol";
+import { keepCursorClear } from "../lib/keepCursorClear";
 export type ScanState = {
   phase: "mail" | "knowledge" | "matching" | "done";
   index: number;
@@ -201,10 +202,13 @@ export function KnowledgeScan({
         }
       }
       if (point && !reduced && !finished) {
-        x.set(point.x - 26);
-        y.set(point.y - 26);
-        statusX.set(clamp(point.x - 100, 12, box.width - 212) - (point.x - 26));
-        opacity.set(1);
+        const safe = keepCursorClear(point, host);
+        if (safe) {
+          x.set(safe.x - 26);
+          y.set(safe.y - 26);
+          statusX.set(clamp(safe.x - 100, 12, box.width - 212) - (safe.x - 26));
+          opacity.set(1);
+        } else opacity.set(0);
       } else opacity.set(0);
       // Keep source matching lines anchored while nodes expand or the page resizes.
       host

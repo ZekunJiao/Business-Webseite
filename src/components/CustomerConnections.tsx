@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { motion, useMotionValue } from "motion/react";
 import { AiSymbol } from "./AiSymbol";
+import { keepCursorClear } from "../lib/keepCursorClear";
 import {
   customerExtractions,
   type ExtractionState,
@@ -156,14 +157,16 @@ export function CustomerConnections({
         });
       });
       if (cursor && !mobile && !reduced && !done) {
-        const point = cursor as { x: number; y: number };
-        x.set(point.x - 26);
-        y.set(point.y - 26);
-        statusX.set(
-          Math.max(12, Math.min(box.width - 212, point.x - 100)) -
-            (point.x - 26),
-        );
-        opacity.set(1);
+        const safe = keepCursorClear(cursor as { x: number; y: number }, host);
+        if (safe) {
+          x.set(safe.x - 26);
+          y.set(safe.y - 26);
+          statusX.set(
+            Math.max(12, Math.min(box.width - 212, safe.x - 100)) -
+              (safe.x - 26),
+          );
+          opacity.set(1);
+        } else opacity.set(0);
       } else opacity.set(0);
       if (
         (reduced || elapsed.current >= 11200) &&

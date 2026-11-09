@@ -949,17 +949,25 @@ export function EmailWorkflowDemo({
   );
 }
 export default function App() {
+  useEffect(() => {
+    if (
+      window.location.pathname === "/" ||
+      /^\/workflow\/?$/.test(window.location.pathname)
+    ) {
+      window.history.replaceState(null, "", `/handwerk${window.location.hash}`);
+    }
+  }, []);
   return (
     <>
       <header className="site-header">
-        <a href="#" className="wordmark">
+        <a href="/handwerk" className="wordmark">
           <span className="brand-mark">
             <Mail size={19} />
           </span>
           E-Mail-Assistenz
           <span className="header-tag">WORKFLOW-DEMO</span>
         </a>
-        <a className="header-link" href="#workflow">
+        <a className="header-link" href="/handwerk#workflow">
           Demo entdecken <ArrowUpRight size={16} />
         </a>
       </header>

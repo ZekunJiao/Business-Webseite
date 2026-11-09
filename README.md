@@ -1,6 +1,6 @@
-# Interaktive E-Mail-Workflow-Demo
+# Handwerk · Interaktive E-Mail-Demo
 
-Lokaler, wiederverwendbarer Demoabschnitt für eine spätere Branchenseite. Noch keine vollständige Geschäftswebsite und keine Entscheidung über das Hosting der späteren Website.
+Die bestehende branchenspezifische Seite wird unter `/handwerk` bereitgestellt. `/` und der frühere Pfad `/workflow` leiten auf `/handwerk` weiter; `#workflow` bleibt dort ein Sprunganker zur Demo. Weitere Branchenseiten oder eine Inbound-Startseite sind noch nicht implementiert.
 
 ## Start und Prüfung
 
@@ -58,7 +58,6 @@ Bei jeder Zuordnung erscheint „Anliegen N → Artikeltitel“ zunächst groß 
 Die Wissensdemo verbindet relevante Artikel auch mit den daraus vorbereiteten Antwortabsätzen im Outlook-Entwurf.
 
 Beim Erstellen der wissensgestützten Antwort sammelt das AI-Symbol pro Absatz Informationen am passenden Artikel und folgt anschließend dem schrittweise eingeblendeten Text. Pause/Fortsetzen erhält den Schreibstand; bei reduzierter Bewegung erscheint der vollständige Entwurf direkt.
-
 
 ## Geführte Übernahme in Kunden & Aufträge
 
