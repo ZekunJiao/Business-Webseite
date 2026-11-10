@@ -10,8 +10,6 @@ import { useReducedMotion } from "motion/react";
 import {
   ArrowDown,
   Check,
-  ClipboardList,
-  ContactRound,
   LibraryBig,
   Mail,
   Pause,
@@ -19,7 +17,8 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 import { Button } from "./ui/button";
-import { AiSymbol } from "./AiSymbol";
+import { aiActivityIcons } from "./AiSymbol";
+import { FormWindowIcon } from "./FormWindowIcon";
 import type { AiActivity } from "./AiSymbol";
 import {
   channelNames,
@@ -31,21 +30,63 @@ import { integrations, integrationsNote } from "../integrations";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { OVERVIEW_HOLD_MS, OVERVIEW_STEP_MS } from "../lib/demoTiming";
 
-type NodeId = "email" | "form" | "assistant" | "crm" | "knowledge" | "team";
+type NodeId = string;
 
+// Kurze Zeile unter dem Assistenten: was er in diesem Schritt der Simulation
+// tut. Der Text benennt die Handlung des jeweiligen Beispielfalls.
+const assistantStatus = (
+  item: OverviewCase,
+  step: number,
+  paused: boolean,
+): string => {
+  if (paused) return "pausiert";
+  if (step === 1) {
+    if (item.system === "knowledge") return "sucht im Betriebswissen …";
+    return item.channel === "form"
+      ? "liest die Formularangaben …"
+      : "liest die E-Mail …";
+  }
+  if (step === 2) {
+    return item.system === "knowledge"
+      ? "schreibt einen Antwortentwurf …"
+      : "erstellt einen Vorschlag …";
+  }
+  return step === 3 ? "Vorschlag liegt bereit" : "wartet auf ein Anliegen";
+};
+
+// Rechte Spalte: ein Eintrag je Handwerkersoftware aus src/integrations.ts,
+// dazu "andere Programme" und das Betriebswissen. Das Betriebswissen ist
+// kein Programm und steht deshalb hinter einem Trenner mit der Überschrift
+// "Wissen".
+const toolNodes = integrations.map((entry) => ({
+  id: `tool:${entry.name}`,
+  entry,
+}));
+const OTHER_NODE = "other";
+const KNOWLEDGE_NODE = "knowledge";
+const systemIds: NodeId[] = [
+  ...toolNodes.map((node) => node.id),
+  OTHER_NODE,
+  KNOWLEDGE_NODE,
+];
 const edges: [NodeId, NodeId][] = [
   ["email", "assistant"],
   ["form", "assistant"],
-  ["assistant", "crm"],
-  ["assistant", "knowledge"],
-  ["crm", "team"],
-  ["knowledge", "team"],
+  ...systemIds.flatMap((id): [NodeId, NodeId][] => [
+    ["assistant", id],
+    [id, "team"],
+  ]),
 ];
 const edgeKey = (from: NodeId, to: NodeId) => `${from}>${to}`;
+const targetOf = (item: OverviewCase): NodeId =>
+  item.system === "knowledge"
+    ? KNOWLEDGE_NODE
+    : (toolNodes.find((node) => node.entry.name === item.tool)?.id ??
+      OTHER_NODE);
 const segmentsOf = (item: OverviewCase) => [
   edgeKey(item.channel, "assistant"),
-  edgeKey("assistant", item.system),
-  edgeKey(item.system, "team"),
+  edgeKey("assistant", targetOf(item)),
+  edgeKey(targetOf(item), "team"),
 ];
 
 // Schritte 0 bis 2 zeichnen je eine Linie, Schritt 3 hält das Ergebnis.
@@ -54,7 +95,7 @@ const TOTAL_MS = CASE_MS * overviewCases.length;
 // Anteil eines Schritts, in dem die Linie gezeichnet wird.
 const DRAW_SHARE = 0.75;
 // Darunter ist zwischen den Spalten zu wenig Platz für Etiketten auf den Linien.
-const NARROW_QUERY = "(max-width: 1100px)";
+const NARROW_QUERY = "(max-width: 1320px)";
 
 function locate(elapsed: number) {
   const t = elapsed % TOTAL_MS;
@@ -69,7 +110,9 @@ const ease = (t: number) => t * t * (3 - 2 * t);
 const stepLabels = (item: OverviewCase) => [
   channelNames[item.channel],
   "Assistent",
-  systemNames[item.system],
+  item.tool
+    ? `${systemNames[item.system]} · ${item.tool}`
+    : systemNames[item.system],
   "Dein Team",
 ];
 
@@ -154,6 +197,34 @@ function Node({
       </div>
       <strong>{name}</strong>
       <span>{caption}</span>
+    </div>
+  );
+}
+
+// Kachel der rechten Spalte: Logo oder Name statt Symbol mit Beschriftung.
+function SystemTile({
+  id,
+  tone,
+  current,
+  dim,
+  tileRef,
+  children,
+}: {
+  id: NodeId;
+  tone: string;
+  current: boolean;
+  dim: boolean;
+  tileRef: (element: HTMLElement | null) => void;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={`overview-node system ${tone}${current ? " current" : ""}${dim ? " dim" : ""}`}
+      data-node={id}
+    >
+      <div className="overview-tile" ref={tileRef}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -303,7 +374,7 @@ export function OverviewFlow() {
       >
         <OverviewHeading />
         <OverviewStatic />
-        <OverviewIntegrations />
+        <OverviewIntegrations logos />
         <OverviewFoot />
       </section>
     );
@@ -319,6 +390,7 @@ export function OverviewFlow() {
         ? "writing"
         : "idle";
   const chipText = item.steps[Math.min(pos.s, 2)].chip;
+  const AssistantIcon = aiActivityIcons[activity];
   const chipTone = ["in", "ai", "result"][Math.min(pos.s, 2)];
   const registerTile = (id: NodeId) => (element: HTMLElement | null) => {
     tiles.current[id] = element;
@@ -326,7 +398,7 @@ export function OverviewFlow() {
   const isCurrent = (id: NodeId) =>
     (pos.s === 0 && id === item.channel) ||
     (pos.s === 1 && id === "assistant") ||
-    (pos.s === 2 && id === item.system) ||
+    (pos.s === 2 && id === targetOf(item)) ||
     (pos.s === 3 && id === "team");
 
   return (
@@ -390,14 +462,16 @@ export function OverviewFlow() {
           </svg>
           <div className="overview-grid">
             <div className="overview-col">
-              <span className="overview-col-label">Anliegen kommen rein</span>
+              <span className="overview-col-label">
+                Anliegen kommen rein, z.&nbsp;B.
+              </span>
               <div className="overview-col-body">
                 <Node
                   id="email"
                   name="E-Mail"
                   caption="Posteingang"
                   tone="mail"
-                  icon={<Mail size={34} strokeWidth={1.5} />}
+                  icon={<Mail size={44} strokeWidth={1.8} />}
                   current={isCurrent("email")}
                   dim={item.channel !== "email"}
                   tileRef={registerTile("email")}
@@ -407,7 +481,7 @@ export function OverviewFlow() {
                   name="Formular"
                   caption="auf der Homepage"
                   tone="form"
-                  icon={<ClipboardList size={34} strokeWidth={1.5} />}
+                  icon={<FormWindowIcon size={44} strokeWidth={1.5} />}
                   current={isCurrent("form")}
                   dim={item.channel !== "form"}
                   tileRef={registerTile("form")}
@@ -420,41 +494,78 @@ export function OverviewFlow() {
                 <div
                   className={`overview-node assistant${isCurrent("assistant") ? " current" : ""}`}
                   data-node="assistant"
+                  data-activity={activity}
                 >
                   <div
                     className="overview-tile"
                     ref={registerTile("assistant")}
                   >
-                    <AiSymbol activity={activity} />
+                    <AssistantIcon size={44} strokeWidth={1.8} />
                   </div>
                   <strong>Assistent</strong>
-                  <span>Beispiel, simuliert</span>
+                  <span className="overview-assistant-status">
+                    {assistantStatus(item, pos.s, paused)}
+                  </span>
                 </div>
               </div>
             </div>
-            <div className="overview-col">
-              <span className="overview-col-label">Eure Werkzeuge</span>
+            <div className="overview-col systems">
+              <span className="overview-col-label">
+                Eure Werkzeuge &amp; Wissen, z.&nbsp;B.
+              </span>
               <div className="overview-col-body">
-                <Node
-                  id="crm"
-                  name="Kundenverwaltung"
-                  caption="z. B. Excel oder Software"
-                  tone="crm"
-                  icon={<ContactRound size={34} strokeWidth={1.5} />}
-                  current={isCurrent("crm")}
-                  dim={item.system !== "crm"}
-                  tileRef={registerTile("crm")}
-                />
-                <Node
-                  id="knowledge"
-                  name="Betriebswissen"
-                  caption="Interne Dokumente"
+                {toolNodes.map(({ id, entry }) => (
+                  <SystemTile
+                    key={id}
+                    id={id}
+                    tone={entry.onDark ? "tool on-dark" : "tool"}
+                    current={isCurrent(id)}
+                    dim={targetOf(item) !== id}
+                    tileRef={registerTile(id)}
+                  >
+                    {entry.logo ? (
+                      <img
+                        src={entry.logo}
+                        alt=""
+                        height="22"
+                        style={
+                          entry.logoHeight
+                            ? { height: entry.logoHeight }
+                            : undefined
+                        }
+                      />
+                    ) : (
+                      entry.name
+                    )}
+                  </SystemTile>
+                ))}
+                <SystemTile
+                  id={OTHER_NODE}
+                  tone="other"
+                  current={isCurrent(OTHER_NODE)}
+                  dim={targetOf(item) !== OTHER_NODE}
+                  tileRef={registerTile(OTHER_NODE)}
+                >
+                  <img
+                    className="overview-excel"
+                    src="/assets/integrations/excel.svg"
+                    alt=""
+                  />
+                  Excel &amp; andere
+                </SystemTile>
+                <div className="overview-divider" aria-hidden="true">
+                  <span>Wissen</span>
+                </div>
+                <SystemTile
+                  id={KNOWLEDGE_NODE}
                   tone="knowledge"
-                  icon={<LibraryBig size={34} strokeWidth={1.5} />}
-                  current={isCurrent("knowledge")}
-                  dim={item.system !== "knowledge"}
-                  tileRef={registerTile("knowledge")}
-                />
+                  current={isCurrent(KNOWLEDGE_NODE)}
+                  dim={targetOf(item) !== KNOWLEDGE_NODE}
+                  tileRef={registerTile(KNOWLEDGE_NODE)}
+                >
+                  <LibraryBig size={24} strokeWidth={1.6} />
+                  Betriebswissen
+                </SystemTile>
               </div>
             </div>
             <div className="overview-col">
@@ -465,7 +576,7 @@ export function OverviewFlow() {
                   name="Dein Team"
                   caption="prüft und sendet selbst"
                   tone="team"
-                  icon={<UserRoundCheck size={34} strokeWidth={1.5} />}
+                  icon={<UserRoundCheck size={46} strokeWidth={2} />}
                   current={isCurrent("team")}
                   dim={false}
                   tileRef={registerTile("team")}
@@ -489,7 +600,7 @@ export function OverviewFlow() {
         </strong>
         <span className="overview-status-detail">{item.steps[pos.s].text}</span>
       </div>
-      <OverviewIntegrations />
+      <OverviewIntegrations logos={!drawn} />
       <OverviewFoot detail={item.detailDemo} />
       <div className="sr-only">
         <OverviewStatic />
@@ -498,23 +609,35 @@ export function OverviewFlow() {
   );
 }
 
-function OverviewIntegrations() {
+function OverviewIntegrations({ logos }: { logos: boolean }) {
   if (integrations.length === 0) return null;
+  const names = integrations.map((entry) => entry.name).join(", ");
   return (
     <div className="overview-integrations">
-      <strong>Anbindbar an Handwerkersoftware, z. B.</strong>
-      <ul aria-label="Beispiele für Handwerkersoftware">
-        {integrations.map((entry) => (
-          <li key={entry.name} className={entry.onDark ? "on-dark" : undefined}>
-            {entry.logo ? (
-              <img src={entry.logo} alt={entry.name} height="22" />
-            ) : (
-              entry.name
-            )}
-          </li>
-        ))}
-      </ul>
-      <small>{integrationsNote}</small>
+      {logos ? (
+        <>
+          <strong>Anbindbar an Handwerkersoftware, z. B.</strong>
+          <ul aria-label="Beispiele für Handwerkersoftware">
+            {integrations.map((entry) => (
+              <li
+                key={entry.name}
+                className={entry.onDark ? "on-dark" : undefined}
+              >
+                {entry.logo ? (
+                  <img src={entry.logo} alt={entry.name} height="22" />
+                ) : (
+                  entry.name
+                )}
+              </li>
+            ))}
+          </ul>
+          <small>{integrationsNote}</small>
+        </>
+      ) : (
+        <small>
+          Anbindbar an Handwerkersoftware, z. B. {names}. {integrationsNote}
+        </small>
+      )}
     </div>
   );
 }

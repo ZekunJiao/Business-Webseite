@@ -2725,7 +2725,7 @@ footer {
 }
 .overview-canvas {
   position: relative;
-  padding: 26px 24px 30px;
+  padding: 40px 32px 44px;
   border-top: 1px solid #dce3eb;
   background-color: #f7f9fc;
   background-image: radial-gradient(#b7c4d280 0.85px, transparent 0.85px);
@@ -2765,7 +2765,7 @@ footer {
   align-items: center;
 }
 .overview-col-label {
-  margin-bottom: 18px;
+  margin-bottom: 28px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -2779,8 +2779,8 @@ footer {
   flex: 1;
   flex-direction: column;
   justify-content: center;
-  gap: 36px;
-  min-height: 336px;
+  gap: 44px;
+  min-height: 420px;
 }
 .overview-node {
   display: flex;
@@ -2792,7 +2792,7 @@ footer {
   transition: opacity 0.25s;
 }
 .overview-node.dim {
-  opacity: 0.45;
+  opacity: 0.65;
 }
 .overview-node strong {
   margin-top: 6px;
@@ -2803,7 +2803,7 @@ footer {
 .overview-node > span {
   font-size: 12px;
   line-height: 1.3;
-  color: #8492a3;
+  color: #66788c;
 }
 .overview-tile {
   display: grid;
@@ -2839,6 +2839,204 @@ footer {
   box-shadow:
     0 0 0 5px #f8e7d6,
     0 3px 0 #e2e7ee;
+}
+/* Knoten ohne Kasten: nur Symbol, Aktivität als sanfter Farbkreis. */
+.overview-node:not(.system) .overview-tile {
+  border-color: transparent;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+}
+.overview-node:not(.system).current .overview-tile {
+  background: #fdf3ea;
+  box-shadow: 0 0 0 5px #f8e7d6;
+}
+/* Ziel "Mensch entscheidet": dauerhaft als Farbkreis hervorgehoben. */
+.overview-node.team .overview-tile {
+  border: 2px solid #f0c9a8;
+  background: #fdf3ea;
+  color: #c96124;
+}
+.overview-node.team.current .overview-tile {
+  border-color: #df8c4d;
+  box-shadow: 0 0 0 6px #f8e7d6;
+}
+/* Eingang: dauerhaft als blauer Kreis, aktiv mit kräftigerem Ring. */
+.overview-node.mail .overview-tile,
+.overview-node.form .overview-tile {
+  border: 2px solid #c3dcf3;
+  background: #eaf3fc;
+  color: #0a6cc4;
+}
+.overview-node.mail.current .overview-tile,
+.overview-node.form.current .overview-tile {
+  border-color: #4a9be0;
+  background: #eaf3fc;
+  box-shadow: 0 0 0 6px #d9eaf9;
+}
+.overview-node.team strong {
+  font-size: 15px;
+}
+/* Gleiche Knotenhöhe wie der Assistent, damit beide Kreise auf einer Höhe liegen. */
+.overview-node.team,
+.overview-node.assistant {
+  min-height: 176px;
+}
+/* Breit genug für die Statuszeile, z. B. "schreibt einen Antwortentwurf …". */
+.overview-node.assistant {
+  width: 210px;
+}
+/* Assistent: violetter Kreis; Pulsring und Symbol zeigen, dass er arbeitet. */
+.overview-node.assistant .overview-tile {
+  position: relative;
+  border: 2px solid #fff;
+  background: linear-gradient(145deg, #8a63c9, #6b45a8);
+  color: #fff;
+  box-shadow:
+    0 0 0 5px #ab89d925,
+    0 5px 18px #5f3b9b30;
+}
+.overview-node.assistant.current .overview-tile {
+  border-color: #cdb8ea;
+  background: linear-gradient(145deg, #8a63c9, #6b45a8);
+  box-shadow:
+    0 0 0 6px #e9dff5,
+    0 6px 20px #5f3b9b40;
+}
+.overview-node.assistant .overview-tile::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 2px solid #ab89d9;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+.overview-node.assistant[data-activity="thinking"] .overview-tile::after,
+.overview-node.assistant[data-activity="searching"] .overview-tile::after,
+.overview-node.assistant[data-activity="writing"] .overview-tile::after {
+  animation: overview-pulse 1.8s ease-out infinite;
+}
+.overview-node.assistant[data-activity="thinking"] .overview-tile svg {
+  animation: ai-think 1.6s ease-in-out infinite;
+}
+.overview-node.assistant[data-activity="searching"] .overview-tile svg {
+  animation: ai-search 1.8s ease-in-out infinite;
+}
+.overview-node.assistant[data-activity="writing"] .overview-tile svg {
+  animation: ai-write 0.9s ease-in-out infinite;
+}
+@keyframes overview-pulse {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+.overview-node.assistant .overview-assistant-status {
+  min-height: 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #684593;
+}
+@media (prefers-reduced-motion: reduce) {
+  .overview-node.assistant .overview-tile::after,
+  .overview-node.assistant .overview-tile svg {
+    animation: none !important;
+  }
+}
+.overview-col.systems .overview-col-body {
+  gap: 18px;
+  min-height: 460px;
+}
+/* Trenner zwischen Programmen und Betriebswissen. */
+.overview-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 176px;
+  margin: 6px 0 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7b8896;
+}
+.overview-divider::before,
+.overview-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1.5px dashed #b7c4d2;
+}
+.overview-divider::before {
+  flex: 0 0 18px;
+}
+.overview-node.system {
+  width: 200px;
+}
+/* Werkzeuge ohne Kasten: Punkt als Linienende, daneben Logo oder Name. */
+.overview-node.system .overview-tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  align-self: flex-start;
+  width: 176px;
+  height: 64px;
+  padding: 0 0 0 30px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 650;
+  color: #17334d;
+}
+.overview-node.system .overview-tile::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #8f7bd6;
+  transform: translateY(-50%);
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+}
+.overview-node.system.current .overview-tile {
+  box-shadow: none;
+}
+.overview-node.system.current .overview-tile::before {
+  background: #df8c4d;
+  box-shadow: 0 0 0 5px #f8e7d6;
+}
+.overview-node.system .overview-tile img {
+  display: block;
+  width: auto;
+  height: 30px;
+}
+.overview-node.system .overview-tile img.overview-excel {
+  height: 28px;
+}
+.overview-node.system.dim {
+  opacity: 0.7;
+}
+.overview-node.system.other .overview-tile,
+.overview-node.system.knowledge .overview-tile {
+  font-size: 15px;
+  background: transparent;
+  color: #68788c;
+}
+.overview-node.system.knowledge .overview-tile {
+  color: #684593;
 }
 .overview-chip {
   position: absolute;

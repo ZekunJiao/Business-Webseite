@@ -6,16 +6,24 @@
 export type Integration = {
   name: string;
   logo?: string;
+  // Logohöhe in px, damit Logos mit unterschiedlichem Seitenverhältnis und
+  // Innenabstand optisch gleich gewichtet wirken.
+  logoHeight?: number;
   // Logo ist für dunklen Hintergrund gedacht (weiße Schrift).
   onDark?: boolean;
 };
 
 export const integrations: Integration[] = [
-  { name: "plancraft", logo: "/assets/integrations/plancraft.svg" },
+  { name: "HERO", logo: "/assets/integrations/hero.svg", logoHeight: 28 },
+  {
+    name: "plancraft",
+    logo: "/assets/integrations/plancraft-dark.svg",
+    logoHeight: 31,
+  },
   {
     name: "ToolTime",
-    logo: "/assets/integrations/tooltime-inverted.svg",
-    onDark: true,
+    logo: "/assets/integrations/tooltime.svg",
+    logoHeight: 26,
   },
 ];
 

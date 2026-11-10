@@ -18,6 +18,9 @@ export type OverviewCase = {
   id: "email-request" | "email-question" | "form-request";
   channel: OverviewChannel;
   system: OverviewSystem;
+  // Name eines Eintrags aus src/integrations.ts, der in diesem Beispiel
+  // leuchtet. Nur für system "crm". Beispiel, keine Aussage über einen Kunden.
+  tool?: string;
   label: string;
   headline: string;
   // Eingang, Assistent, System, Team
@@ -50,6 +53,7 @@ export const overviewCases: OverviewCase[] = [
     id: "email-request",
     channel: "email",
     system: "crm",
+    tool: "plancraft",
     label: "E-Mail: Wartungsanfrage",
     headline: "Wartungsanfrage per E-Mail",
     steps: [
@@ -96,6 +100,7 @@ export const overviewCases: OverviewCase[] = [
     id: "form-request",
     channel: "form",
     system: "crm",
+    tool: "ToolTime",
     label: "Formular: Neue Anfrage",
     headline: "Neue Anfrage über die Homepage",
     steps: [
