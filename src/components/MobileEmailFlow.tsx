@@ -196,7 +196,7 @@ export function MobileEmailFlow({
                 </p>
                 <p className="mobile-record">
                   <strong>Neue Wartungsanfrage</strong>
-                  <span>Neu · Prüfung offen · noch kein Auftrag</span>
+                  <span>Neue Anfrage · noch kein Auftrag</span>
                 </p>
                 <h4>Angaben aus der E-Mail</h4>
                 {fieldList(infoFields)}

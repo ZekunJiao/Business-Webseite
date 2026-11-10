@@ -481,7 +481,7 @@ export function EmailWorkflowDemo({
                 )}
                 <strong>
                   {id === "crm"
-                    ? "Kunden & Vorgänge"
+                    ? "Kundenverwaltung"
                     : id === "knowledge"
                       ? "Betriebswissen"
                       : "Outlook"}
@@ -535,7 +535,7 @@ export function EmailWorkflowDemo({
                     ? extraction.phase === "done"
                       ? "Angaben übernommen"
                       : customerExtractions[extraction.index].status
-                    : "Kunde und Vorgang zuordnen"
+                    : "Kunde und Anfrage zuordnen"
                   : "Betriebswissen nachschlagen"
                 : stageTitles[step]}
             <span className="map-status-detail">
@@ -836,7 +836,7 @@ export function EmailWorkflowDemo({
             )}
             {node(
               "crm",
-              "Kunden & Vorgänge",
+              "Kundenverwaltung",
               <span className="crm-symbol">
                 <ContactRound size={43} strokeWidth={1.4} />
                 <span className="crm-folder-icon">
@@ -846,10 +846,10 @@ export function EmailWorkflowDemo({
               <>
                 <div className="crm-section-heading">
                   <Folder size={16} />
-                  <strong>Vorgänge</strong>
+                  <strong>Anfragen</strong>
                   <Badge variant="outline">
                     {isRequest && step >= 1 && !unknown
-                      ? "1 neuer Vorgang"
+                      ? "1 neue Anfrage"
                       : "Beispielansicht"}
                   </Badge>
                 </div>
@@ -860,7 +860,7 @@ export function EmailWorkflowDemo({
                     <p>
                       Diese Mail ist eine allgemeine Frage. Sie nutzt die
                       Wissensbasis. Wähle eine Wartungsanfrage, um Kunden und
-                      Vorgänge anzusehen.
+                      Anfragen anzusehen.
                     </p>
                   </div>
                 ) : unknown && step >= 1 ? (

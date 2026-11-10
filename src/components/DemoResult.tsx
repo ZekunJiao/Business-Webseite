@@ -19,7 +19,7 @@ function resultSteps(
         },
         {
           label: "Zugeordnet",
-          text: "Neuer Vorgang bei der Kundin. Anlage, Anliegen und Zeitfenster stehen darin.",
+          text: "Neue Anfrage bei der Kundin. Anlage, Anliegen und Zeitfenster stehen darin.",
         },
         {
           label: "Vorbereitet",
@@ -37,7 +37,7 @@ function resultSteps(
       steps: [
         {
           label: "Erkannt",
-          text: "Allgemeine Frage ohne Bezug zu einer Kundin oder einem Vorgang.",
+          text: "Allgemeine Frage ohne Bezug zu einer Kundin oder einer Anfrage.",
         },
         {
           label: "Nachgeschlagen",

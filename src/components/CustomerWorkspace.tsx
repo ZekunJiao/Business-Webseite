@@ -37,12 +37,12 @@ type Row = {
   status: string;
   open: boolean;
 };
-// Vorgänge der Beispielkundin, neuester zuerst.
+// Anfragen und Aufträge der Beispielkundin, neuester zuerst.
 const history = [
   {
     id: "new",
     title: "Neue Wartungsanfrage",
-    status: "Neu · Prüfung offen",
+    status: "Neue Anfrage",
     type: "Anfrage · noch kein Auftrag",
     summary: "",
     documents: ["Aktuelle Kundenmail", "Erfasste Angaben"],
@@ -58,7 +58,7 @@ const history = [
     title: "Reparaturanfrage 2025",
     status: "Abgeschlossen",
     type: "Reparaturanfrage",
-    summary: "Frühere Rückfrage zur Anlage. Der Vorgang wurde abgeschlossen.",
+    summary: "Frühere Rückfrage zur Anlage. Die Anfrage wurde abgeschlossen.",
     documents: ["E-Mail-Verlauf", "Gesprächsnotiz"],
     tasks: [],
   },
@@ -140,7 +140,7 @@ export function CustomerWorkspace({
     <Table className="customer-table">
       <TableHeader>
         <TableRow>
-          <TableHead>Vorgang</TableHead>
+          <TableHead>Anfrage</TableHead>
           <TableHead>Status</TableHead>
         </TableRow>
       </TableHeader>
@@ -265,7 +265,7 @@ export function CustomerWorkspace({
           }}
         >
           <List size={14} />
-          Alle Vorgänge
+          Alle Anfragen
         </Button>
         <Button
           size="sm"
@@ -421,9 +421,9 @@ export function CustomerWorkspace({
           )}
           <div className="customer-record-count">
             <span>
-              {view === "customer" ? "VORGÄNGE DIESER KUNDIN" : "ALLE VORGÄNGE"}
+              {view === "customer" ? "ANFRAGEN DIESER KUNDIN" : "ALLE ANFRAGEN"}
             </span>
-            <Badge variant="outline">{tableRows.length} Vorgänge</Badge>
+            <Badge variant="outline">{tableRows.length} Einträge</Badge>
           </div>
           {rows}
           {processed ? (
@@ -435,9 +435,9 @@ export function CustomerWorkspace({
             >
               <Check size={15} />
               <span>
-                Vorschlag für einen neuen Vorgang angelegt. Kundenmail und{" "}
+                Neue Anfrage als Vorschlag angelegt. Kundenmail und{" "}
                 {customer.questions.length} Fragen sind zugeordnet. Das Büro
-                prüft und gibt frei. Öffne den Vorgang, um die Angaben zu sehen.
+                prüft und gibt frei. Öffne die Anfrage, um die Angaben zu sehen.
               </span>
             </motion.div>
           ) : (
@@ -445,7 +445,7 @@ export function CustomerWorkspace({
               <Mail size={15} />
               <span>
                 Beim Abspielen wird die neue Kundenmail zugeordnet. Die
-                bisherigen Vorgänge bleiben erhalten.
+                bisherigen Einträge bleiben erhalten.
               </span>
             </div>
           )}
