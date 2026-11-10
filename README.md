@@ -2,7 +2,7 @@
 
 Die Handwerk-Demo liegt unter `/handwerk`. Daneben ist `/hausverwaltung` als eigenständige Vorlagenseite initialisiert: mit Einstieg und Platzhaltern für Anwendungsfälle, Demos sowie Vorstellung/Kontakt. Es gibt keine Navigation zwischen den Branchenseiten; `/hausverwaltung` wird nur über die direkt eingegebene oder zugesandte Adresse erreicht. Das ist keine Zugriffsbeschränkung.
 
-Die branchenneutrale Startseite `/` verlinkt auf beide Branchen. Der frühere Pfad `/workflow` leitet auf `/handwerk` weiter; `#workflow` bleibt dort ein Sprunganker zur Demo. Beide Branchenpfade können direkt aufgerufen und neu geladen werden (Vite stellt dafür den SPA-Fallback bereit). Unbekannte Pfade zeigen eine neutrale Fehlerseite ohne Branchenlinks. Für ein späteres statisches Hosting muss der SPA-Fallback auf `index.html` konfiguriert werden; ein Hosting-Anbieter ist noch nicht festgelegt.
+Die branchenneutrale Startseite `/` verlinkt auf beide Branchen. Der frühere Pfad `/workflow` leitet auf `/handwerk` weiter; `#workflow` bleibt dort ein Sprunganker zur Demo. Beide Branchenpfade können direkt aufgerufen und neu geladen werden (Vite stellt dafür den SPA-Fallback bereit). Unbekannte Pfade zeigen eine neutrale Fehlerseite ohne Branchenlinks. Als Hosting ist Cloudflare Pages vorgesehen (siehe Abschnitt „Hosting“).
 
 ## Start und Prüfung
 
@@ -16,6 +16,18 @@ npm run preview
 ```
 
 `npm run build` prüft TypeScript und erzeugt den statischen Build in `dist/`.
+
+## Hosting
+
+Gewählt: Cloudflare Pages, automatisch aus dem GitHub-Repository `ZekunJiao/Business-Webseite` (Branch `main`). Einstellungen im Cloudflare-Dashboard unter Workers & Pages → Create → Pages → Connect to Git:
+
+- Build command: `npm run build`
+- Build output directory: `dist`
+- Node-Version: über `.node-version` (22)
+
+Einen SPA-Fallback muss man nicht einrichten: Cloudflare Pages liefert `index.html` für unbekannte Pfade aus, solange es keine `404.html` gibt. Deshalb funktionieren `/handwerk` und `/hausverwaltung` auch beim direkten Aufruf. Jeder Push auf `main` veröffentlicht automatisch neu. Eine eigene Domain ist noch nicht festgelegt; bis dahin gilt die `*.pages.dev`-Adresse.
+
+Vor dem Versenden des Links offen: Kontaktdaten in `src/contact.ts` und Bestätigung der Werkzeuge in `src/integrations.ts`.
 
 ## Umsetzung
 
