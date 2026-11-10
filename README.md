@@ -59,6 +59,18 @@ Name, Rolle, Kurzvorstellung und Kontaktdaten stehen in `src/contact.ts`. Vor de
 
 Bis 760 px Breite (`MOBILE_QUERY` in `src/lib/useMediaQuery.ts`) zeigt `MobileEmailFlow` statt der Map drei Schritte untereinander: Mail, Kundenverwaltung bzw. Betriebswissen, Antwortentwurf, danach das Ergebnis. Ein „Weiter“-Button blendet jeweils den nächsten Schritt ein; „Noch einmal von vorn“ startet neu. Die Inhalte sind vereinfachte Darstellungen derselben Beispieldaten ohne Verbindungslinien.
 
+## Überblick-Animation
+
+Zwischen Hero und Workflow-Tabs auf `/handwerk` zeigt `OverviewFlow` (`src/components/OverviewFlow.tsx`) einen möglichen Ablauf in vier Spalten: Anliegen (E-Mail, Homepage-Formular), Assistent, Werkzeuge (Kundenverwaltung, Betriebswissen) und „Dein Team“. Drei Beispielfälle laufen in einer Schleife: Wartungsanfrage per E-Mail, allgemeine Frage per E-Mail und neue Anfrage über das Formular. Jeder Fall endet bei der menschlichen Prüfung; es wird nichts automatisch gesendet.
+
+- **Inhalte:** `src/overviewFlows.ts`. Die E-Mail-Fälle nutzen dieselben Beispieldaten wie die Detaildemo (`src/data.ts`). Das Homepage-Formular ist ein erfundenes Beispiel; die Seite hat kein echtes Formular.
+- **Zielsysteme:** im Diagramm bewusst generische Begriffe (Kundenverwaltung, Betriebswissen). Darunter nennt eine Zeile „Anbindbar an Handwerkersoftware, z. B.“ die Programme aus `src/integrations.ts`, mit Logos aus `public/assets/integrations/`. Bestätigt ist: Die Anbindung an Handwerkersoftware ist möglich und die Logos dürfen gezeigt werden. Es gibt nur Tools in der Liste, für die eine Anbindung oder ein Vertrag besteht; aktuell stehen plancraft und ToolTime als Platzhalter dort und sind vor dem Versenden zu bestätigen. Die Aussage lautet „anbindbar“, nicht „bereits angebunden“ oder „Partner“. Ein Markenhinweis steht unter den Logos. Das ToolTime-Logo ist für dunklen Grund gedacht und liegt deshalb auf einer dunklen Kachel.
+- **Technik:** SVG-Linien mit Dash-Animation und ein Etikett, das entlang der Kurve läuft. Gesteuert wird alles über eine eigene `requestAnimationFrame`-Schleife (wie in den Demo-Overlays). Zeiten stehen in `src/lib/demoTiming.ts` (`OVERVIEW_STEP_MS`, `OVERVIEW_HOLD_MS`) und laufen in Echtzeit, ohne `DEMO_PLAYBACK_SPEED`. Ein Durchlauf aller drei Fälle dauert etwa 20 Sekunden.
+- **Bedienung:** „Pausieren/Fortsetzen“ und drei Fall-Buttons. Bei Pause zeigt ein Sprung direkt das fertige Ergebnis des Falls. Die Animation läuft nur, solange der Abschnitt sichtbar und der Browser-Tab aktiv ist.
+- **Schmale Bildschirme (bis 1100 px):** statt Linien eine nummerierte Schrittliste des gewählten Falls, die weiterläuft.
+- **Reduzierte Bewegung:** keine Schleife; stattdessen alle drei Fälle als statische Schrittlisten. Die Textfassung steht außerdem als `sr-only`-Alternative bereit, die Animation selbst ist für Screenreader ausgeblendet.
+- Die Idee eines Überblicks mit Kanälen links und Systemen rechts ist von einer ähnlichen Darstellung inspiriert; Begriffe, Gestaltung und Inhalte sind eigenständig.
+
 ## Bildquelle
 
 Das lokal gespeicherte Outlook-Logo (`public/assets/outlook.svg`) stammt von Microsoft Corporation, über [Wikimedia Commons](<https://commons.wikimedia.org/wiki/File:Microsoft_Office_Outlook_(2018%E2%80%932024).svg>). Es kennzeichnet das in der Demo dargestellte System. Die Demo ist kein Microsoft-Produkt. Die Wissensbasis verwendet ein Lucide-Bibliothekssymbol.

@@ -5,3 +5,7 @@ export const DEMO_PLAYBACK_SPEED = 2.5;
 export const FIRST_CONNECTION_PULSE_SECONDS = 0.8;
 export const INITIAL_STAGE_MS = FIRST_CONNECTION_PULSE_SECONDS * 2 * 1000;
 export const NEXT_STAGE_MS = 4500 / DEMO_PLAYBACK_SPEED;
+
+// Überblick-Animation: Echtzeit ohne Beschleunigung, damit die Texte lesbar bleiben.
+export const OVERVIEW_STEP_MS = 1500;
+export const OVERVIEW_HOLD_MS = 2400;
