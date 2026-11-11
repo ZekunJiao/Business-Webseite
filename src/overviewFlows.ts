@@ -15,16 +15,32 @@ export type OverviewStep = {
 };
 
 export type OverviewCase = {
-  id: "email-request" | "email-question" | "form-request";
+  id:
+    | "email-request"
+    | "email-question"
+    | "form-request"
+    | "email-fault"
+    | "form-excel";
   channel: OverviewChannel;
   system: OverviewSystem;
   // Name eines Eintrags aus src/integrations.ts, der in diesem Beispiel
   // leuchtet. Nur für system "crm". Beispiel, keine Aussage über einen Kunden.
+  // Namen ohne Eintrag dort (z. B. "Excel") leuchten in der Kachel
+  // "Excel & andere".
   tool?: string;
   label: string;
   headline: string;
   // Eingang, Assistent, System, Team
   steps: [OverviewStep, OverviewStep, OverviewStep, OverviewStep];
+  // Statuszeile unter "Dein Team" im letzten Schritt, z. B. "prüft die Anfrage".
+  // Wird unverändert angezeigt.
+  teamStatus: string;
+  // Statuszeile unter dem Assistenten in Schritt 2 und 3, z. B.
+  // "erkennt die Kundin …" und "bereitet die Anfrage vor …".
+  assistantStatus: [string, string];
+  // Statuszeile unter dem leuchtenden Werkzeug im letzten Schritt. Nutzt den
+  // Begriff des jeweiligen Werkzeugs (z. B. "Projekt" bei HERO).
+  toolStatus: string;
   // Gibt es dazu eine ausführliche Demo weiter unten?
   detailDemo: boolean;
 };
@@ -51,6 +67,9 @@ export const systemNames: Record<OverviewSystem, string> = {
 export const overviewCases: OverviewCase[] = [
   {
     id: "email-request",
+    teamStatus: "prüft das Angebot",
+    assistantStatus: ["erkennt die Kundin …", "bereitet das Angebot vor …"],
+    toolStatus: "Angebotsentwurf angelegt",
     channel: "email",
     system: "crm",
     tool: "plancraft",
@@ -66,8 +85,8 @@ export const overviewCases: OverviewCase[] = [
         text: "Der Assistent erkennt die Absenderin als Bestandskundin.",
       },
       {
-        chip: "Anfrage angelegt",
-        text: "Ein Vorschlag für eine neue Anfrage liegt bereit. Offene Punkte, etwa das Typenschildfoto, sind markiert.",
+        chip: "Angebotsentwurf bereit",
+        text: "Ein Angebotsentwurf liegt bereit. Offene Punkte, etwa das Typenschildfoto, sind markiert.",
       },
       teamStep,
     ],
@@ -75,6 +94,9 @@ export const overviewCases: OverviewCase[] = [
   },
   {
     id: "email-question",
+    teamStatus: "prüft den Entwurf",
+    assistantStatus: ["sucht im Betriebswissen …", "schreibt einen Entwurf …"],
+    toolStatus: "Entwurf mit Quellen",
     channel: "email",
     system: "knowledge",
     label: "E-Mail: Allgemeine Frage",
@@ -98,6 +120,9 @@ export const overviewCases: OverviewCase[] = [
   },
   {
     id: "form-request",
+    teamStatus: "prüft den Vorschlag",
+    assistantStatus: ["übernimmt die Angaben …", "bereitet den Vorschlag vor …"],
+    toolStatus: "Anfrage angelegt",
     channel: "form",
     system: "crm",
     tool: "ToolTime",
@@ -105,7 +130,7 @@ export const overviewCases: OverviewCase[] = [
     headline: "Neue Anfrage über die Homepage",
     steps: [
       {
-        chip: "Formular ausgefüllt",
+        chip: "Neue Anfrage",
         text: "Eine Anfrage kommt über das Formular auf der Homepage herein (Beispiel).",
       },
       {
@@ -113,12 +138,72 @@ export const overviewCases: OverviewCase[] = [
         text: "Die Angaben aus dem Formular werden den passenden Feldern zugeordnet.",
       },
       {
-        chip: "Anfrage angelegt",
-        text: "In der Kundenverwaltung entsteht eine neue Anfrage. Fehlende Angaben sind markiert.",
+        chip: "Vorschlag bereit",
+        text: "In der Kundenverwaltung liegt ein Vorschlag bereit. Fehlende Angaben sind markiert.",
       },
       {
         chip: "Team prüft",
         text: "Dein Team prüft, fragt bei Bedarf nach und meldet sich selbst.",
+      },
+    ],
+    detailDemo: false,
+  },
+  {
+    id: "email-fault",
+    teamStatus: "prüft das Projekt",
+    assistantStatus: ["ordnet den Kunden zu …", "bereitet das Projekt vor …"],
+    toolStatus: "Projekt angelegt",
+    channel: "email",
+    system: "crm",
+    tool: "HERO",
+    label: "E-Mail: Störungsmeldung",
+    headline: "Störungsmeldung per E-Mail",
+    steps: [
+      {
+        chip: "Störungsmeldung",
+        text: "Eine Bestandskundin schreibt, ihre Heizung zeige einen Fehler an, und hängt ein Foto an (Beispiel).",
+      },
+      {
+        chip: "Kunde zugeordnet",
+        text: "Der Assistent erkennt die Dringlichkeit und ordnet die Meldung dem passenden Kunden zu.",
+      },
+      {
+        chip: "Projekt vorbereitet",
+        text: "In HERO liegt ein Projekt zur Prüfung bereit. Fehlende Angaben, etwa die Gerätenummer, sind markiert.",
+      },
+      {
+        chip: "Team prüft",
+        text: "Dein Team prüft, plant den Termin und antwortet selbst. Nichts wird automatisch verschickt.",
+      },
+    ],
+    detailDemo: false,
+  },
+  {
+    id: "form-excel",
+    teamStatus: "prüft die Zeile",
+    assistantStatus: ["ordnet die Spalten zu …", "bereitet die Zeile vor …"],
+    toolStatus: "Zeile eingetragen",
+    channel: "form",
+    system: "crm",
+    tool: "Excel",
+    label: "Formular: Anfrage in Excel",
+    headline: "Anfrage über die Homepage landet in Excel",
+    steps: [
+      {
+        chip: "Badsanierung",
+        text: "Eine Anfrage zur Badsanierung kommt über das Formular auf der Homepage herein (Beispiel).",
+      },
+      {
+        chip: "Spalten zugeordnet",
+        text: "Der Assistent ordnet die Angaben den Spalten der bestehenden Anfragenliste zu.",
+      },
+      {
+        chip: "Zeile vorbereitet",
+        text: "In der Excel-Liste liegt eine neue Zeile bereit. Unklare Felder sind markiert.",
+      },
+      {
+        chip: "Team prüft",
+        text: "Dein Team prüft die Zeile, fragt bei Bedarf nach und meldet sich selbst.",
       },
     ],
     detailDemo: false,

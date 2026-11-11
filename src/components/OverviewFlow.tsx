@@ -14,6 +14,7 @@ import {
   Mail,
   Pause,
   Play,
+  UserRound,
   UserRoundCheck,
 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -28,7 +29,10 @@ import {
 import type { OverviewCase } from "../overviewFlows";
 import { integrations, integrationsNote } from "../integrations";
 import { useMediaQuery } from "../lib/useMediaQuery";
-import { OVERVIEW_HOLD_MS, OVERVIEW_STEP_MS } from "../lib/demoTiming";
+import {
+  OVERVIEW_HOLD_MS,
+  OVERVIEW_STEP_MS,
+} from "../lib/demoTiming";
 
 type NodeId = string;
 
@@ -40,18 +44,29 @@ const assistantStatus = (
   paused: boolean,
 ): string => {
   if (paused) return "pausiert";
-  if (step === 1) {
-    if (item.system === "knowledge") return "sucht im Betriebswissen …";
-    return item.channel === "form"
-      ? "liest die Formularangaben …"
-      : "liest die E-Mail …";
-  }
-  if (step === 2) {
-    return item.system === "knowledge"
-      ? "schreibt einen Antwortentwurf …"
-      : "erstellt einen Vorschlag …";
-  }
-  return step === 3 ? "Vorschlag liegt bereit" : "wartet auf ein Anliegen";
+  if (step === 1 || step === 2) return item.assistantStatus[step - 1];
+  return step === 3 ? "fertig" : "";
+};
+
+// Statuszeile unter dem Eingangskanal: nur beim aktiven Kanal, über den ganzen
+// Fall. Der andere Kanal bleibt leer (reservierte Höhe, nichts springt).
+const channelStatus = (
+  item: OverviewCase,
+  channel: OverviewCase["channel"],
+): string => {
+  if (item.channel !== channel) return "";
+  return channel === "form" ? "Formular ausgefüllt" : "E-Mail eingegangen";
+};
+
+// Kurze Zeile unter "Dein Team". Vor dem Ergebnis wartet das Team; sobald der
+// Vorschlag da ist, steht der Haken am Symbol und der Fall-Text darunter.
+const teamStatus = (
+  item: OverviewCase,
+  step: number,
+  paused: boolean,
+): string => {
+  if (paused) return "pausiert";
+  return step === 3 ? item.teamStatus : "wartet auf Vorschlag";
 };
 
 // Rechte Spalte: ein Eintrag je Handwerkersoftware aus src/integrations.ts,
@@ -176,6 +191,7 @@ function Node({
   tone,
   current,
   dim,
+  activity,
   tileRef,
 }: {
   id: NodeId;
@@ -185,18 +201,23 @@ function Node({
   tone: string;
   current: boolean;
   dim: boolean;
+  // Optional: Zustand für CSS, z. B. "waiting" beim Team.
+  activity?: string;
   tileRef: (element: HTMLElement | null) => void;
 }) {
   return (
     <div
       className={`overview-node ${tone}${current ? " current" : ""}${dim ? " dim" : ""}`}
       data-node={id}
+      data-activity={activity}
     >
       <div className="overview-tile" ref={tileRef}>
         {icon}
       </div>
       <strong>{name}</strong>
-      <span>{caption}</span>
+      <span key={caption} className="overview-status-text">
+        {caption}
+      </span>
     </div>
   );
 }
@@ -208,6 +229,7 @@ function SystemTile({
   current,
   dim,
   tileRef,
+  status,
   children,
 }: {
   id: NodeId;
@@ -215,6 +237,8 @@ function SystemTile({
   current: boolean;
   dim: boolean;
   tileRef: (element: HTMLElement | null) => void;
+  // Optionale Statuszeile unter dem Werkzeug, nur beim leuchtenden Werkzeug.
+  status?: string;
   children: ReactNode;
 }) {
   return (
@@ -224,6 +248,11 @@ function SystemTile({
     >
       <div className="overview-tile" ref={tileRef}>
         {children}
+        {status ? (
+          <span key={status} className="overview-tool-status overview-status-text">
+            {status}
+          </span>
+        ) : null}
       </div>
     </div>
   );
@@ -395,6 +424,9 @@ export function OverviewFlow() {
   const registerTile = (id: NodeId) => (element: HTMLElement | null) => {
     tiles.current[id] = element;
   };
+  // Ergebnis-Status nur am Ziel-Werkzeug und erst im letzten Schritt.
+  const toolStatusOf = (id: NodeId) =>
+    pos.s === 3 && targetOf(item) === id ? item.toolStatus : "";
   const isCurrent = (id: NodeId) =>
     (pos.s === 0 && id === item.channel) ||
     (pos.s === 1 && id === "assistant") ||
@@ -469,7 +501,7 @@ export function OverviewFlow() {
                 <Node
                   id="email"
                   name="E-Mail"
-                  caption="Posteingang"
+                  caption={channelStatus(item, "email")}
                   tone="mail"
                   icon={<Mail size={44} strokeWidth={1.8} />}
                   current={isCurrent("email")}
@@ -479,7 +511,7 @@ export function OverviewFlow() {
                 <Node
                   id="form"
                   name="Formular"
-                  caption="auf der Homepage"
+                  caption={channelStatus(item, "form")}
                   tone="form"
                   icon={<FormWindowIcon size={44} strokeWidth={1.5} />}
                   current={isCurrent("form")}
@@ -503,7 +535,10 @@ export function OverviewFlow() {
                     <AssistantIcon size={44} strokeWidth={1.8} />
                   </div>
                   <strong>Assistent</strong>
-                  <span className="overview-assistant-status">
+                  <span
+                    key={assistantStatus(item, pos.s, paused)}
+                    className="overview-assistant-status overview-status-text"
+                  >
                     {assistantStatus(item, pos.s, paused)}
                   </span>
                 </div>
@@ -521,6 +556,7 @@ export function OverviewFlow() {
                     tone={entry.onDark ? "tool on-dark" : "tool"}
                     current={isCurrent(id)}
                     dim={targetOf(item) !== id}
+                    status={toolStatusOf(id)}
                     tileRef={registerTile(id)}
                   >
                     {entry.logo ? (
@@ -544,6 +580,7 @@ export function OverviewFlow() {
                   tone="other"
                   current={isCurrent(OTHER_NODE)}
                   dim={targetOf(item) !== OTHER_NODE}
+                  status={toolStatusOf(OTHER_NODE)}
                   tileRef={registerTile(OTHER_NODE)}
                 >
                   <img
@@ -561,6 +598,7 @@ export function OverviewFlow() {
                   tone="knowledge"
                   current={isCurrent(KNOWLEDGE_NODE)}
                   dim={targetOf(item) !== KNOWLEDGE_NODE}
+                  status={toolStatusOf(KNOWLEDGE_NODE)}
                   tileRef={registerTile(KNOWLEDGE_NODE)}
                 >
                   <LibraryBig size={24} strokeWidth={1.6} />
@@ -574,11 +612,18 @@ export function OverviewFlow() {
                 <Node
                   id="team"
                   name="Dein Team"
-                  caption="prüft und sendet selbst"
+                  caption={teamStatus(item, pos.s, paused)}
                   tone="team"
-                  icon={<UserRoundCheck size={46} strokeWidth={2} />}
+                  icon={
+                    pos.s === 3 ? (
+                      <UserRoundCheck size={46} strokeWidth={2} />
+                    ) : (
+                      <UserRound size={46} strokeWidth={2} />
+                    )
+                  }
                   current={isCurrent("team")}
                   dim={false}
+                  activity={pos.s === 3 && !paused ? "waiting" : "idle"}
                   tileRef={registerTile("team")}
                 />
               </div>

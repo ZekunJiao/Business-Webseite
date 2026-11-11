@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "agentStop": [
+      {
+        "type": "command",
+        "powershell": "./.github/hooks/auto-push.ps1",
+        "timeoutSec": 60
+      }
+    ]
+  }
+}
