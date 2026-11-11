@@ -11,6 +11,7 @@ import {
   BookOpen,
   CircleHelp,
   ArrowUpRight,
+  ArrowDown,
   LibraryBig,
   Inbox,
   Folder,
@@ -40,7 +41,9 @@ import {
   NEXT_STAGE_MS,
 } from "./lib/demoTiming";
 import HausverwaltungPage from "./pages/HausverwaltungPage";
-import { HandwerkWorkflows } from "./components/HandwerkWorkflows";
+// Detaildemo vorerst ausgeblendet (siehe README). Zum Reaktivieren Import und
+// den auskommentierten Block unter <OverviewFlow /> wieder einschalten.
+// import { HandwerkWorkflows } from "./components/HandwerkWorkflows";
 import { AuthorBlock } from "./components/AuthorBlock";
 import { OverviewFlow } from "./components/OverviewFlow";
 import { DemoResult } from "./components/DemoResult";
@@ -1138,7 +1141,7 @@ export default function App() {
           Digitale Abläufe
           <span className="header-tag">FÜRS HANDWERK</span>
         </a>
-        <a className="header-link" href="/handwerk#workflow">
+        <a className="header-link" href="/handwerk#ueberblick">
           Abläufe entdecken <ArrowUpRight size={16} />
         </a>
         <span className="header-author">
@@ -1150,7 +1153,7 @@ export default function App() {
         <div className="hero">
           <div className="eyebrow hero-eyebrow">
             <span />
-            WENIGER ROUTINE. MEHR ZEIT FÜRS HANDWERK.
+            DIGITALE ABLÄUFE FÜR HANDWERKSBETRIEBE
           </div>
           <h1>
             Weniger Routine.
@@ -1160,9 +1163,20 @@ export default function App() {
           <p>
             Entdecke, wie digitale Abläufe deinen Büroalltag unterstützen
             können.
-            <br className="desktop-break" /> Probiere die E-Mail-Demo aus – mit
-            deinem Team am Steuer.
+            <br className="desktop-break" /> Sieh dir an, wie ein Ablauf
+            aussehen kann – mit deinem Team am Steuer.
           </p>
+          <div className="hero-cta">
+            <Button asChild className="hero-cta-button">
+              <a href="#ueberblick">
+                Ablauf ansehen
+                <ArrowDown aria-hidden="true" />
+              </a>
+            </Button>
+            <a className="hero-cta-link" href="#kontakt">
+              Kennenlerngespräch vereinbaren
+            </a>
+          </div>
           <div className="hero-meta">
             <span>
               <Check size={15} />
@@ -1179,9 +1193,11 @@ export default function App() {
           </div>
         </div>
         <OverviewFlow />
+        {/* Detaildemo vorerst ausgeblendet:
         <HandwerkWorkflows>
           {(active) => <EmailWorkflowDemo active={active} />}
         </HandwerkWorkflows>
+        */}
         <AuthorBlock id="kontakt" />
         <footer>
           <span>

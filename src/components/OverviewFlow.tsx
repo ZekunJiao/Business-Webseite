@@ -8,7 +8,7 @@ import {
 import type { ReactNode } from "react";
 import { useReducedMotion } from "motion/react";
 import {
-  ArrowDown,
+  // ArrowDown,  (nur für den ausgeblendeten Detaildemo-Link)
   Check,
   LibraryBig,
   Mail,
@@ -27,7 +27,7 @@ import {
   systemNames,
 } from "../overviewFlows";
 import type { OverviewCase } from "../overviewFlows";
-import { integrations, integrationsNote } from "../integrations";
+import { integrations } from "../integrations";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import {
   OVERVIEW_HOLD_MS,
@@ -403,8 +403,7 @@ export function OverviewFlow() {
       >
         <OverviewHeading />
         <OverviewStatic />
-        <OverviewIntegrations logos />
-        <OverviewFoot />
+        <OverviewIntegrations />
       </section>
     );
   }
@@ -495,7 +494,7 @@ export function OverviewFlow() {
           <div className="overview-grid">
             <div className="overview-col">
               <span className="overview-col-label">
-                Anliegen kommen rein, z.&nbsp;B.
+                Anliegen kommen an, z.&nbsp;B.
               </span>
               <div className="overview-col-body">
                 <Node
@@ -546,7 +545,7 @@ export function OverviewFlow() {
             </div>
             <div className="overview-col systems">
               <span className="overview-col-label">
-                Eure Werkzeuge &amp; Wissen, z.&nbsp;B.
+                Deine Werkzeuge &amp; Wissen, z.&nbsp;B.
               </span>
               <div className="overview-col-body">
                 {toolNodes.map(({ id, entry }) => (
@@ -638,15 +637,24 @@ export function OverviewFlow() {
           <CaseSteps item={item} active={pos.s} />
         </div>
       )}
-      <div className="overview-status" aria-hidden="true">
-        <span className="status-dot" />
-        <strong>
+      <div className="overview-status">
+        <span className="status-dot" aria-hidden="true" />
+        <strong aria-hidden="true">
           Beispiel {pos.c + 1} von {overviewCases.length} · {item.headline}
         </strong>
-        <span className="overview-status-detail">{item.steps[pos.s].text}</span>
+        <span className="overview-status-detail" aria-hidden="true">
+          {item.steps[pos.s].text}
+        </span>
+        {/* Link zur Detaildemo vorerst ausgeblendet:
+        {item.detailDemo ? (
+          <a className="overview-detail-link" href="#workflow">
+            Vollständige Demo ansehen
+            <ArrowDown size={14} aria-hidden="true" />
+          </a>
+        ) : null}
+        */}
       </div>
-      <OverviewIntegrations logos={!drawn} />
-      <OverviewFoot detail={item.detailDemo} />
+      {drawn ? null : <OverviewIntegrations />}
       <div className="sr-only">
         <OverviewStatic />
       </div>
@@ -654,35 +662,22 @@ export function OverviewFlow() {
   );
 }
 
-function OverviewIntegrations({ logos }: { logos: boolean }) {
+function OverviewIntegrations() {
   if (integrations.length === 0) return null;
-  const names = integrations.map((entry) => entry.name).join(", ");
   return (
     <div className="overview-integrations">
-      {logos ? (
-        <>
-          <strong>Anbindbar an Handwerkersoftware, z. B.</strong>
-          <ul aria-label="Beispiele für Handwerkersoftware">
-            {integrations.map((entry) => (
-              <li
-                key={entry.name}
-                className={entry.onDark ? "on-dark" : undefined}
-              >
-                {entry.logo ? (
-                  <img src={entry.logo} alt={entry.name} height="22" />
-                ) : (
-                  entry.name
-                )}
-              </li>
-            ))}
-          </ul>
-          <small>{integrationsNote}</small>
-        </>
-      ) : (
-        <small>
-          Anbindbar an Handwerkersoftware, z. B. {names}. {integrationsNote}
-        </small>
-      )}
+      <strong>Anbindbar an Handwerkersoftware, z. B.</strong>
+      <ul aria-label="Beispiele für Handwerkersoftware">
+        {integrations.map((entry) => (
+          <li key={entry.name} className={entry.onDark ? "on-dark" : undefined}>
+            {entry.logo ? (
+              <img src={entry.logo} alt={entry.name} height="22" />
+            ) : (
+              entry.name
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -692,30 +687,16 @@ function OverviewHeading() {
     <div className="overview-head">
       <span className="overview-kicker">
         <span className="status-dot" />
-        MÖGLICHER ABLAUF
+        SO LÄUFT EINE ANFRAGE
       </span>
-      <h2 id="overview-title">Vom Anliegen zur geprüften Antwort</h2>
+      <h2 id="overview-title">
+        Die Anfrage kommt rein. Die Antwort liegt bereit.
+      </h2>
       <p>
-        Anfragen kommen per E-Mail oder über das Formular auf der Homepage
-        herein. Ein Assistent bereitet sie vor, dein Team prüft und
-        entscheidet.
+        Ob E-Mail oder Formular: Der Assistent erkennt den Kunden, findet die
+        passenden Infos in deinen Unterlagen und bereitet Antwort oder Eintrag
+        vor. Dein Team prüft und sendet selbst.
       </p>
-    </div>
-  );
-}
-
-function OverviewFoot({ detail }: { detail?: boolean }) {
-  return (
-    <div className="demo-bottom overview-foot">
-      <span>Beispielhafte Simulation · Daten sind erfunden · Nichts wird gesendet</span>
-      {detail === undefined ? null : detail ? (
-        <a className="overview-detail-link" href="#workflow">
-          Detaildemo ansehen
-          <ArrowDown size={14} aria-hidden="true" />
-        </a>
-      ) : (
-        <span>Dafür gibt es noch keine Detaildemo.</span>
-      )}
     </div>
   );
 }

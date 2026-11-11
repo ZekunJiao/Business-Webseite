@@ -31,7 +31,7 @@
   color: #387e76;
 }
 .property-template-label {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   color: #687b85;
   font-weight: 650;
@@ -117,7 +117,7 @@ a:focus-visible {
   border-radius: 9px;
 }
 .header-tag {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.11em;
   color: #708091;
   border-left: 1px solid #d9dfe5;
@@ -159,7 +159,7 @@ main {
   padding: 68px 0 52px;
 }
 .eyebrow {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.13em;
   font-weight: 700;
   color: #7b8896;
@@ -194,12 +194,46 @@ main {
   color: #667487;
   margin: 0;
 }
+.hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 22px;
+  margin-top: 28px;
+}
+.hero-cta .hero-cta-button {
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: #b4511b;
+  font-size: 14px;
+  font-weight: 650;
+  color: #fff;
+  box-shadow: none;
+}
+.hero-cta .hero-cta-button:hover {
+  background: #96410f;
+}
+.hero-cta .hero-cta-button:focus-visible {
+  outline: 2px solid #17334d;
+  outline-offset: 2px;
+  box-shadow: none;
+}
+.hero-cta-link {
+  font-size: 14px;
+  font-weight: 650;
+  color: #17334d;
+  text-underline-offset: 3px;
+}
+.hero-cta-link:hover {
+  text-decoration: underline;
+}
 .hero-meta {
   display: flex;
-  gap: 24px;
-  margin-top: 25px;
-  color: #657488;
-  font-size: 12px;
+  gap: 12px 24px;
+  margin-top: 26px;
+  color: #4d5e72;
+  font-size: 13px;
 }
 .hero-meta > span {
   display: flex;
@@ -1237,10 +1271,13 @@ footer {
     font-size: 38px;
   }
   .hero-eyebrow {
-    font-size: 11px;
+    font-size: 12px;
   }
   .hero-meta {
-    font-size: 12px;
+    font-size: 13px;
+  }
+  .hero-cta .hero-cta-button {
+    width: 100%;
   }
   .desktop-break {
     display: none;
@@ -2665,7 +2702,7 @@ footer {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.13em;
   color: #9a572d;
@@ -2766,7 +2803,7 @@ footer {
 }
 .overview-col-label {
   margin-bottom: 28px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-align: center;
@@ -2801,7 +2838,7 @@ footer {
   color: #223c54;
 }
 .overview-node > span {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.3;
   color: #66788c;
 }
@@ -2948,7 +2985,7 @@ footer {
   position: absolute;
   top: calc(100% - 6px);
   left: 30px;
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 600;
   line-height: 1.3;
   white-space: nowrap;
@@ -2966,7 +3003,7 @@ footer {
 .overview-node.team > span {
   min-height: 32px;
   font-weight: 600;
-  color: #9a572d;
+  color: #7d4119;
 }
 /* Sanfter Ring, solange das Team auf die Entscheidung wartet. */
 .overview-node.team .overview-tile {
@@ -3034,7 +3071,7 @@ footer {
   gap: 10px;
   width: 176px;
   margin: 6px 0 0;
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -3089,8 +3126,8 @@ footer {
   box-shadow: none;
 }
 .overview-node.system.current .overview-tile::before {
-  background: #df8c4d;
-  box-shadow: 0 0 0 5px #f8e7d6;
+  background: #2d7a6f;
+  box-shadow: 0 0 0 5px #d3ebe5;
 }
 .overview-node.system .overview-tile img {
   display: block;
@@ -3118,12 +3155,12 @@ footer {
   left: 0;
   z-index: 2;
   padding: 5px 12px;
-  border: 1px solid #f0c9a8;
+  border: 1px solid #c3dcf3;
   border-radius: 999px;
-  background: #fff7ef;
+  background: #eaf3fc;
   box-shadow: 0 4px 14px #17334d14;
-  color: #c96124;
-  font-size: 12px;
+  color: #0a6cc4;
+  font-size: 13px;
   font-weight: 650;
   white-space: nowrap;
   opacity: 0;
@@ -3136,9 +3173,9 @@ footer {
   color: #684593;
 }
 .overview-chip[data-tone="result"] {
-  border-color: #bfe0d8;
-  background: #eaf7f3;
-  color: #2d7a6f;
+  border-color: #f1cfb0;
+  background: #fdf3ea;
+  color: #9a572d;
 }
 .overview-status {
   display: flex;
@@ -3162,16 +3199,26 @@ footer {
   line-height: 1.5;
   color: #667487;
 }
-.overview-foot .overview-detail-link {
+.overview-status .overview-detail-link {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  margin-left: auto;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: #b4511b;
+  font-size: 13px;
   font-weight: 650;
-  color: #c96124;
+  color: #fff;
   text-decoration: none;
 }
-.overview-foot .overview-detail-link:hover {
-  text-decoration: underline;
+.overview-status .overview-detail-link:hover {
+  background: #96410f;
+}
+.overview-status .overview-detail-link:focus-visible {
+  outline: 2px solid #17334d;
+  outline-offset: 2px;
 }
 .overview-narrow {
   padding: 16px 22px;
@@ -3222,7 +3269,6 @@ footer {
   height: 22px;
 }
 .overview-integrations small {
-  flex-basis: 100%;
   font-size: 12px;
   line-height: 1.5;
   color: #8895a5;
@@ -3328,6 +3374,9 @@ footer {
   }
   .overview-status .status-dot {
     display: none;
+  }
+  .overview-status .overview-detail-link {
+    margin-left: 0;
   }
   .overview-status-detail {
     padding-left: 0;

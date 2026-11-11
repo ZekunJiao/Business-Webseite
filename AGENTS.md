@@ -65,7 +65,8 @@ Die Website selbst soll als hochwertige Arbeitsprobe funktionieren.
 - Die Kernaussage muss auch ohne Interaktion verständlich sein.
 - Nutze Interaktion und Animation, um Abläufe nachvollziehbar zu machen.
 - Technische Details dürfen bei Interesse vertieft werden.
-- Kennzeichne simulierte Demos und hypothetische Beispiele eindeutig.
+- Beispiele sind als solche erkennbar (z. B. „Beispiel 1 von 5“). Ein
+  gesonderter Simulations- oder Markenhinweis ist nicht erforderlich.
 - Erfinde keine Kunden, Referenzen, Ergebnisse oder Einsparungen.
 - Verwende reale Kundeninformationen nur im ausdrücklich freigegebenen Umfang.
 

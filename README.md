@@ -35,6 +35,8 @@ React, TypeScript und Vite; originale shadcn/ui-Buttons und -Badges mit Tailwind
 
 ## Workflow-Tabs
 
+> Vorerst ausgeblendet, siehe Abschnitt „Hero auf /handwerk“.
+
 Unter `/handwerk` stehen browserähnliche Tabs für „E-Mail-Anfragen“, „Telefonassistenz“ und „Angebote“ über einem gemeinsamen Demobereich. Die E-Mail-Demo ist zunächst ausgewählt. Die beiden anderen Tabs enthalten ausdrücklich als „Demo in Vorbereitung“ gekennzeichnete Platzhalter. Es gibt keine aufklappbare Workflow-Auswahl.
 
 Die Tab-Leiste bleibt beim Scrollen innerhalb des Demobereichs am oberen Rand sichtbar und lässt sich auf schmalen Bildschirmen horizontal scrollen. Pfeiltasten wechseln zwischen den Tabs; Pos1/Ende wählen den ersten/letzten Tab. Tab und Panel sind über ARIA verknüpft. Die Bedienung verwendet vorhandene shadcn/ui-Buttons.
@@ -65,18 +67,22 @@ Name, Rolle, Kurzvorstellung und Kontaktdaten stehen in `src/contact.ts`. Vor de
 - Beim Abspielen scrollt die Seite sanft zum jeweils aktiven Fenster (Posteingang, Kundenverwaltung/Wissensbasis, Entwurf, Ergebnis). Bei reduzierter Bewegung ist das deaktiviert.
 - Nach dem fertigen Entwurf fasst `DemoResult` in drei bis vier Schritten zusammen, was erkannt, nachgeschlagen bzw. vorbereitet wurde und dass das Team prüft und selbst sendet. Es werden keine Einsparungen behauptet.
 - Orange Platzhalter im Entwurf werden mit „Orange = noch offen. Hier ergänzt dein Team.“ erklärt.
-- Schriftgröße: Fließtext mindestens 12 px, reine Labels/Badges 11 px.
+- Schriftgröße: In Hero, Kopfzeile und Überblick-Animation sind Labels und Kicker mindestens 12 px, Beschriftungen 13 px. Die ausgeblendete Detaildemo nutzt weiterhin 11–12 px.
 
 ## Handyansicht der E-Mail-Demo
 
 Bis 760 px Breite (`MOBILE_QUERY` in `src/lib/useMediaQuery.ts`) zeigt `MobileEmailFlow` statt der Map drei Schritte untereinander: Mail, Kundenverwaltung bzw. Betriebswissen, Antwortentwurf, danach das Ergebnis. Ein „Weiter“-Button blendet jeweils den nächsten Schritt ein; „Noch einmal von vorn“ startet neu. Die Inhalte sind vereinfachte Darstellungen derselben Beispieldaten ohne Verbindungslinien.
+
+## Hero auf /handwerk
+
+Der Hero hat einen Einstiegs-Button „Ablauf ansehen“ (Sprung zu `#ueberblick`) und einen Textlink „Kennenlerngespräch vereinbaren“ zum Kontaktblock (`#kontakt`). Die Überblick-Animation ist der Einstieg. Die Detaildemo (Workflow-Tabs mit E-Mail-Demo, `#workflow`) ist vorerst ausgeblendet: Der Einbau in `src/App.tsx` und der Link „Vollständige Demo ansehen“ in `src/components/OverviewFlow.tsx` sind auskommentiert, der Code (`HandwerkWorkflows`, `EmailWorkflowDemo`, `MobileEmailFlow` usw.) bleibt erhalten. Zum Reaktivieren die Kommentare entfernen; die Abschnitte unten beschreiben die Detaildemo.
 
 ## Überblick-Animation
 
 Zwischen Hero und Workflow-Tabs auf `/handwerk` zeigt `OverviewFlow` (`src/components/OverviewFlow.tsx`) einen möglichen Ablauf in vier Spalten: Anliegen (E-Mail, Homepage-Formular), Assistent, Werkzeuge (Kundenverwaltung, Betriebswissen) und „Dein Team“. Drei Beispielfälle laufen in einer Schleife: Wartungsanfrage per E-Mail, allgemeine Frage per E-Mail und neue Anfrage über das Formular. Jeder Fall endet bei der menschlichen Prüfung; es wird nichts automatisch gesendet.
 
 - **Inhalte:** `src/overviewFlows.ts`. Die E-Mail-Fälle nutzen dieselben Beispieldaten wie die Detaildemo (`src/data.ts`). Das Homepage-Formular ist ein erfundenes Beispiel; die Seite hat kein echtes Formular.
-- **Zielsysteme:** im Diagramm bewusst generische Begriffe (Kundenverwaltung, Betriebswissen). Darunter nennt eine Zeile „Anbindbar an Handwerkersoftware, z. B.“ die Programme aus `src/integrations.ts`, mit Logos aus `public/assets/integrations/`. Bestätigt ist: Die Anbindung an Handwerkersoftware ist möglich und die Logos dürfen gezeigt werden. Es gibt nur Tools in der Liste, für die eine Anbindung oder ein Vertrag besteht; aktuell stehen plancraft und ToolTime als Platzhalter dort und sind vor dem Versenden zu bestätigen. Die Aussage lautet „anbindbar“, nicht „bereits angebunden“ oder „Partner“. Ein Markenhinweis steht unter den Logos. Das ToolTime-Logo ist für dunklen Grund gedacht und liegt deshalb auf einer dunklen Kachel.
+- **Zielsysteme:** im Diagramm bewusst generische Begriffe (Kundenverwaltung, Betriebswissen). Darunter nennt eine Zeile „Anbindbar an Handwerkersoftware, z. B.“ die Programme aus `src/integrations.ts`, mit Logos aus `public/assets/integrations/`. Sie erscheint nur auf schmalen Bildschirmen und bei reduzierter Bewegung; in der Desktop-Animation stehen die Logos bereits im Diagramm. Bestätigt ist: Die Anbindung an Handwerkersoftware ist möglich und die Logos dürfen gezeigt werden. Es gibt nur Tools in der Liste, für die eine Anbindung oder ein Vertrag besteht; aktuell stehen plancraft und ToolTime als Platzhalter dort und sind vor dem Versenden zu bestätigen. Die Aussage lautet „anbindbar“, nicht „bereits angebunden“ oder „Partner“. Ein Marken- oder Simulationshinweis steht bewusst nicht dabei. Das ToolTime-Logo ist für dunklen Grund gedacht und liegt deshalb auf einer dunklen Kachel.
 - **Technik:** SVG-Linien mit Dash-Animation und ein Etikett, das entlang der Kurve läuft. Gesteuert wird alles über eine eigene `requestAnimationFrame`-Schleife (wie in den Demo-Overlays). Zeiten stehen in `src/lib/demoTiming.ts` (`OVERVIEW_STEP_MS`, `OVERVIEW_HOLD_MS`) und laufen in Echtzeit, ohne `DEMO_PLAYBACK_SPEED`. Ein Durchlauf aller drei Fälle dauert etwa 20 Sekunden.
 - **Bedienung:** „Pausieren/Fortsetzen“ und drei Fall-Buttons. Bei Pause zeigt ein Sprung direkt das fertige Ergebnis des Falls. Die Animation läuft nur, solange der Abschnitt sichtbar und der Browser-Tab aktiv ist.
 - **Schmale Bildschirme (bis 1100 px):** statt Linien eine nummerierte Schrittliste des gewählten Falls, die weiterläuft.

@@ -26,6 +26,3 @@ export const integrations: Integration[] = [
     logoHeight: 26,
   },
 ];
-
-export const integrationsNote =
-  "Logos und Namen sind Marken der jeweiligen Anbieter. Sie nennen mögliche Anbindungen, keine Empfehlung durch den Anbieter.";

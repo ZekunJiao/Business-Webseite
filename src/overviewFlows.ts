@@ -103,11 +103,11 @@ export const overviewCases: OverviewCase[] = [
     headline: "Allgemeine Frage per E-Mail",
     steps: [
       {
-        chip: "Mehrteilige Frage",
+        chip: "Fragen zur Wartung",
         text: `${scenarios.complete.sender} stellt eine mehrteilige Frage zu Wartung, Vorbereitung und Preis.`,
       },
       {
-        chip: `${matchedSources} von ${sources.length} Dokumenten`,
+        chip: `${matchedSources} relevante Dokumente gefunden`,
         text: `Der Assistent sucht im Betriebswissen: ${matchedSources} von ${sources.length} Dokumenten passen zur Frage.`,
       },
       {
