@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -13,6 +14,7 @@ import {
   LibraryBig,
   Mail,
   Pause,
+  Phone,
   Play,
   UserRound,
   UserRoundCheck,
@@ -21,12 +23,12 @@ import { Button } from "./ui/button";
 import { aiActivityIcons } from "./AiSymbol";
 import { FormWindowIcon } from "./FormWindowIcon";
 import type { AiActivity } from "./AiSymbol";
-import {
-  channelNames,
-  overviewCases,
-  systemNames,
+import { channelNames, systemNames } from "../overviewFlows";
+import type {
+  OverviewCase,
+  OverviewChannel,
+  OverviewSet,
 } from "../overviewFlows";
-import type { OverviewCase } from "../overviewFlows";
 import { integrations } from "../integrations";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import {
@@ -55,7 +57,13 @@ const channelStatus = (
   channel: OverviewCase["channel"],
 ): string => {
   if (item.channel !== channel) return "";
-  return channel === "form" ? "Formular ausgefüllt" : "E-Mail eingegangen";
+  return channelStatusText[channel];
+};
+
+const channelStatusText: Record<OverviewChannel, string> = {
+  email: "E-Mail eingegangen",
+  form: "Formular ausgefüllt",
+  phone: "Anruf eingegangen",
 };
 
 // Kurze Zeile unter "Dein Team". Vor dem Ergebnis wartet das Team; sobald der
@@ -84,9 +92,8 @@ const systemIds: NodeId[] = [
   OTHER_NODE,
   KNOWLEDGE_NODE,
 ];
-const edges: [NodeId, NodeId][] = [
-  ["email", "assistant"],
-  ["form", "assistant"],
+const edgesFor = (channels: OverviewChannel[]): [NodeId, NodeId][] => [
+  ...channels.map((channel): [NodeId, NodeId] => [channel, "assistant"]),
   ...systemIds.flatMap((id): [NodeId, NodeId][] => [
     ["assistant", id],
     [id, "team"],
@@ -106,14 +113,13 @@ const segmentsOf = (item: OverviewCase) => [
 
 // Schritte 0 bis 2 zeichnen je eine Linie, Schritt 3 hält das Ergebnis.
 const CASE_MS = OVERVIEW_STEP_MS * 3 + OVERVIEW_HOLD_MS;
-const TOTAL_MS = CASE_MS * overviewCases.length;
 // Anteil eines Schritts, in dem die Linie gezeichnet wird.
 const DRAW_SHARE = 0.75;
 // Darunter ist zwischen den Spalten zu wenig Platz für Etiketten auf den Linien.
 const NARROW_QUERY = "(max-width: 1320px)";
 
-function locate(elapsed: number) {
-  const t = elapsed % TOTAL_MS;
+function locate(elapsed: number, caseCount: number) {
+  const t = elapsed % (CASE_MS * caseCount);
   const c = Math.floor(t / CASE_MS);
   const local = t - c * CASE_MS;
   const s = Math.min(3, Math.floor(local / OVERVIEW_STEP_MS));
@@ -170,10 +176,10 @@ function CaseSteps({
 }
 
 // Alle Fälle als Text: Ersatz bei reduzierter Bewegung und Textalternative.
-function OverviewStatic() {
+function OverviewStatic({ cases }: { cases: OverviewCase[] }) {
   return (
     <div className="overview-static">
-      {overviewCases.map((item) => (
+      {cases.map((item) => (
         <article key={item.id} className="overview-static-case">
           <h3>{item.headline}</h3>
           <CaseSteps item={item} />
@@ -258,7 +264,31 @@ function SystemTile({
   );
 }
 
-export function OverviewFlow() {
+// Eingangskanäle der linken Spalte: Symbol und Farbton je Kanal.
+const channelNodes: Record<
+  OverviewChannel,
+  { name: string; tone: string; icon: ReactNode }
+> = {
+  email: {
+    name: "E-Mail",
+    tone: "mail",
+    icon: <Mail size={44} strokeWidth={1.8} />,
+  },
+  form: {
+    name: "Formular",
+    tone: "form",
+    icon: <FormWindowIcon size={44} strokeWidth={1.5} />,
+  },
+  phone: {
+    name: "Telefon",
+    tone: "phone",
+    icon: <Phone size={44} strokeWidth={1.8} />,
+  },
+};
+
+export function OverviewFlow({ set }: { set: OverviewSet }) {
+  const { cases } = set;
+  const edges = useMemo(() => edgesFor(set.channels), [set.channels]);
   const reduced = !!useReducedMotion();
   const narrow = useMediaQuery(NARROW_QUERY);
   const [pos, setPos] = useState({ c: 0, s: 0 });
@@ -274,12 +304,12 @@ export function OverviewFlow() {
   const elapsed = useRef(0);
   const frame = useRef({ c: 0, s: 0, p: 0 });
   const drawn = !reduced && !narrow;
-  const item = overviewCases[pos.c];
+  const item = cases[pos.c];
 
   // Setzt Linien und Etikett direkt, ohne React-Rendern pro Frame.
   const apply = useCallback((c: number, s: number, p: number) => {
     frame.current = { c, s, p };
-    const segments = segmentsOf(overviewCases[c]);
+    const segments = segmentsOf(cases[c]);
     const draw = ease(Math.min(1, p / DRAW_SHARE));
     for (const key of Object.keys(activeRefs.current)) {
       const element = activeRefs.current[key];
@@ -309,7 +339,7 @@ export function OverviewFlow() {
     chip.style.opacity = String(
       Math.max(0, Math.min(1, p / 0.12, (1 - p) / 0.1)),
     );
-  }, []);
+  }, [cases]);
 
   const measure = useCallback(() => {
     const canvas = canvasRef.current;
@@ -335,7 +365,7 @@ export function OverviewFlow() {
       active.style.strokeDasharray = String(length);
     }
     apply(frame.current.c, frame.current.s, frame.current.p);
-  }, [apply]);
+  }, [apply, edges]);
 
   useLayoutEffect(() => {
     if (!drawn) return;
@@ -376,14 +406,14 @@ export function OverviewFlow() {
       // Der Frame-Zeitstempel kann kurz vor performance.now() liegen.
       elapsed.current += Math.max(0, Math.min(now - last, 100));
       last = now;
-      const { c, s, p } = locate(elapsed.current);
+      const { c, s, p } = locate(elapsed.current, cases.length);
       setPos((prev) => (prev.c === c && prev.s === s ? prev : { c, s }));
       apply(c, s, p);
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [reduced, paused, visible, apply]);
+  }, [reduced, paused, visible, apply, cases.length]);
 
   const jumpTo = (index: number) => {
     // Pausiert zeigt der Sprung gleich das fertige Ergebnis des Falls.
@@ -397,13 +427,13 @@ export function OverviewFlow() {
     return (
       <section
         ref={rootRef}
-        id="ueberblick"
+        id={set.id}
         className="overview"
-        aria-labelledby="overview-title"
+        aria-labelledby={`${set.id}-title`}
       >
-        <OverviewHeading />
-        <OverviewStatic />
-        <OverviewIntegrations />
+        <OverviewHeading set={set} />
+        <OverviewStatic cases={cases} />
+        {set.showIntegrations ? <OverviewIntegrations /> : null}
       </section>
     );
   }
@@ -435,18 +465,18 @@ export function OverviewFlow() {
   return (
     <section
       ref={rootRef}
-      id="ueberblick"
+      id={set.id}
       className="overview"
-      aria-labelledby="overview-title"
+      aria-labelledby={`${set.id}-title`}
     >
-      <OverviewHeading />
+      <OverviewHeading set={set} />
       <div className="overview-controls">
         <div
           className="overview-cases"
           role="group"
           aria-label="Beispielfall wählen"
         >
-          {overviewCases.map((entry, index) => (
+          {cases.map((entry, index) => (
             <button
               key={entry.id}
               type="button"
@@ -497,26 +527,19 @@ export function OverviewFlow() {
                 Anliegen kommen an, z.&nbsp;B.
               </span>
               <div className="overview-col-body">
-                <Node
-                  id="email"
-                  name="E-Mail"
-                  caption={channelStatus(item, "email")}
-                  tone="mail"
-                  icon={<Mail size={44} strokeWidth={1.8} />}
-                  current={isCurrent("email")}
-                  dim={item.channel !== "email"}
-                  tileRef={registerTile("email")}
-                />
-                <Node
-                  id="form"
-                  name="Formular"
-                  caption={channelStatus(item, "form")}
-                  tone="form"
-                  icon={<FormWindowIcon size={44} strokeWidth={1.5} />}
-                  current={isCurrent("form")}
-                  dim={item.channel !== "form"}
-                  tileRef={registerTile("form")}
-                />
+                {set.channels.map((channel) => (
+                  <Node
+                    key={channel}
+                    id={channel}
+                    name={channelNodes[channel].name}
+                    caption={channelStatus(item, channel)}
+                    tone={channelNodes[channel].tone}
+                    icon={channelNodes[channel].icon}
+                    current={isCurrent(channel)}
+                    dim={item.channel !== channel}
+                    tileRef={registerTile(channel)}
+                  />
+                ))}
               </div>
             </div>
             <div className="overview-col">
@@ -640,7 +663,7 @@ export function OverviewFlow() {
       <div className="overview-status">
         <span className="status-dot" aria-hidden="true" />
         <strong aria-hidden="true">
-          Beispiel {pos.c + 1} von {overviewCases.length} · {item.headline}
+          Beispiel {pos.c + 1} von {cases.length} · {item.headline}
         </strong>
         <span className="overview-status-detail" aria-hidden="true">
           {item.steps[pos.s].text}
@@ -654,9 +677,9 @@ export function OverviewFlow() {
         ) : null}
         */}
       </div>
-      {drawn ? null : <OverviewIntegrations />}
+      {drawn || !set.showIntegrations ? null : <OverviewIntegrations />}
       <div className="sr-only">
-        <OverviewStatic />
+        <OverviewStatic cases={cases} />
       </div>
     </section>
   );
@@ -682,21 +705,15 @@ function OverviewIntegrations() {
   );
 }
 
-function OverviewHeading() {
+function OverviewHeading({ set }: { set: OverviewSet }) {
   return (
     <div className="overview-head">
       <span className="overview-kicker">
         <span className="status-dot" />
-        ANWENDUNGSFALL · KUNDENANFRAGEN
+        {set.kicker}
       </span>
-      <h2 id="overview-title">
-        Die Anfrage kommt rein. Die Antwort liegt bereit.
-      </h2>
-      <p>
-        Ob E-Mail oder Formular: Der Assistent erkennt den Kunden, findet die
-        passenden Infos in deinen Unterlagen und bereitet Antwort oder Eintrag
-        vor. Dein Team prüft und sendet selbst.
-      </p>
+      <h2 id={`${set.id}-title`}>{set.title}</h2>
+      <p>{set.intro}</p>
     </div>
   );
 }

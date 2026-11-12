@@ -2912,13 +2912,15 @@ footer {
 }
 /* Eingang: dauerhaft als blauer Kreis, aktiv mit kräftigerem Ring. */
 .overview-node.mail .overview-tile,
-.overview-node.form .overview-tile {
+.overview-node.form .overview-tile,
+.overview-node.phone .overview-tile {
   border: 2px solid #c3dcf3;
   background: #eaf3fc;
   color: #0a6cc4;
 }
 .overview-node.mail.current .overview-tile,
-.overview-node.form.current .overview-tile {
+.overview-node.form.current .overview-tile,
+.overview-node.phone.current .overview-tile {
   border-color: #4a9be0;
   background: #eaf3fc;
   box-shadow: 0 0 0 6px #d9eaf9;
@@ -3006,7 +3008,8 @@ footer {
 }
 /* Eingangskanäle: Statuszeile nur im ersten Schritt, sonst leer mit fester Höhe. */
 .overview-node.mail > span,
-.overview-node.form > span {
+.overview-node.form > span,
+.overview-node.phone > span {
   min-height: 16px;
   font-weight: 600;
   color: #3d6f9e;

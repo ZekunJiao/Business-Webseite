@@ -46,6 +46,7 @@ import HausverwaltungPage from "./pages/HausverwaltungPage";
 // import { HandwerkWorkflows } from "./components/HandwerkWorkflows";
 import { AuthorBlock } from "./components/AuthorBlock";
 import { OverviewFlow } from "./components/OverviewFlow";
+import { overviewSets } from "./overviewFlows";
 import { DemoResult } from "./components/DemoResult";
 import { MobileEmailFlow } from "./components/MobileEmailFlow";
 import { MOBILE_QUERY, useMediaQuery } from "./lib/useMediaQuery";
@@ -1192,7 +1193,9 @@ export default function App() {
             </span>
           </div>
         </div>
-        <OverviewFlow />
+        {overviewSets.map((set) => (
+          <OverviewFlow key={set.id} set={set} />
+        ))}
         {/* Detaildemo vorerst ausgeblendet:
         <HandwerkWorkflows>
           {(active) => <EmailWorkflowDemo active={active} />}

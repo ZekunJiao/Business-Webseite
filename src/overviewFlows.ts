@@ -4,7 +4,7 @@ import { scenarios, sources } from "./data";
 // erfundenen Beispieldaten; die E-Mail-Fälle nutzen dieselben Szenarien wie
 // die Detaildemo.
 
-export type OverviewChannel = "email" | "form";
+export type OverviewChannel = "email" | "form" | "phone";
 export type OverviewSystem = "crm" | "knowledge";
 
 export type OverviewStep = {
@@ -15,12 +15,7 @@ export type OverviewStep = {
 };
 
 export type OverviewCase = {
-  id:
-    | "email-request"
-    | "email-question"
-    | "form-request"
-    | "email-fault"
-    | "form-excel";
+  id: string;
   channel: OverviewChannel;
   system: OverviewSystem;
   // Name eines Eintrags aus src/integrations.ts, der in diesem Beispiel
@@ -54,9 +49,23 @@ const teamStep = {
   text: "Dein Team prüft, ergänzt Offenes und sendet selbst. Nichts wird automatisch verschickt.",
 };
 
+// Ein Abschnitt der Seite: Überschrift, Fälle und die dort gezeigten Eingänge.
+export type OverviewSet = {
+  // Anker und Basis für die Beschriftungs-ID, z. B. "ueberblick"
+  id: string;
+  kicker: string;
+  title: string;
+  intro: string;
+  channels: OverviewChannel[];
+  cases: OverviewCase[];
+  // Zeile "Anbindbar an Handwerkersoftware" auf schmalen Bildschirmen
+  showIntegrations: boolean;
+};
+
 export const channelNames: Record<OverviewChannel, string> = {
   email: "E-Mail",
   form: "Homepage-Formular",
+  phone: "Telefon",
 };
 
 export const systemNames: Record<OverviewSystem, string> = {
@@ -207,5 +216,153 @@ export const overviewCases: OverviewCase[] = [
       },
     ],
     detailDemo: false,
+  },
+];
+
+// Telefonassistenz: Beispielanrufe ohne reale Personen oder Ergebnisse. Der
+// Assistent nimmt auf und bereitet vor; Entscheidung und Rückruf bleiben beim
+// Team.
+export const phoneCases: OverviewCase[] = [
+  {
+    id: "phone-appointment",
+    teamStatus: "prüft den Termin",
+    assistantStatus: ["nimmt das Anliegen auf …", "bereitet den Termin vor …"],
+    toolStatus: "Terminvorschlag angelegt",
+    channel: "phone",
+    system: "crm",
+    tool: "ToolTime",
+    label: "Anruf: Terminwunsch",
+    headline: "Terminwunsch am Telefon",
+    steps: [
+      {
+        chip: "Terminwunsch",
+        text: "Eine Bestandskundin ruft an und möchte einen Wartungstermin (Beispiel).",
+      },
+      {
+        chip: "Anliegen aufgenommen",
+        text: "Der Assistent nimmt das Gespräch an, fragt Anliegen und Wunschzeitraum ab und ordnet den Anruf der Kundin zu.",
+      },
+      {
+        chip: "Terminvorschlag bereit",
+        text: "In ToolTime liegt ein Terminvorschlag bereit. Offene Punkte sind markiert.",
+      },
+      {
+        chip: "Team prüft",
+        text: "Dein Team prüft den Vorschlag, bestätigt den Termin und meldet sich selbst.",
+      },
+    ],
+    detailDemo: false,
+  },
+  {
+    id: "phone-fault",
+    teamStatus: "ruft zurück",
+    assistantStatus: ["fragt das Fehlerbild ab …", "bereitet das Projekt vor …"],
+    toolStatus: "Projekt angelegt",
+    channel: "phone",
+    system: "crm",
+    tool: "HERO",
+    label: "Anruf: Störung",
+    headline: "Störungsmeldung am Telefon",
+    steps: [
+      {
+        chip: "Heizung ausgefallen",
+        text: "Eine Kundin meldet am Telefon, dass ihre Heizung ausgefallen ist (Beispiel).",
+      },
+      {
+        chip: "Dringlichkeit erkannt",
+        text: "Der Assistent fragt Adresse und Fehlerbild ab, erkennt die Dringlichkeit und ordnet den Anruf dem passenden Kunden zu.",
+      },
+      {
+        chip: "Projekt vorbereitet",
+        text: "In HERO liegt ein Projekt mit Gesprächsnotiz bereit. Fehlende Angaben, etwa die Gerätenummer, sind markiert.",
+      },
+      {
+        chip: "Team ruft zurück",
+        text: "Dein Team prüft die Meldung, ruft zurück und entscheidet selbst über den Einsatz.",
+      },
+    ],
+    detailDemo: false,
+  },
+  {
+    id: "phone-question",
+    teamStatus: "liest die Notiz",
+    assistantStatus: ["sucht im Betriebswissen …", "schreibt die Notiz …"],
+    toolStatus: "Notiz mit Quelle",
+    channel: "phone",
+    system: "knowledge",
+    label: "Anruf: Allgemeine Frage",
+    headline: "Allgemeine Frage am Telefon",
+    steps: [
+      {
+        chip: "Frage zur Wartung",
+        text: "Ein Interessent fragt am Telefon nach Ablauf und Dauer einer Wartung (Beispiel).",
+      },
+      {
+        chip: "Antwort gefunden",
+        text: "Der Assistent sucht im Betriebswissen und antwortet nur mit Inhalten, die dein Team dafür bereitgestellt hat.",
+      },
+      {
+        chip: "Notiz mit Quelle",
+        text: "Eine Gesprächsnotiz hält Frage und Antwort fest und verweist auf die Quelle.",
+      },
+      {
+        chip: "Team liest mit",
+        text: "Dein Team liest die Notiz, ergänzt Offenes und meldet sich bei Bedarf selbst.",
+      },
+    ],
+    detailDemo: false,
+  },
+  {
+    id: "phone-afterhours",
+    teamStatus: "ruft zurück",
+    assistantStatus: ["nimmt den Rückrufwunsch auf …", "trägt den Rückruf ein …"],
+    toolStatus: "Rückruf eingetragen",
+    channel: "phone",
+    system: "crm",
+    tool: "Excel",
+    label: "Anruf: Nach Feierabend",
+    headline: "Anruf außerhalb der Geschäftszeiten",
+    steps: [
+      {
+        chip: "Anruf nach Feierabend",
+        text: "Nach Feierabend ruft ein Kunde an und erreicht im Büro niemanden (Beispiel).",
+      },
+      {
+        chip: "Rückrufwunsch aufgenommen",
+        text: "Der Assistent nimmt Name, Anliegen und Rückrufnummer auf.",
+      },
+      {
+        chip: "Rückruf eingetragen",
+        text: "In der Rückrufliste (z. B. Excel) liegt ein neuer Eintrag bereit. Unklare Angaben sind markiert.",
+      },
+      {
+        chip: "Team ruft zurück",
+        text: "Dein Team sieht die Liste am nächsten Morgen und ruft selbst zurück.",
+      },
+    ],
+    detailDemo: false,
+  },
+];
+
+export const overviewSets: OverviewSet[] = [
+  {
+    id: "ueberblick",
+    kicker: "ANWENDUNGSFALL · KUNDENANFRAGEN",
+    title: "Die Anfrage kommt rein. Die Antwort liegt bereit.",
+    intro:
+      "Ob E-Mail oder Formular: Der Assistent erkennt den Kunden, findet die passenden Infos in deinen Unterlagen und bereitet Antwort oder Eintrag vor. Dein Team prüft und sendet selbst.",
+    channels: ["email", "form"],
+    cases: overviewCases,
+    showIntegrations: true,
+  },
+  {
+    id: "telefon",
+    kicker: "ANWENDUNGSFALL · TELEFONASSISTENZ",
+    title: "Der Anruf kommt rein. Die Notiz liegt bereit.",
+    intro:
+      "Der Assistent nimmt den Anruf an, fragt das Wichtige ab, gleicht es mit deinen Unterlagen ab und legt Notiz, Terminvorschlag oder Rückruf an. Dein Team prüft und meldet sich selbst.",
+    channels: ["phone"],
+    cases: phoneCases,
+    showIntegrations: false,
   },
 ];
