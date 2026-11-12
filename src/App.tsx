@@ -1074,7 +1074,7 @@ export default function App() {
         : isHausverwaltung
           ? "Eigenständige Vorlagenseite für Hausverwaltungen. Inhalte und Demonstrationen sind in Vorbereitung."
           : isHandwerk
-            ? "Digitale Abläufe fürs Handwerk entdecken: E-Mail-Anfragen als interaktive Beispieldemo erleben."
+            ? "Digitale Abläufe fürs Handwerk entdecken: mögliche Abläufe als interaktive Beispiele erleben."
             : "Die angefragte Seite wurde nicht gefunden.";
   }, [path, isHome, isHausverwaltung, isHandwerk]);
   if (isHome)
@@ -1153,7 +1153,7 @@ export default function App() {
         <div className="hero">
           <div className="eyebrow hero-eyebrow">
             <span />
-            BEISPIEL · ABLÄUFE FÜR HANDWERKSBETRIEBE
+            BEISPIELE · ABLÄUFE FÜR HANDWERKSBETRIEBE
           </div>
           <h1>
             Weniger Routine.
@@ -1161,15 +1161,15 @@ export default function App() {
             <span>Mehr Zeit fürs Handwerk.</span>
           </h1>
           <p>
-            Entdecke an einem Beispiel, wie aus einer Kundenanfrage ein
-            fertiger Antwortentwurf wird.
+            Entdecke an Beispielen, wie digitale Abläufe deinen Büroalltag
+            unterstützen können.
             <br className="desktop-break" /> Dein Team bleibt am Steuer: Es
-            prüft und sendet selbst.
+            prüft und entscheidet selbst.
           </p>
           <div className="hero-cta">
             <Button asChild className="hero-cta-button">
               <a href="#ueberblick">
-                Ablauf ansehen
+                Beispiele ansehen
                 <ArrowDown aria-hidden="true" />
               </a>
             </Button>
@@ -1205,7 +1205,7 @@ export default function App() {
         <AuthorBlock id="kontakt" />
         <footer>
           <span>
-            Eine mögliche Lösung für wiederkehrende Kundenanfragen ·{" "}
+            Mögliche Abläufe für den Büroalltag im Handwerk ·{" "}
             <a href="/">{contact.name}</a>
           </span>
           <span>Beispieldemo · Keine echten Kundendaten</span>

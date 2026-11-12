@@ -13,7 +13,7 @@ export const contact: Contact = {
   name: "Zekun Jiao",
   role: "Software, KI und Automatisierung",
   intro:
-    "Ich verbinde Softwareentwicklung und Produktdenken, um Geschäftsprozesse verständlicher und einfacher zu machen. Diese Demo zeigt einen möglichen Ablauf als Beispiel. Sie ist kein fertiges Produkt.",
+    "Ich verbinde Softwareentwicklung und Produktdenken, um Geschäftsprozesse verständlicher und einfacher zu machen. Diese Seite zeigt mögliche Abläufe als Beispiele. Sie sind keine fertigen Produkte.",
   email: "",
   phone: "",
 };

@@ -687,7 +687,7 @@ function OverviewHeading() {
     <div className="overview-head">
       <span className="overview-kicker">
         <span className="status-dot" />
-        SO LÄUFT EINE ANFRAGE
+        ANWENDUNGSFALL · KUNDENANFRAGEN
       </span>
       <h2 id="overview-title">
         Die Anfrage kommt rein. Die Antwort liegt bereit.
