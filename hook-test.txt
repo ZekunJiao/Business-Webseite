@@ -1,1 +1,0 @@
-Test 1: manueller Lauf des Hook-Skripts (kann gelöscht werden).

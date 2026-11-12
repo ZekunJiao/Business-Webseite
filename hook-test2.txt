@@ -1,1 +1,0 @@
-Test 2: wird nur vom echten agentStop-Hook committet (kann gelöscht werden).
