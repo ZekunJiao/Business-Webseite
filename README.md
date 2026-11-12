@@ -2,7 +2,7 @@
 
 Die Handwerk-Demo liegt unter `/handwerk`. Daneben ist `/hausverwaltung` als eigenständige Vorlagenseite initialisiert: mit Einstieg und Platzhaltern für Anwendungsfälle, Demos sowie Vorstellung/Kontakt. Es gibt keine Navigation zwischen den Branchenseiten; `/hausverwaltung` wird nur über die direkt eingegebene oder zugesandte Adresse erreicht. Das ist keine Zugriffsbeschränkung.
 
-Die branchenneutrale Startseite `/` verlinkt auf beide Branchen. Der frühere Pfad `/workflow` leitet auf `/handwerk` weiter; `#workflow` bleibt dort ein Sprunganker zur Demo. Beide Branchenpfade können direkt aufgerufen und neu geladen werden (Vite stellt dafür den SPA-Fallback bereit). Unbekannte Pfade zeigen eine neutrale Fehlerseite ohne Branchenlinks. Als Hosting ist Cloudflare Pages vorgesehen (siehe Abschnitt „Hosting“).
+Die branchenneutrale Startseite `/` verlinkt auf beide Branchen. Der frühere Pfad `/workflow` leitet auf `/handwerk` weiter; `#workflow` bleibt dort ein Sprunganker zur Demo. Beide Branchenpfade können direkt aufgerufen und neu geladen werden (Vite stellt dafür den SPA-Fallback bereit). Unbekannte Pfade zeigen eine neutrale Fehlerseite ohne Branchenlinks. Als Hosting ist Cloudflare Workers vorgesehen (siehe Abschnitt „Hosting“).
 
 ## Start und Prüfung
 
@@ -19,15 +19,19 @@ npm run preview
 
 ## Hosting
 
-Gewählt: Cloudflare Pages, automatisch aus dem GitHub-Repository `ZekunJiao/Business-Webseite` (Branch `main`). Einstellungen im Cloudflare-Dashboard unter Workers & Pages → Create → Pages → Connect to Git:
+Gewählt: Cloudflare Workers (statische Dateien aus `dist/`), automatisch aus dem GitHub-Repository `ZekunJiao/Business-Webseite` (Branch `main`). Das Projekt heißt `business-webseite`; Konfiguration in `wrangler.jsonc`. Einstellungen im Cloudflare-Dashboard unter Workers & Pages → Projekt → Settings → Build:
 
 - Build command: `npm run build`
-- Build output directory: `dist`
+- Deploy command: `npx wrangler deploy`
 - Node-Version: über `.node-version` (22)
 
-Einen SPA-Fallback muss man nicht einrichten: Cloudflare Pages liefert `index.html` für unbekannte Pfade aus, solange es keine `404.html` gibt. Deshalb funktionieren `/handwerk` und `/hausverwaltung` auch beim direkten Aufruf. Jeder Push auf `main` veröffentlicht automatisch neu. Eine eigene Domain ist noch nicht festgelegt; bis dahin gilt die `*.pages.dev`-Adresse.
+`wrangler.jsonc` stellt `not_found_handling: single-page-application` ein. Deshalb funktionieren `/handwerk` und `/hausverwaltung` auch beim direkten Aufruf. Jeder Push auf `main` veröffentlicht automatisch neu. Die Adresse lautet `https://business-webseite.xiaokun77.workers.dev` (zu finden unter Settings → Domains & Routes). Eine eigene Domain ist noch nicht festgelegt.
 
 Vor dem Versenden des Links offen: Kontaktdaten in `src/contact.ts` und Bestätigung der Werkzeuge in `src/integrations.ts`.
+
+### Passwortschutz
+
+Die gesamte Seite ist passwortgeschützt (`worker/index.ts`, HTTP Basic Auth; der Worker liefert nach korrektem Passwort die Dateien aus `dist/` aus, siehe `run_worker_first` in `wrangler.jsonc`). Der Browser fragt nach Benutzername und Passwort; der Benutzername ist beliebig, nur das Passwort zählt. Das Passwort steht nicht im Repository: Im Cloudflare-Dashboard unter dem Projekt → Settings → Variables and Secrets → Add → Typ „Secret“, Name `SITE_PASSWORD`. Ohne gesetztes Passwort antwortet die Seite mit 503 (gesperrt). Antworten tragen `X-Robots-Tag: noindex, nofollow`, damit Suchmaschinen nichts indexieren. Lokal (`npm run dev`, `npm run preview`) läuft der Worker nicht; dort gibt es keinen Schutz. Passwort ändern: Secret ändern. Zum Entfernen `main`, `run_worker_first` und `binding` aus `wrangler.jsonc` sowie den Ordner `worker/` löschen.
 
 ## Umsetzung
 
