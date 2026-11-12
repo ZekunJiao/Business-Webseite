@@ -220,12 +220,37 @@ main {
   box-shadow: none;
 }
 .hero-cta-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 22px;
+  border: 1px solid #c3cfda;
+  border-radius: 999px;
+  background: #fff;
   font-size: 14px;
   font-weight: 650;
   color: #17334d;
-  text-underline-offset: 3px;
 }
 .hero-cta-link:hover {
+  border-color: #17334d;
+}
+.hero-cta-link:focus-visible {
+  outline: 2px solid #17334d;
+  outline-offset: 2px;
+}
+.hero > .hero-author {
+  margin-top: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #667487;
+}
+.hero-author a {
+  color: #17334d;
+  font-weight: 650;
+  text-underline-offset: 3px;
+}
+.hero-author a:hover {
   text-decoration: underline;
 }
 .hero-meta {
@@ -1276,7 +1301,8 @@ footer {
   .hero-meta {
     font-size: 13px;
   }
-  .hero-cta .hero-cta-button {
+  .hero-cta .hero-cta-button,
+  .hero-cta .hero-cta-link {
     width: 100%;
   }
   .desktop-break {

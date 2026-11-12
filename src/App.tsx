@@ -1153,7 +1153,7 @@ export default function App() {
         <div className="hero">
           <div className="eyebrow hero-eyebrow">
             <span />
-            DIGITALE ABLÄUFE FÜR HANDWERKSBETRIEBE
+            BEISPIEL · ABLÄUFE FÜR HANDWERKSBETRIEBE
           </div>
           <h1>
             Weniger Routine.
@@ -1161,10 +1161,10 @@ export default function App() {
             <span>Mehr Zeit fürs Handwerk.</span>
           </h1>
           <p>
-            Entdecke, wie digitale Abläufe deinen Büroalltag unterstützen
-            können.
-            <br className="desktop-break" /> Sieh dir an, wie ein Ablauf
-            aussehen kann – mit deinem Team am Steuer.
+            Entdecke an einem Beispiel, wie aus einer Kundenanfrage ein
+            fertiger Antwortentwurf wird.
+            <br className="desktop-break" /> Dein Team bleibt am Steuer: Es
+            prüft und sendet selbst.
           </p>
           <div className="hero-cta">
             <Button asChild className="hero-cta-button">
@@ -1191,6 +1191,10 @@ export default function App() {
               Menschliche Prüfung
             </span>
           </div>
+          <p className="hero-author">
+            Ein Beispiel von <a href="#kontakt">{contact.name}</a> ·{" "}
+            {contact.role}
+          </p>
         </div>
         <OverviewFlow />
         {/* Detaildemo vorerst ausgeblendet:
