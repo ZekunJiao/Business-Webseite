@@ -1100,8 +1100,8 @@ export default function App() {
               Handwerk <ArrowUpRight size={22} />
             </h2>
             <p>
-              Vom Posteingang zum Antwortentwurf: Erkunde einen möglichen Ablauf
-              für Kundenanfragen.
+              Erkunde mögliche Abläufe für den Büroalltag, zum Beispiel vom
+              Posteingang zum Antwortentwurf.
             </p>
           </a>
           <a href="/hausverwaltung">
