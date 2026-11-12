@@ -1191,10 +1191,6 @@ export default function App() {
               Menschliche Prüfung
             </span>
           </div>
-          <p className="hero-author">
-            Ein Beispiel von <a href="#kontakt">{contact.name}</a> ·{" "}
-            {contact.role}
-          </p>
         </div>
         <OverviewFlow />
         {/* Detaildemo vorerst ausgeblendet:

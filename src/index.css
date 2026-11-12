@@ -239,20 +239,6 @@ main {
   outline: 2px solid #17334d;
   outline-offset: 2px;
 }
-.hero > .hero-author {
-  margin-top: 14px;
-  font-size: 13px;
-  line-height: 1.5;
-  color: #667487;
-}
-.hero-author a {
-  color: #17334d;
-  font-weight: 650;
-  text-underline-offset: 3px;
-}
-.hero-author a:hover {
-  text-decoration: underline;
-}
 .hero-meta {
   display: flex;
   gap: 12px 24px;
