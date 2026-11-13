@@ -86,12 +86,23 @@ Der Hero hat einen Einstiegs-Button „Ablauf ansehen“ (Sprung zu `#ueberblick
 `UseCaseStage` (`src/components/UseCaseStage.tsx`, Anker `#ueberblick`) zeigt oben eine Karte je Anwendungsfall und darunter eine Bühne mit genau einer Überblick-Animation für den gewählten Fall. Ein Klick auf eine Karte wechselt den Fall; die Animation startet dabei neu. Weitere Karten mit „In Vorbereitung“ sind sichtbar, aber nicht wählbar und zeigen keine Inhalte.
 
 - **Inhalte:** `src/overviewFlows.ts`. `overviewSets` enthält die Anwendungsfälle mit Karte (`card`), Überschrift und Beispielfällen; `upcomingUseCases` die Platzhalter; `useCaseSection` den Kopf. Ein neuer Anwendungsfall ist ein weiterer Eintrag in `overviewSets`.
-- **Direktlink:** `/handwerk?anwendungsfall=telefon` wählt einen Fall und springt zur Bühne. Ohne Parameter oder mit unbekanntem Wert ist der erste Fall (`anfragen`) gewählt. Zurück/Vorwärts stellt die Auswahl wieder her; der alte Anker `#telefon` funktioniert weiter.
+- **Direktlink:** `/handwerk?anwendungsfall=anfragen` wählt einen Fall und springt zur Bühne. Ohne Parameter oder mit unbekanntem Wert ist der erste Fall (`telefon`) gewählt. Zurück/Vorwärts stellt die Auswahl wieder her; der Anker `#telefon` funktioniert weiter.
 - **Handy (bis 760 px):** Die Karten stehen in einer horizontal scrollbaren Reihe.
+
+## Telefon-Demo
+
+Der Anwendungsfall „Kein Anruf geht verloren“ (`telefon`) zeigt statt des Diagramms `PhoneStory` (`src/components/PhoneStory.tsx`, Inhalte in `src/phoneStory.ts`): einen Vergleich „Ohne/Mit Assistent“ (ohne Zahlen), ein gezeichnetes Handy mit einem Beispielanruf (Heizung ausgefallen, Notfall an die Bereitschaft) und daneben eine Gesprächsnotiz, die sich während des Gesprächs füllt. Am Ende erscheint eine Push-Nachricht mit der Zusammenfassung; offene Angaben sind orange.
+
+- **Bedienung:** „Gespräch anhören“ bzw. „Assistent geht ran“ startet, derselbe Button pausiert und setzt fort. „Ganzes Gespräch zeigen“ springt zum Ergebnis.
+- **Ton:** Sprachausgabe des Browsers (Web Speech API), bevorzugt deutsche Stimmen; Qualität und Stimmen hängen vom Gerät ab. „Ton aus“ schaltet auf Lesetempo um; ohne Sprachausgabe im Browser entfällt der Schalter. Der Ton startet nur nach einem Klick.
+- **Inhalte:** Betrieb („Haustechnik Muster“), Anruferin und Angaben sind erfunden. Der Assistent stellt sich als digitaler Assistent vor.
+- **Technik:** Das bisherige Diagramm mit den Telefon-Beispielfällen steht aufklappbar unter „So hängt es technisch zusammen“ (`OverviewFlow` mit `embedded`) und wird erst beim Aufklappen gerendert.
+- **Reduzierte Bewegung:** kein Klingeln und keine Einblendungen; der Ablauf startet nur auf Klick.
+- **Offen:** eine echte Demo-Nummer zum Selbst-Anrufen (braucht Telefonie-Anbieter) und aufgenommene Audiodateien statt Browserstimme.
 
 ## Überblick-Animation
 
-Auf der Bühne der Anwendungsfälle zeigt `OverviewFlow` (`src/components/OverviewFlow.tsx`) einen möglichen Ablauf in vier Spalten: Anliegen (E-Mail, Homepage-Formular bzw. Telefon), Assistent, Werkzeuge (Kundenverwaltung, Betriebswissen) und „Dein Team“. Die Beispielfälle des gewählten Anwendungsfalls laufen in einer Schleife. Jeder Fall endet bei der menschlichen Prüfung; es wird nichts automatisch gesendet.
+Auf der Bühne der Anwendungsfälle zeigt `OverviewFlow` (`src/components/OverviewFlow.tsx`) einen möglichen Ablauf in vier Spalten: Anliegen (E-Mail, Homepage-Formular), Assistent, Werkzeuge (Kundenverwaltung, Betriebswissen) und „Dein Team“. Beim Telefon steht es aufklappbar unter der Telefon-Demo. Die Beispielfälle des gewählten Anwendungsfalls laufen in einer Schleife. Jeder Fall endet bei der menschlichen Prüfung; es wird nichts automatisch gesendet.
 
 - **Inhalte:** `src/overviewFlows.ts`. Die E-Mail-Fälle nutzen dieselben Beispieldaten wie die Detaildemo (`src/data.ts`). Das Homepage-Formular ist ein erfundenes Beispiel; die Seite hat kein echtes Formular.
 - **Zielsysteme:** im Diagramm bewusst generische Begriffe (Kundenverwaltung, Betriebswissen). Darunter nennt eine Zeile „Anbindbar an Handwerkersoftware, z. B.“ die Programme aus `src/integrations.ts`, mit Logos aus `public/assets/integrations/`. Sie erscheint nur auf schmalen Bildschirmen und bei reduzierter Bewegung; in der Desktop-Animation stehen die Logos bereits im Diagramm. Bestätigt ist: Die Anbindung an Handwerkersoftware ist möglich und die Logos dürfen gezeigt werden. Es gibt nur Tools in der Liste, für die eine Anbindung oder ein Vertrag besteht; aktuell stehen plancraft und ToolTime als Platzhalter dort und sind vor dem Versenden zu bestätigen. Die Aussage lautet „anbindbar“, nicht „bereits angebunden“ oder „Partner“. Ein Marken- oder Simulationshinweis steht bewusst nicht dabei. Das ToolTime-Logo ist für dunklen Grund gedacht und liegt deshalb auf einer dunklen Kachel.

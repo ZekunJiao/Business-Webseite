@@ -62,6 +62,8 @@ export type UseCaseCard = {
   title: string;
   teaser: string;
   icon: LucideIcon;
+  // Aufforderung auf der Karte, Standard "Beispiel ansehen"
+  cta?: string;
 };
 
 // Ein Anwendungsfall: Karte, Überschrift, Fälle und die gezeigten Eingänge.
@@ -390,6 +392,23 @@ export const upcomingUseCases: UseCaseCard[] = [
 
 export const overviewSets: OverviewSet[] = [
   {
+    id: "telefon",
+    card: {
+      title: "Kein Anruf geht verloren",
+      teaser:
+        "Der Assistent geht ran, wenn du nicht kannst, und schickt dir eine kurze Notiz aufs Handy.",
+      icon: Phone,
+      cta: "Gespräch anhören",
+    },
+    kicker: "ANWENDUNGSFALL · TELEFONASSISTENZ",
+    title: "Du bist auf der Baustelle. Der Assistent geht ran.",
+    intro:
+      "Er fragt das Wichtige ab, erkennt Notfälle und schickt dir eine kurze Zusammenfassung aufs Handy. Dein Team ruft zurück und entscheidet.",
+    channels: ["phone"],
+    cases: phoneCases,
+    showIntegrations: false,
+  },
+  {
     id: "anfragen",
     card: {
       title: "Anfragen beantworten",
@@ -404,21 +423,5 @@ export const overviewSets: OverviewSet[] = [
     channels: ["email", "form"],
     cases: overviewCases,
     showIntegrations: true,
-  },
-  {
-    id: "telefon",
-    card: {
-      title: "Anrufe annehmen",
-      teaser:
-        "Auch nach Feierabend: Anliegen aufnehmen, Termin oder Rückruf vorbereiten.",
-      icon: Phone,
-    },
-    kicker: "ANWENDUNGSFALL · TELEFONASSISTENZ",
-    title: "Der Anruf kommt rein. Die Notiz liegt bereit.",
-    intro:
-      "Der Assistent nimmt den Anruf an, fragt das Wichtige ab, gleicht es mit deinen Unterlagen ab und legt Notiz, Terminvorschlag oder Rückruf an. Dein Team prüft und meldet sich selbst.",
-    channels: ["phone"],
-    cases: phoneCases,
-    showIntegrations: false,
   },
 ];

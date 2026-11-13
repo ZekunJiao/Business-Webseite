@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import { OverviewFlow } from "./OverviewFlow";
+import { PhoneStory } from "./PhoneStory";
 import {
   overviewSets,
   upcomingUseCases,
@@ -99,7 +100,7 @@ export function UseCaseStage() {
               <strong>{entry.card.title}</strong>
               <span className="usecase-card-teaser">{entry.card.teaser}</span>
               <span className="usecase-card-tag">
-                {active ? "Wird unten gezeigt" : "Beispiel ansehen"}
+                {active ? "Wird unten gezeigt" : (entry.card.cta ?? "Beispiel ansehen")}
               </span>
             </button>
           );
@@ -127,7 +128,11 @@ export function UseCaseStage() {
         id="anwendungsfall-buehne"
         className="usecase-stage"
       >
-        <OverviewFlow key={set.id} set={set} />
+        {set.id === "telefon" ? (
+          <PhoneStory key={set.id} set={set} />
+        ) : (
+          <OverviewFlow key={set.id} set={set} />
+        )}
       </div>
     </section>
   );

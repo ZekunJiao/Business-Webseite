@@ -286,7 +286,14 @@ const channelNodes: Record<
   },
 };
 
-export function OverviewFlow({ set }: { set: OverviewSet }) {
+export function OverviewFlow({
+  set,
+  embedded = false,
+}: {
+  set: OverviewSet;
+  // Ohne eigene Überschrift und Anker, z. B. als technische Vertiefung
+  embedded?: boolean;
+}) {
   const { cases } = set;
   const edges = useMemo(() => edgesFor(set.channels), [set.channels]);
   const reduced = !!useReducedMotion();
@@ -423,15 +430,14 @@ export function OverviewFlow({ set }: { set: OverviewSet }) {
     apply(index, s, s === 3 ? 1 : 0);
   };
 
+  const sectionProps = embedded
+    ? { "aria-label": "Technischer Ablauf" }
+    : { id: set.id, "aria-labelledby": `${set.id}-title` };
+
   if (reduced) {
     return (
-      <section
-        ref={rootRef}
-        id={set.id}
-        className="overview"
-        aria-labelledby={`${set.id}-title`}
-      >
-        <OverviewHeading set={set} />
+      <section ref={rootRef} className="overview" {...sectionProps}>
+        {embedded ? null : <OverviewHeading set={set} />}
         <OverviewStatic cases={cases} />
         {set.showIntegrations ? <OverviewIntegrations /> : null}
       </section>
@@ -463,13 +469,8 @@ export function OverviewFlow({ set }: { set: OverviewSet }) {
     (pos.s === 3 && id === "team");
 
   return (
-    <section
-      ref={rootRef}
-      id={set.id}
-      className="overview"
-      aria-labelledby={`${set.id}-title`}
-    >
-      <OverviewHeading set={set} />
+    <section ref={rootRef} className="overview" {...sectionProps}>
+      {embedded ? null : <OverviewHeading set={set} />}
       <div className="overview-controls">
         <div
           className="overview-cases"
