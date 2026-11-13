@@ -50,10 +50,8 @@ export const phoneStory = {
     },
     { id: "callback", label: "Rückruf", value: "Anrufernummer" },
   ] satisfies PhoneNoteField[],
-  // Ohne und mit Assistent, ohne Zahlen
-  without:
-    "Die Mailbox springt an. Ob jemand draufspricht oder gleich den nächsten Betrieb anruft, weißt du nicht.",
-  with: "Der Assistent geht ran, fragt das Wichtige ab und erkennt den Notfall. Du bekommst eine kurze Notiz aufs Handy.",
+  // Hinweis im Startzustand, ohne Zahlen
+  without: "Ohne Assistent springt jetzt die Mailbox an.",
   afterwards: [
     "Die Gesprächsnotiz liegt in deiner Software, z. B. HERO, ToolTime oder Excel.",
     "Dein Team ruft zurück und entscheidet über den Einsatz. Zugesagt wird nichts ohne euch.",

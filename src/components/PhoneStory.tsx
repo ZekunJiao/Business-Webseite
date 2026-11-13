@@ -18,7 +18,6 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { Button } from "./ui/button";
 import { OverviewFlow } from "./OverviewFlow";
 import { phoneStory } from "../phoneStory";
 import type { PhoneSpeaker } from "../phoneStory";
@@ -44,6 +43,27 @@ const readingTime = (text: string) => 1100 + text.length * 38;
 const clock = (seconds: number) =>
   `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 
+// Länge der Aufnahmen aus den Metadaten; fehlt eine, gilt die Lesezeit.
+function useLineDurations() {
+  const [durations, setDurations] = useState<(number | null)[]>(() =>
+    lines.map(() => null),
+  );
+  useEffect(() => {
+    const players = phoneStory.audio.map((src, index) => {
+      const audio = new Audio();
+      audio.preload = "metadata";
+      audio.onloadedmetadata = () =>
+        setDurations((prev) =>
+          prev.map((value, i) => (i === index ? audio.duration : value)),
+        );
+      audio.src = src;
+      return audio;
+    });
+    return () => players.forEach((audio) => audio.removeAttribute("src"));
+  }, []);
+  return durations;
+}
+
 export function PhoneStory({ set }: { set: OverviewSet }) {
   const reduced = !!useReducedMotion();
   const stacked = useMediaQuery(STACKED_QUERY);
@@ -56,6 +76,17 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
   const [technicalOpen, setTechnicalOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const myPhoneRef = useRef<HTMLDivElement>(null);
+  const durations = useLineDurations();
+  const totalSeconds = () =>
+    Math.round(
+      lines.reduce(
+        (sum, line, index) =>
+          sum +
+          (durations[index] ?? readingTime(line.text) / 1000) +
+          LINE_GAP_MS / 1000,
+        0,
+      ),
+    );
 
   // Spielt die aktuelle Zeile ab (Aufnahme oder Lesezeit) und geht danach
   // zur nächsten. Pause hält die Aufnahme an derselben Stelle an.
@@ -131,6 +162,7 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
   const showAll = () => {
     audioRef.current?.pause();
     setShown(lines.length);
+    setSeconds((s) => Math.max(s, totalSeconds()));
     setStatus("done");
   };
   const primary = () => {
@@ -143,6 +175,7 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
       ? notes.map((note) => note.id)
       : lines.slice(0, shown).flatMap((line) => line.notes ?? []),
   );
+  const revealedNotes = notes.filter((note) => revealed.has(note.id));
   const noteLabel = (id: string) =>
     notes.find((note) => note.id === id)?.label ?? id;
   const noteValue = (id: string) =>
@@ -175,156 +208,188 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
       className="overview phone-story"
       aria-labelledby={`${set.id}-title`}
     >
-      <div className="overview-head">
+      <div className="phone-story-head">
         <span className="overview-kicker">
           <span className="status-dot" />
           {set.kicker}
         </span>
         <h3 id={`${set.id}-title`}>{set.title}</h3>
-        <p>{set.intro}</p>
       </div>
-
-      <div className="story-compare">
-        <div className="story-compare-item" data-tone="without">
-          <PhoneMissed size={20} aria-hidden="true" />
-          <div>
-            <strong>Ohne Assistent</strong>
-            <p>{phoneStory.without}</p>
-          </div>
-        </div>
-        <div className="story-compare-item" data-tone="with">
-          <PhoneCall size={20} aria-hidden="true" />
-          <div>
-            <strong>Mit Assistent</strong>
-            <p>{phoneStory.with}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="story-controls">
-        <span className="story-example">
-          <strong>Beispiel 1 von 1 · {phoneStory.headline}</strong>
-          <span>Stimmen KI-generiert</span>
-        </span>
-        <div className="story-control-buttons">
-          <Button type="button" className="story-primary" onClick={primary}>
-            <PrimaryIcon size={16} aria-hidden="true" />
-            {primaryLabel}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            aria-pressed={sound}
-            onClick={() => setSound((value) => !value)}
-          >
-            {sound ? (
-              <Volume2 size={16} aria-hidden="true" />
-            ) : (
-              <VolumeX size={16} aria-hidden="true" />
-            )}
-            {sound ? "Ton an" : "Ton aus"}
-          </Button>
-          {status !== "done" ? (
-            <Button type="button" variant="outline" onClick={showAll}>
-              <ListEnd size={16} aria-hidden="true" />
-              Ganzes Gespräch zeigen
-            </Button>
-          ) : null}
-        </div>
-      </div>
-      {sound && audioFailed && status !== "idle" ? (
-        <p className="phone-audio-notice" role="status">
-          <VolumeX size={15} aria-hidden="true" />
-          Ton konnte nicht abgespielt werden. Die Mitschrift läuft ohne Ton.
-        </p>
-      ) : null}
       <audio ref={audioRef} preload="none" />
 
-      <div className="story-stage">
-        <div className="call-panel" data-status={status}>
-          <div className="call-panel-head">
-            <span className="call-panel-label">Das Telefonat</span>
-            <span className="call-state" data-status={status}>
-              <span className="call-state-dot" aria-hidden="true" />
-              {callState}
-            </span>
-            <span className="call-timer" aria-hidden="true">
-              {status === "idle" ? phoneStory.callTime : clock(seconds)}
-            </span>
-          </div>
-
-          <div className="call-people">
-            <Participant
-              speaker="caller"
-              title="Anruferin"
-              subtitle="Kundin · Mobilnummer"
-              speaking={speaking === "caller"}
-              ringing={status === "idle"}
-            />
-            <span className="call-line" aria-hidden="true" />
-            <Participant
-              speaker="assistant"
-              title="Digitaler Assistent"
-              subtitle={phoneStory.business}
-              speaking={speaking === "assistant"}
-              ringing={false}
-            />
-          </div>
-
-          {status === "idle" ? (
-            <div className="call-start">
-              <p>
-                Eine Kundin ruft an. Du bist auf der Baustelle und kannst nicht
-                rangehen.
-              </p>
-              <button type="button" className="phone-accept" onClick={start}>
-                <PhoneCall size={18} aria-hidden="true" />
-                Assistent geht ran
-              </button>
-            </div>
-          ) : (
-            <div className="call-subtitles">
-              <span className="call-subtitles-label">Live-Mitschrift</span>
-              {current ? (
-                <div
-                  className="call-current"
-                  data-speaker={current.speaker}
-                  key={shown}
-                  aria-live="polite"
-                >
-                  <strong>{speakerName[current.speaker]}</strong>
-                  <p>{current.text}</p>
-                  {current.notes?.length ? (
-                    <span className="call-noted">
-                      notiert: {current.notes.map(noteLabel).join(", ")}
-                    </span>
+      <div className="story-stage phone-stage">
+        <div className="phone-main">
+          <div className="call-panel" data-status={status}>
+            <div className="call-panel-head">
+              <span className="call-panel-label">Das Telefonat</span>
+              <span className="call-state" data-status={status}>
+                <span className="call-state-dot" aria-hidden="true" />
+                {callState}
+              </span>
+              <span className="call-timer" aria-hidden="true">
+                {status === "idle" ? phoneStory.callTime : clock(seconds)}
+              </span>
+              {status !== "idle" ? (
+                <div className="call-controls">
+                  <button
+                    type="button"
+                    className="call-control"
+                    onClick={primary}
+                    aria-label={primaryLabel}
+                    title={primaryLabel}
+                  >
+                    <PrimaryIcon size={16} aria-hidden="true" />
+                    <span>{primaryLabel}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="call-control"
+                    aria-pressed={sound}
+                    onClick={() => setSound((value) => !value)}
+                    aria-label={sound ? "Ton ausschalten" : "Ton einschalten"}
+                    title={sound ? "Ton ausschalten" : "Ton einschalten"}
+                  >
+                    {sound ? (
+                      <Volume2 size={16} aria-hidden="true" />
+                    ) : (
+                      <VolumeX size={16} aria-hidden="true" />
+                    )}
+                  </button>
+                  {status !== "done" ? (
+                    <button
+                      type="button"
+                      className="call-control"
+                      onClick={showAll}
+                    >
+                      <ListEnd size={16} aria-hidden="true" />
+                      <span>Zum Ergebnis</span>
+                    </button>
                   ) : null}
                 </div>
               ) : null}
-              {earlier.length ? (
-                <ol className="call-earlier" aria-label="Bisher gesagt">
-                  {earlier.slice(0, 3).map((line) => (
-                    <li key={line.text} data-speaker={line.speaker}>
-                      <strong>{speakerName[line.speaker]}:</strong> {line.text}
-                    </li>
-                  ))}
-                </ol>
-              ) : null}
-              {status === "done" ? (
-                <details className="call-transcript">
-                  <summary>Ganze Mitschrift</summary>
-                  <ol>
-                    {lines.map((line) => (
+            </div>
+            {sound && audioFailed && status !== "idle" ? (
+              <p className="phone-audio-notice" role="status">
+                <VolumeX size={15} aria-hidden="true" />
+                Ton konnte nicht abgespielt werden. Die Mitschrift läuft ohne Ton.
+              </p>
+            ) : null}
+
+            <div className="call-people">
+              <Participant
+                speaker="caller"
+                title="Anruferin"
+                subtitle="Kundin · Mobilnummer"
+                speaking={speaking === "caller"}
+                ringing={status === "idle"}
+              />
+              <span className="call-line" aria-hidden="true" />
+              <Participant
+                speaker="assistant"
+                title="Digitaler Assistent"
+                subtitle={phoneStory.business}
+                speaking={speaking === "assistant"}
+                ringing={false}
+              />
+            </div>
+
+            {status === "idle" ? (
+              <div className="call-start">
+                <p>
+                  Eine Kundin ruft an. Du bist auf der Baustelle und kannst nicht
+                  rangehen.
+                </p>
+                <button type="button" className="phone-accept" onClick={start}>
+                  <PhoneCall size={18} aria-hidden="true" />
+                  Assistent geht ran
+                </button>
+                <span className="call-start-without">
+                  <PhoneMissed size={14} aria-hidden="true" />
+                  {phoneStory.without}
+                </span>
+              </div>
+            ) : (
+              <div className="call-subtitles">
+                <span className="call-subtitles-label">Live-Mitschrift</span>
+                {current ? (
+                  <div
+                    className="call-current"
+                    data-speaker={current.speaker}
+                    key={shown}
+                    aria-live="polite"
+                  >
+                    <strong>{speakerName[current.speaker]}</strong>
+                    <p>{current.text}</p>
+                    {current.notes?.length ? (
+                      <span className="call-noted">
+                        notiert: {current.notes.map(noteLabel).join(", ")}
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
+                {earlier.length ? (
+                  <ol className="call-earlier" aria-label="Bisher gesagt">
+                    {earlier.slice(0, 3).map((line) => (
                       <li key={line.text} data-speaker={line.speaker}>
-                        <strong>{speakerName[line.speaker]}:</strong>{" "}
-                        {line.text}
+                        <strong>{speakerName[line.speaker]}:</strong> {line.text}
                       </li>
                     ))}
                   </ol>
-                </details>
-              ) : null}
+                ) : null}
+                {status === "done" ? (
+                  <details className="call-transcript">
+                    <summary>Ganze Mitschrift</summary>
+                    <ol>
+                      {lines.map((line) => (
+                        <li key={line.text} data-speaker={line.speaker}>
+                          <strong>{speakerName[line.speaker]}:</strong>{" "}
+                          {line.text}
+                        </li>
+                      ))}
+                    </ol>
+                  </details>
+                ) : null}
+              </div>
+            )}
+          </div>
+          <p className="phone-example">
+            Beispiel · {phoneStory.headline} · Stimmen KI-generiert
+          </p>
+
+          <div className="story-note phone-note" aria-label="Gesprächsnotiz">
+            <div className="story-note-head">
+              <ClipboardList size={18} aria-hidden="true" />
+              <strong>Gesprächsnotiz</strong>
+              <span>
+                {status === "idle"
+                  ? "Wird während des Anrufs ausgefüllt."
+                  : status === "done"
+                    ? "fertig · an die Bereitschaft geschickt"
+                    : "wird mitgeschrieben …"}
+              </span>
             </div>
-          )}
+            {revealedNotes.length ? (
+              <dl>
+                {revealedNotes.map((note) => (
+                  <div
+                    key={note.id}
+                    data-visible
+                    data-open={note.open || undefined}
+                    data-urgent={note.id === "urgency" || undefined}
+                  >
+                    <dt>{note.label}</dt>
+                    <dd>{note.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : null}
+            {revealedNotes.some((note) => note.open) ? (
+              <p className="story-note-legend">
+                <span aria-hidden="true" /> Orange = noch offen. Hier fragt
+                dein Team nach.
+              </p>
+            ) : null}
+          </div>
         </div>
 
         <div className="my-phone-column" ref={myPhoneRef}>
@@ -368,40 +433,6 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
                 </div>
               ) : null}
             </div>
-          </div>
-
-          <div className="story-note" aria-label="Gesprächsnotiz">
-            <div className="story-note-head">
-              <ClipboardList size={18} aria-hidden="true" />
-              <strong>Gesprächsnotiz</strong>
-              <span>
-                {status === "idle"
-                  ? "wird beim Gespräch mitgeschrieben"
-                  : status === "done"
-                    ? "fertig · an die Bereitschaft geschickt"
-                    : "wird mitgeschrieben …"}
-              </span>
-            </div>
-            <dl>
-              {notes.map((note) => {
-                const visible = revealed.has(note.id);
-                return (
-                  <div
-                    key={note.id}
-                    data-visible={visible || undefined}
-                    data-open={(visible && note.open) || undefined}
-                    data-urgent={(visible && note.id === "urgency") || undefined}
-                  >
-                    <dt>{note.label}</dt>
-                    <dd>{visible ? note.value : "…"}</dd>
-                  </div>
-                );
-              })}
-            </dl>
-            <p className="story-note-legend">
-              <span aria-hidden="true" /> Orange = noch offen. Hier fragt dein
-              Team nach.
-            </p>
           </div>
         </div>
       </div>

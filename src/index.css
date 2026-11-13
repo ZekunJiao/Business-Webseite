@@ -2791,18 +2791,10 @@ button.usecase-card:focus-visible {
 .usecase-card[aria-pressed="true"] .usecase-card-tag {
   color: #9a572d;
 }
-.usecase-card-upcoming {
-  border-style: dashed;
-  background: #f7f9fc;
-}
-.usecase-card-upcoming .usecase-card-icon {
-  background: #edf0f4;
-  color: #8a97a6;
-}
-.usecase-card-upcoming strong {
-  color: #53677a;
-}
-.usecase-card-upcoming .usecase-card-tag {
+.usecase-upcoming {
+  margin: -8px 0 20px;
+  font-size: 13px;
+  line-height: 1.5;
   color: #7a8796;
 }
 .usecase-stage {
@@ -2813,19 +2805,23 @@ button.usecase-card:focus-visible {
 }
 @media (max-width: 760px) {
   .usecase-cards {
-    display: flex;
-    gap: 10px;
-    margin-right: -12px;
-    margin-left: -12px;
-    padding: 2px 12px 6px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding: 0 12px;
-    scrollbar-width: thin;
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
+  /* Kompakt: Symbol links, Text rechts */
   .usecase-card {
-    flex: 0 0 72%;
-    scroll-snap-align: start;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 12px;
+    row-gap: 2px;
+    padding: 12px 14px;
+  }
+  .usecase-card-icon {
+    grid-row: span 3;
+    margin-bottom: 0;
+  }
+  .usecase-card-tag {
+    margin-top: 2px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -3645,9 +3641,8 @@ button.usecase-card:focus-visible {
 .call-panel {
   display: flex;
   flex-direction: column;
-  gap: 22px;
-  min-height: 480px;
-  padding: 22px 24px 26px;
+  gap: 18px;
+  padding: 20px 24px 24px;
   border-radius: 18px;
   background: linear-gradient(170deg, #22364d, #142b43);
   color: #c9d5e2;
@@ -3691,6 +3686,35 @@ button.usecase-card:focus-visible {
   margin-left: auto;
   font-size: 14px;
   font-variant-numeric: tabular-nums;
+  color: #9fb0c3;
+}
+.call-controls {
+  display: flex;
+  gap: 6px;
+}
+.call-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid #ffffff26;
+  border-radius: 999px;
+  background: #ffffff12;
+  color: #e6edf5;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.call-control:hover {
+  background: #ffffff22;
+}
+.call-control:focus-visible {
+  outline: 2px solid #df782f;
+  outline-offset: 2px;
+}
+.call-control[aria-pressed="false"] {
   color: #9fb0c3;
 }
 .call-people {
@@ -3816,8 +3840,16 @@ button.usecase-card:focus-visible {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: 14px;
+  padding: 4px 0 2px;
   text-align: center;
+}
+.call-start-without {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #8fa1b5;
 }
 .call-start p {
   max-width: 32ch;
@@ -4173,6 +4205,44 @@ button.usecase-card:focus-visible {
   margin: 0 16px 16px;
   box-shadow: none;
 }
+/* Telefon-Demo: schlanker Kopf; links Telefonat und Notiz, rechts das Handy */
+.phone-story-head {
+  padding: 24px 32px 18px;
+}
+.phone-story-head h3 {
+  margin: 8px 0 0;
+  font-size: clamp(20px, 2.1vw, 26px);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  color: #142b43;
+}
+.phone-story .phone-stage {
+  grid-template-columns: minmax(0, 1fr) 250px;
+}
+.phone-main {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.phone-example {
+  margin: -4px 0 0;
+  font-size: 12px;
+  color: #7a8796;
+}
+.phone-story .phone-audio-notice {
+  margin: 0;
+}
+.phone-story .my-phone-column {
+  position: sticky;
+  top: 16px;
+}
+.phone-story .phone-note .story-note-head {
+  margin-bottom: 0;
+}
+.phone-story .phone-note dl {
+  margin-top: 10px;
+}
 @media (max-width: 900px) {
   .story-stage {
     grid-template-columns: 1fr;
@@ -4184,6 +4254,10 @@ button.usecase-card:focus-visible {
     width: 100%;
     max-width: 380px;
     justify-self: center;
+  }
+  .phone-story .my-phone-column {
+    position: static;
+    max-width: 230px;
   }
 }
 @media (max-width: 760px) {
@@ -4220,6 +4294,24 @@ button.usecase-card:focus-visible {
   }
   .story-technical .overview {
     margin: 0 8px 8px;
+  }
+  .phone-story-head {
+    padding: 20px 18px 14px;
+  }
+  .call-panel-head {
+    gap: 8px 10px;
+  }
+  .call-controls {
+    order: 3;
+    width: 100%;
+  }
+  .call-control span {
+    display: none;
+  }
+  .call-control {
+    width: 36px;
+    justify-content: center;
+    padding: 0;
   }
 }
 @media (prefers-reduced-motion: reduce) {

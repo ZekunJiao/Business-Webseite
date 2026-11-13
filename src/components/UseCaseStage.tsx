@@ -106,24 +106,13 @@ export function UseCaseStage() {
             </button>
           );
         })}
-        {upcomingUseCases.map((card) => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={card.title}
-              className="usecase-card usecase-card-upcoming"
-              aria-disabled="true"
-            >
-              <span className="usecase-card-icon">
-                <Icon size={20} aria-hidden="true" />
-              </span>
-              <strong>{card.title}</strong>
-              <span className="usecase-card-teaser">{card.teaser}</span>
-              <span className="usecase-card-tag">In Vorbereitung</span>
-            </div>
-          );
-        })}
       </div>
+      {upcomingUseCases.length ? (
+        <p className="usecase-upcoming">
+          Weitere Abläufe in Vorbereitung:{" "}
+          {upcomingUseCases.map((card) => card.title).join(", ")}
+        </p>
+      ) : null}
       <div
         ref={stageRef}
         id="anwendungsfall-buehne"
