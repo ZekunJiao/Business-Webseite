@@ -6,6 +6,7 @@
 // Zugang über Umgebungsvariablen oder eine lokale Datei `.env` (nicht im
 // Repository, siehe .gitignore):
 //   ELEVENLABS_API_KEY            API-Schlüssel
+// Stimmen-IDs stehen unten im Skript; überschreibbar mit
 //   ELEVENLABS_VOICE_ASSISTANT    Stimmen-ID für den Assistenten
 //   ELEVENLABS_VOICE_CALLER       Stimmen-ID für die Anruferin
 // Optional:
@@ -52,8 +53,10 @@ if (process.argv.includes("--list-voices")) {
 
 const model = process.env.ELEVENLABS_MODEL ?? "eleven_v4";
 const outputFormat = process.env.ELEVENLABS_OUTPUT_FORMAT ?? "mp3_44100_128";
+// Stimmen-IDs sind nicht geheim und stehen deshalb hier.
 const voices = {
-  assistant: process.env.ELEVENLABS_VOICE_ASSISTANT,
+  // Sebastian - Calm & Natural
+  assistant: process.env.ELEVENLABS_VOICE_ASSISTANT ?? "gzvDGHWqBQM6eoYO11Kp",
   caller: process.env.ELEVENLABS_VOICE_CALLER,
 };
 if (!voices.assistant || !voices.caller) {
