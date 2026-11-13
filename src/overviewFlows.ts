@@ -6,7 +6,7 @@ import {
   ReceiptText,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { scenarios, sources } from "./data";
+import { scenarios } from "./data";
 
 // Beispielfälle der Überblick-Animation. Alles ist eine Simulation mit
 // erfundenen Beispieldaten; die E-Mail-Fälle nutzen dieselben Szenarien wie
@@ -48,10 +48,6 @@ export type OverviewCase = {
   detailDemo: boolean;
 };
 
-const matchedSources = new Set(
-  scenarios.complete.answerSources.filter((i): i is number => i !== null),
-).size;
-
 const teamStep = {
   chip: "Team prüft",
   text: "Dein Team prüft, ergänzt Offenes und sendet selbst. Nichts wird automatisch verschickt.",
@@ -91,12 +87,43 @@ export const systemNames: Record<OverviewSystem, string> = {
   knowledge: "Betriebswissen",
 };
 
+// Dieselben drei Fälle wie in der Posteingang-Demo (src/inboxStory.ts).
 export const overviewCases: OverviewCase[] = [
   {
+    id: "form-excel",
+    teamStatus: "prüft die Zeile",
+    assistantStatus: ["ordnet die Spalten zu …", "bereitet die Zeile vor …"],
+    toolStatus: "Zeile eingetragen",
+    channel: "form",
+    system: "crm",
+    tool: "Excel",
+    label: "Formular: Neue Anfrage",
+    headline: "Anfrage über die Homepage landet in Excel",
+    steps: [
+      {
+        chip: "Badsanierung",
+        text: "Eine Anfrage zur Badsanierung kommt über das Formular auf der Homepage herein (Beispiel).",
+      },
+      {
+        chip: "Spalten zugeordnet",
+        text: "Der Assistent ordnet die Angaben den Spalten der bestehenden Anfragenliste zu.",
+      },
+      {
+        chip: "Zeile vorbereitet",
+        text: "In der Excel-Liste liegt eine neue Zeile bereit. Unklare Felder sind markiert.",
+      },
+      {
+        chip: "Team prüft",
+        text: "Dein Team prüft die Zeile, fragt bei Bedarf nach und meldet sich selbst.",
+      },
+    ],
+    detailDemo: false,
+  },
+  {
     id: "email-request",
-    teamStatus: "prüft das Angebot",
-    assistantStatus: ["erkennt die Kundin …", "bereitet das Angebot vor …"],
-    toolStatus: "Angebotsentwurf angelegt",
+    teamStatus: "prüft den Entwurf",
+    assistantStatus: ["erkennt die Kundin …", "schreibt einen Entwurf …"],
+    toolStatus: "Vorgang angelegt",
     channel: "email",
     system: "crm",
     tool: "plancraft",
@@ -112,68 +139,12 @@ export const overviewCases: OverviewCase[] = [
         text: "Der Assistent erkennt die Absenderin als Bestandskundin.",
       },
       {
-        chip: "Angebotsentwurf bereit",
-        text: "Ein Angebotsentwurf liegt bereit. Offene Punkte, etwa das Typenschildfoto, sind markiert.",
+        chip: "Entwurf bereit",
+        text: "Antwortentwurf und Vorgang liegen bereit. Offene Punkte, etwa das Typenschildfoto, sind markiert.",
       },
       teamStep,
     ],
     detailDemo: true,
-  },
-  {
-    id: "email-question",
-    teamStatus: "prüft den Entwurf",
-    assistantStatus: ["sucht im Betriebswissen …", "schreibt einen Entwurf …"],
-    toolStatus: "Entwurf mit Quellen",
-    channel: "email",
-    system: "knowledge",
-    label: "E-Mail: Allgemeine Frage",
-    headline: "Allgemeine Frage per E-Mail",
-    steps: [
-      {
-        chip: "Fragen zur Wartung",
-        text: `${scenarios.complete.sender} stellt eine mehrteilige Frage zu Wartung, Vorbereitung und Preis.`,
-      },
-      {
-        chip: `${matchedSources} relevante Dokumente gefunden`,
-        text: `Der Assistent sucht im Betriebswissen: ${matchedSources} von ${sources.length} Dokumenten passen zur Frage.`,
-      },
-      {
-        chip: "Antwort mit Quellen",
-        text: "Ein Antwortentwurf entsteht. Jeder Absatz verweist auf seine Quelle.",
-      },
-      teamStep,
-    ],
-    detailDemo: true,
-  },
-  {
-    id: "form-request",
-    teamStatus: "prüft den Vorschlag",
-    assistantStatus: ["übernimmt die Angaben …", "bereitet den Vorschlag vor …"],
-    toolStatus: "Anfrage angelegt",
-    channel: "form",
-    system: "crm",
-    tool: "ToolTime",
-    label: "Formular: Neue Anfrage",
-    headline: "Neue Anfrage über die Homepage",
-    steps: [
-      {
-        chip: "Neue Anfrage",
-        text: "Eine Anfrage kommt über das Formular auf der Homepage herein (Beispiel).",
-      },
-      {
-        chip: "Angaben übernommen",
-        text: "Die Angaben aus dem Formular werden den passenden Feldern zugeordnet.",
-      },
-      {
-        chip: "Vorschlag bereit",
-        text: "In der Kundenverwaltung liegt ein Vorschlag bereit. Fehlende Angaben sind markiert.",
-      },
-      {
-        chip: "Team prüft",
-        text: "Dein Team prüft, fragt bei Bedarf nach und meldet sich selbst.",
-      },
-    ],
-    detailDemo: false,
   },
   {
     id: "email-fault",
@@ -201,36 +172,6 @@ export const overviewCases: OverviewCase[] = [
       {
         chip: "Team prüft",
         text: "Dein Team prüft, plant den Termin und antwortet selbst. Nichts wird automatisch verschickt.",
-      },
-    ],
-    detailDemo: false,
-  },
-  {
-    id: "form-excel",
-    teamStatus: "prüft die Zeile",
-    assistantStatus: ["ordnet die Spalten zu …", "bereitet die Zeile vor …"],
-    toolStatus: "Zeile eingetragen",
-    channel: "form",
-    system: "crm",
-    tool: "Excel",
-    label: "Formular: Anfrage in Excel",
-    headline: "Anfrage über die Homepage landet in Excel",
-    steps: [
-      {
-        chip: "Badsanierung",
-        text: "Eine Anfrage zur Badsanierung kommt über das Formular auf der Homepage herein (Beispiel).",
-      },
-      {
-        chip: "Spalten zugeordnet",
-        text: "Der Assistent ordnet die Angaben den Spalten der bestehenden Anfragenliste zu.",
-      },
-      {
-        chip: "Zeile vorbereitet",
-        text: "In der Excel-Liste liegt eine neue Zeile bereit. Unklare Felder sind markiert.",
-      },
-      {
-        chip: "Team prüft",
-        text: "Dein Team prüft die Zeile, fragt bei Bedarf nach und meldet sich selbst.",
       },
     ],
     detailDemo: false,
@@ -413,13 +354,13 @@ export const overviewSets: OverviewSet[] = [
     card: {
       title: "Anfragen beantworten",
       teaser:
-        "E-Mails und Formulare erkennen, zuordnen und Antwort oder Eintrag vorbereiten.",
+        "Mails lesen, Kunden zuordnen und einen Antwortentwurf vorbereiten.",
       icon: MessagesSquare,
     },
     kicker: "ANWENDUNGSFALL · KUNDENANFRAGEN",
     title: "Die Anfrage kommt rein. Die Antwort liegt bereit.",
     intro:
-      "Ob E-Mail oder Formular: Der Assistent erkennt den Kunden, findet die passenden Infos in deinen Unterlagen und bereitet Antwort oder Eintrag vor. Dein Team prüft und sendet selbst.",
+      "Der Assistent liest die Mail, erkennt den Kunden, findet die passenden Infos in deinen Unterlagen und schreibt einen Antwortentwurf. Dein Team prüft und sendet selbst.",
     channels: ["email", "form"],
     cases: overviewCases,
     showIntegrations: true,

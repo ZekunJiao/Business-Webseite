@@ -184,15 +184,15 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
         <p>{set.intro}</p>
       </div>
 
-      <div className="phone-compare">
-        <div className="phone-compare-item" data-tone="without">
+      <div className="story-compare">
+        <div className="story-compare-item" data-tone="without">
           <PhoneMissed size={20} aria-hidden="true" />
           <div>
             <strong>Ohne Assistent</strong>
             <p>{phoneStory.without}</p>
           </div>
         </div>
-        <div className="phone-compare-item" data-tone="with">
+        <div className="story-compare-item" data-tone="with">
           <PhoneCall size={20} aria-hidden="true" />
           <div>
             <strong>Mit Assistent</strong>
@@ -201,13 +201,13 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
         </div>
       </div>
 
-      <div className="phone-controls">
-        <span className="phone-example">
+      <div className="story-controls">
+        <span className="story-example">
           <strong>Beispiel 1 von 1 · {phoneStory.headline}</strong>
           <span>Stimmen KI-generiert</span>
         </span>
-        <div className="phone-control-buttons">
-          <Button type="button" className="phone-primary" onClick={primary}>
+        <div className="story-control-buttons">
+          <Button type="button" className="story-primary" onClick={primary}>
             <PrimaryIcon size={16} aria-hidden="true" />
             {primaryLabel}
           </Button>
@@ -240,7 +240,7 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
       ) : null}
       <audio ref={audioRef} preload="none" />
 
-      <div className="phone-stage">
+      <div className="story-stage">
         <div className="call-panel" data-status={status}>
           <div className="call-panel-head">
             <span className="call-panel-label">Das Telefonat</span>
@@ -370,8 +370,8 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
             </div>
           </div>
 
-          <div className="phone-note" aria-label="Gesprächsnotiz">
-            <div className="phone-note-head">
+          <div className="story-note" aria-label="Gesprächsnotiz">
+            <div className="story-note-head">
               <ClipboardList size={18} aria-hidden="true" />
               <strong>Gesprächsnotiz</strong>
               <span>
@@ -398,7 +398,7 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
                 );
               })}
             </dl>
-            <p className="phone-note-legend">
+            <p className="story-note-legend">
               <span aria-hidden="true" /> Orange = noch offen. Hier fragt dein
               Team nach.
             </p>
@@ -406,7 +406,7 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
         </div>
       </div>
 
-      <div className="phone-after">
+      <div className="story-after">
         <strong>Und danach?</strong>
         <ul>
           <li>
@@ -421,7 +421,7 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
       </div>
 
       <details
-        className="phone-technical"
+        className="story-technical"
         onToggle={(event) => setTechnicalOpen(event.currentTarget.open)}
       >
         <summary>So hängt es technisch zusammen</summary>

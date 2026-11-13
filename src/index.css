@@ -3545,14 +3545,15 @@ button.usecase-card:focus-visible {
   }
 }
 
-/* Telefon-Demo: links das Telefonat, rechts dein Handy mit Notiz */
-.phone-compare {
+/* Telefon-Demo: links das Telefonat, rechts dein Handy mit Notiz.
+   Die story-*-Klassen nutzt auch die Posteingang-Demo. */
+.story-compare {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   padding: 18px 32px 6px;
 }
-.phone-compare-item {
+.story-compare-item {
   display: flex;
   gap: 12px;
   padding: 14px 16px;
@@ -3561,26 +3562,26 @@ button.usecase-card:focus-visible {
   background: #f7f9fc;
   color: #7a8796;
 }
-.phone-compare-item[data-tone="with"] {
+.story-compare-item[data-tone="with"] {
   border-color: #d9c9f0;
   background: #f8f4fd;
   color: #6b45a8;
 }
-.phone-compare-item svg {
+.story-compare-item svg {
   flex: none;
   margin-top: 2px;
 }
-.phone-compare-item strong {
+.story-compare-item strong {
   font-size: 14px;
   color: #142b43;
 }
-.phone-compare-item p {
+.story-compare-item p {
   margin: 4px 0 0;
   font-size: 13px;
   line-height: 1.5;
   color: #5b6e83;
 }
-.phone-controls {
+.story-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -3588,7 +3589,7 @@ button.usecase-card:focus-visible {
   gap: 12px;
   padding: 18px 32px;
 }
-.phone-example {
+.story-example {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -3596,17 +3597,17 @@ button.usecase-card:focus-visible {
   font-size: 13px;
   color: #7a8796;
 }
-.phone-example strong {
+.story-example strong {
   font-weight: 650;
   color: #17334d;
 }
-.phone-control-buttons {
+.story-control-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 /* Feste Breite, damit die Nachbarbuttons beim Umschalten nicht springen */
-.phone-control-buttons .phone-primary {
+.story-control-buttons .story-primary {
   min-width: 178px;
 }
 .phone-audio-notice {
@@ -3621,7 +3622,7 @@ button.usecase-card:focus-visible {
   font-size: 13px;
   color: #8a4b22;
 }
-.phone-stage {
+.story-stage {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
   gap: 32px;
@@ -4029,14 +4030,14 @@ button.usecase-card:focus-visible {
   font-weight: 600;
   color: #17334d;
 }
-.phone-note {
+.story-note {
   padding: 18px;
   border: 1px solid #dce3eb;
   border-radius: 14px;
   background: #fff;
   box-shadow: 0 8px 24px #17334d0d;
 }
-.phone-note-head {
+.story-note-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -4044,20 +4045,20 @@ button.usecase-card:focus-visible {
   margin-bottom: 10px;
   color: #6b45a8;
 }
-.phone-note-head strong {
+.story-note-head strong {
   font-size: 15px;
   color: #142b43;
 }
-.phone-note-head span {
+.story-note-head span {
   flex-basis: 100%;
   font-size: 12px;
   color: #7a8796;
 }
-.phone-note dl {
+.story-note dl {
   display: grid;
   margin: 0;
 }
-.phone-note dl > div {
+.story-note dl > div {
   display: grid;
   grid-template-columns: 96px minmax(0, 1fr);
   gap: 10px;
@@ -4065,31 +4066,31 @@ button.usecase-card:focus-visible {
   border-top: 1px solid #edf1f5;
   font-size: 13px;
 }
-.phone-note dt {
+.story-note dt {
   color: #7a8796;
 }
-.phone-note dd {
+.story-note dd {
   margin: 0;
   color: #b7c2ce;
 }
-.phone-note dl > div[data-visible] dd {
+.story-note dl > div[data-visible] dd {
   color: #142b43;
   font-weight: 550;
-  animation: phone-note-in 0.9s ease-out;
+  animation: story-note-in 0.9s ease-out;
 }
-@keyframes phone-note-in {
+@keyframes story-note-in {
   from {
     background: #e7f5ec;
   }
 }
-.phone-note dl > div[data-urgent] dd {
+.story-note dl > div[data-urgent] dd {
   color: #b4312a;
   font-weight: 650;
 }
-.phone-note dl > div[data-open] dd {
+.story-note dl > div[data-open] dd {
   color: #b4581f;
 }
-.phone-note-legend {
+.story-note-legend {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -4097,22 +4098,22 @@ button.usecase-card:focus-visible {
   font-size: 12px;
   color: #667487;
 }
-.phone-note-legend span {
+.story-note-legend span {
   flex: none;
   width: 10px;
   height: 10px;
   border-radius: 50%;
   background: #df782f;
 }
-.phone-after {
+.story-after {
   padding: 20px 32px;
   border-top: 1px solid #dce3eb;
 }
-.phone-after strong {
+.story-after strong {
   font-size: 15px;
   color: #142b43;
 }
-.phone-after ul {
+.story-after ul {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
@@ -4120,38 +4121,38 @@ button.usecase-card:focus-visible {
   padding: 0;
   list-style: none;
 }
-.phone-after li {
+.story-after li {
   display: flex;
   gap: 10px;
   font-size: 14px;
   line-height: 1.5;
   color: #53677a;
 }
-.phone-after svg {
+.story-after svg {
   flex: none;
   margin-top: 2px;
   color: #2f6fae;
 }
-.phone-technical {
+.story-technical {
   border-top: 1px solid #dce3eb;
 }
-.phone-technical summary {
+.story-technical summary {
   padding: 16px 32px;
   font-size: 14px;
   font-weight: 650;
   color: #2f6fae;
   cursor: pointer;
 }
-.phone-technical summary:focus-visible {
+.story-technical summary:focus-visible {
   outline: 2px solid #df782f;
   outline-offset: -2px;
 }
-.phone-technical .overview {
+.story-technical .overview {
   margin: 0 16px 16px;
   box-shadow: none;
 }
 @media (max-width: 900px) {
-  .phone-stage {
+  .story-stage {
     grid-template-columns: 1fr;
   }
   .call-panel {
@@ -4164,14 +4165,14 @@ button.usecase-card:focus-visible {
   }
 }
 @media (max-width: 760px) {
-  .phone-compare,
-  .phone-after ul {
+  .story-compare,
+  .story-after ul {
     grid-template-columns: 1fr;
   }
-  .phone-compare,
-  .phone-controls,
-  .phone-after,
-  .phone-technical summary {
+  .story-compare,
+  .story-controls,
+  .story-after,
+  .story-technical summary {
     padding-right: 18px;
     padding-left: 18px;
   }
@@ -4179,7 +4180,7 @@ button.usecase-card:focus-visible {
     margin-right: 18px;
     margin-left: 18px;
   }
-  .phone-stage {
+  .story-stage {
     padding: 20px 12px;
   }
   .call-panel {
@@ -4195,7 +4196,7 @@ button.usecase-card:focus-visible {
   .call-current p {
     font-size: 17px;
   }
-  .phone-technical .overview {
+  .story-technical .overview {
     margin: 0 8px 8px;
   }
 }
@@ -4205,10 +4206,401 @@ button.usecase-card:focus-visible {
   .call-wave i,
   .call-current,
   .phone-push,
-  .phone-note dl > div[data-visible] dd {
+  .story-note dl > div[data-visible] dd {
     animation: none;
   }
   .call-wave i {
     transform: scaleY(0.7);
+  }
+}
+
+/* Posteingang-Demo: links Mail und Assistent, rechts Entwurf und Eintrag.
+   Vergleich, Steuerung, Bühne, Notiz und "Und danach?" teilt sie sich mit
+   der Telefon-Demo (story-*). */
+.mailbox-stage {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.mailbox-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.mailbox-panel {
+  overflow: hidden;
+  border: 1px solid #dce3eb;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 24px #17334d0d;
+}
+.mailbox-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid #dce3eb;
+  background: #f7f9fc;
+}
+.mailbox-list li + li {
+  border-top: 1px solid #edf1f5;
+}
+.mailbox-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 0;
+  border-left: 3px solid transparent;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+.mailbox-row:hover {
+  background: #eef2f6;
+}
+.mailbox-row[aria-pressed="true"] {
+  border-left-color: #df782f;
+  background: #fff;
+  cursor: default;
+}
+.mailbox-row:focus-visible {
+  outline: 2px solid #df782f;
+  outline-offset: -2px;
+}
+.mailbox-avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #dfe8f1;
+  font-size: 12px;
+  font-weight: 700;
+  color: #17334d;
+}
+.mailbox-row-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 13px;
+  color: #53677a;
+}
+.mailbox-row-text strong {
+  font-size: 14px;
+  color: #142b43;
+}
+.mailbox-row-text span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mailbox-row-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.mailbox-time {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #7a8796;
+}
+.mailbox-tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e6eef7;
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+  color: #2f6fae;
+}
+.mailbox-tag[data-tone="working"] {
+  background: #f1eafb;
+  color: #6b45a8;
+}
+.mailbox-tag[data-tone="ready"] {
+  background: #e7f5ec;
+  color: #23784a;
+}
+.mailbox-tag[data-tone="urgent"] {
+  background: #fbe9e7;
+  color: #b4312a;
+}
+.mailbox-mail {
+  padding: 16px 18px 18px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #2c4157;
+  animation: call-line-in 0.3s ease-out;
+}
+.mailbox-mail header {
+  margin-bottom: 10px;
+}
+.mailbox-mail h4 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 650;
+  color: #142b43;
+}
+.mailbox-mail header span {
+  font-size: 12px;
+  color: #7a8796;
+}
+.mailbox-mail p {
+  margin: 0 0 8px;
+  white-space: pre-line;
+}
+.mailbox-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 5px 10px;
+  border: 1px solid #dce3eb;
+  border-radius: 8px;
+  background: #f7f9fc;
+  font-size: 12px;
+  color: #53677a;
+}
+.mailbox-assistant {
+  padding: 16px 18px;
+  border: 1px solid #d9c9f0;
+  border-radius: 14px;
+  background: #fbf8fe;
+}
+.mailbox-assistant-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-bottom: 10px;
+}
+.mailbox-assistant-head strong {
+  font-size: 15px;
+  color: #142b43;
+}
+.mailbox-assistant-head > span:last-child {
+  font-size: 12px;
+  color: #6b45a8;
+}
+.mailbox-assistant-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #8a63c9, #6b45a8);
+  color: #fff;
+}
+.mailbox-assistant ol {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mailbox-assistant li {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #9aa7b6;
+}
+.mailbox-assistant li > span:last-child {
+  display: flex;
+  flex-direction: column;
+}
+.mailbox-assistant li strong {
+  font-weight: 600;
+}
+.mailbox-assistant li[data-state="done"],
+.mailbox-assistant li[data-state="current"] {
+  color: #53677a;
+}
+.mailbox-assistant li[data-state="done"] strong,
+.mailbox-assistant li[data-state="current"] strong {
+  color: #142b43;
+}
+.mailbox-step-mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #d5dde6;
+  border-radius: 50%;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+.mailbox-assistant li[data-state="current"] .mailbox-step-mark {
+  border-color: #ab89d9;
+  color: #6b45a8;
+}
+.mailbox-assistant li[data-state="current"] .mailbox-step-mark svg {
+  animation: mailbox-spin 1s linear infinite;
+}
+@keyframes mailbox-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.mailbox-assistant li[data-state="done"] .mailbox-step-mark {
+  border-color: #6b45a8;
+  background: #6b45a8;
+  color: #fff;
+}
+.mailbox-assistant li[data-state="done"] > span:last-child span {
+  animation: call-line-in 0.3s ease-out;
+}
+
+/* Antwortentwurf */
+.mailbox-draft {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid #dce3eb;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 24px #17334d0d;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.mailbox-draft[data-ready] {
+  border-color: #a9d8bb;
+  box-shadow: 0 10px 28px #2f9e621f;
+}
+.mailbox-draft-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+.mailbox-draft-head strong {
+  margin-right: auto;
+  font-size: 15px;
+  color: #142b43;
+}
+.mailbox-draft-chip {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #eef2f6;
+  font-size: 12px;
+  font-weight: 600;
+  color: #53677a;
+}
+.mailbox-draft[data-ready] .mailbox-draft-chip:last-child {
+  background: #e7f5ec;
+  color: #23784a;
+}
+.mailbox-draft-chip[data-tone="urgent"] {
+  background: #fbe9e7;
+  color: #b4312a;
+}
+.mailbox-draft-meta {
+  display: grid;
+  margin: 0;
+  font-size: 13px;
+}
+.mailbox-draft-meta > div {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid #edf1f5;
+}
+.mailbox-draft-meta dt {
+  color: #7a8796;
+}
+.mailbox-draft-meta dd {
+  margin: 0;
+  color: #142b43;
+}
+.mailbox-draft-empty {
+  margin: 0;
+  padding: 18px;
+  border: 1px dashed #d5dde6;
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: center;
+  color: #7a8796;
+}
+.mailbox-draft-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #2c4157;
+}
+.mailbox-draft-body p {
+  margin: 0 0 10px;
+  animation: call-line-in 0.35s ease-out;
+}
+.mailbox-source {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #eef4fb;
+  font-size: 11px;
+  font-weight: 600;
+  color: #2f6fae;
+}
+.mailbox-draft-body .mailbox-draft-open {
+  padding: 8px 10px;
+  border: 1px dashed #efb98d;
+  border-radius: 8px;
+  background: #fdf3ea;
+  color: #b4581f;
+}
+.mailbox-draft-open span {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.mailbox-draft-body .mailbox-draft-closing {
+  margin: 0;
+  white-space: pre-line;
+}
+.mailbox-draft-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid #edf1f5;
+  font-size: 13px;
+  font-weight: 600;
+  color: #23784a;
+}
+@media (max-width: 900px) {
+  .mailbox-stage {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .mailbox-mail,
+  .mailbox-assistant,
+  .mailbox-draft {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+  .mailbox-row {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mailbox-mail,
+  .mailbox-draft-body p,
+  .mailbox-assistant li > span:last-child span,
+  .mailbox-assistant li[data-state="current"] .mailbox-step-mark svg {
+    animation: none;
   }
 }

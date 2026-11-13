@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import { OverviewFlow } from "./OverviewFlow";
 import { PhoneStory } from "./PhoneStory";
+import { InboxStory } from "./InboxStory";
 import {
   overviewSets,
   upcomingUseCases,
@@ -130,6 +131,8 @@ export function UseCaseStage() {
       >
         {set.id === "telefon" ? (
           <PhoneStory key={set.id} set={set} />
+        ) : set.id === "anfragen" ? (
+          <InboxStory key={set.id} set={set} />
         ) : (
           <OverviewFlow key={set.id} set={set} />
         )}

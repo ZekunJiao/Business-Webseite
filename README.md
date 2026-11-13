@@ -106,11 +106,23 @@ Bis 900 px Breite stehen beide untereinander; nach dem Gespräch scrollt die Sei
 - **Reduzierte Bewegung:** kein Klingeln, keine Sprechwelle und keine Einblendungen; der Ablauf startet nur auf Klick.
 - **Offen:** eine echte Demo-Nummer zum Selbst-Anrufen (braucht Telefonie-Anbieter).
 
+## Posteingang-Demo
+
+Der Anwendungsfall „Anfragen beantworten“ (`anfragen`) zeigt statt des Diagramms `InboxStory` (`src/components/InboxStory.tsx`, Inhalte in `src/inboxStory.ts`): einen Vergleich „Ohne/Mit Assistent“ (ohne Zahlen) und darunter zwei Spalten:
+
+- **Dein Posteingang** (links): drei Beispielmails als Liste, die geöffnete Mail und eine Checkliste, was der Assistent gerade tut (Mail lesen, Kundenverwaltung prüfen, Betriebswissen durchsuchen bzw. Dringlichkeit erkennen, Entwurf schreiben).
+- **Vorbereitet für dein Team** (rechts): Antwortentwurf, der sich absatzweise füllt, mit Quellenhinweisen auf das Betriebswissen und orange markierten Stellen, die das Team ergänzt. Darunter der „Eintrag in deiner Software“; offene Angaben sind orange, Dringendes rot.
+
+- **Fälle:** Neue Anfrage über das Kontaktformular (Badsanierung, Neukunde), Wartungswunsch einer Bestandskundin, Störungsmeldung mit Foto (dringend). Bewusst die drei häufigsten Anfragearten als Annahme, keine erhobenen Zahlen. Betrieb, Personen, Adressen und Anlagen sind erfunden; Quellentitel stammen aus `sources` in `src/data.ts`.
+- **Bedienung:** Startet einmal von selbst, sobald die Demo im Blick ist. „Pausieren/Fortsetzen“, „Ergebnis zeigen“, danach „Noch einmal“ und „Nächstes Beispiel“. Ein Klick auf eine Mail im Posteingang startet diesen Fall. Bearbeitete Mails tragen „Entwurf bereit“.
+- **Reduzierte Bewegung:** kein Autostart und keine Einblendungen; jeder Fall erscheint direkt fertig.
+- **Technik:** Das Diagramm mit denselben drei Fällen steht aufklappbar unter „So hängt es technisch zusammen“. Gemeinsame Layout-Klassen mit der Telefon-Demo heißen `story-*`, eigene Klassen `mailbox-*`.
+
 ## Überblick-Animation
 
-Auf der Bühne der Anwendungsfälle zeigt `OverviewFlow` (`src/components/OverviewFlow.tsx`) einen möglichen Ablauf in vier Spalten: Anliegen (E-Mail, Homepage-Formular), Assistent, Werkzeuge (Kundenverwaltung, Betriebswissen) und „Dein Team“. Beim Telefon steht es aufklappbar unter der Telefon-Demo. Die Beispielfälle des gewählten Anwendungsfalls laufen in einer Schleife. Jeder Fall endet bei der menschlichen Prüfung; es wird nichts automatisch gesendet.
+Auf der Bühne der Anwendungsfälle zeigt `OverviewFlow` (`src/components/OverviewFlow.tsx`) einen möglichen Ablauf in vier Spalten: Anliegen (E-Mail, Homepage-Formular), Assistent, Werkzeuge (Kundenverwaltung, Betriebswissen) und „Dein Team“. Bei Telefon und Anfragen steht es aufklappbar unter der jeweiligen Demo. Die Beispielfälle des gewählten Anwendungsfalls laufen in einer Schleife. Jeder Fall endet bei der menschlichen Prüfung; es wird nichts automatisch gesendet.
 
-- **Inhalte:** `src/overviewFlows.ts`. Die E-Mail-Fälle nutzen dieselben Beispieldaten wie die Detaildemo (`src/data.ts`). Das Homepage-Formular ist ein erfundenes Beispiel; die Seite hat kein echtes Formular.
+- **Inhalte:** `src/overviewFlows.ts`. Die Anfragen-Fälle sind dieselben drei wie in der Posteingang-Demo (Neue Anfrage per Formular, Wartung, Störung). Das Homepage-Formular ist ein erfundenes Beispiel; die Seite hat kein echtes Formular.
 - **Zielsysteme:** im Diagramm bewusst generische Begriffe (Kundenverwaltung, Betriebswissen). Darunter nennt eine Zeile „Anbindbar an Handwerkersoftware, z. B.“ die Programme aus `src/integrations.ts`, mit Logos aus `public/assets/integrations/`. Sie erscheint nur auf schmalen Bildschirmen und bei reduzierter Bewegung; in der Desktop-Animation stehen die Logos bereits im Diagramm. Bestätigt ist: Die Anbindung an Handwerkersoftware ist möglich und die Logos dürfen gezeigt werden. Es gibt nur Tools in der Liste, für die eine Anbindung oder ein Vertrag besteht; aktuell stehen plancraft und ToolTime als Platzhalter dort und sind vor dem Versenden zu bestätigen. Die Aussage lautet „anbindbar“, nicht „bereits angebunden“ oder „Partner“. Ein Marken- oder Simulationshinweis steht bewusst nicht dabei. Das ToolTime-Logo ist für dunklen Grund gedacht und liegt deshalb auf einer dunklen Kachel.
 - **Technik:** SVG-Linien mit Dash-Animation und ein Etikett, das entlang der Kurve läuft. Gesteuert wird alles über eine eigene `requestAnimationFrame`-Schleife (wie in den Demo-Overlays). Zeiten stehen in `src/lib/demoTiming.ts` (`OVERVIEW_STEP_MS`, `OVERVIEW_HOLD_MS`) und laufen in Echtzeit, ohne `DEMO_PLAYBACK_SPEED`. Ein Durchlauf aller drei Fälle dauert etwa 20 Sekunden.
 - **Bedienung:** „Pausieren/Fortsetzen“ und drei Fall-Buttons. Bei Pause zeigt ein Sprung direkt das fertige Ergebnis des Falls. Die Animation läuft nur, solange der Abschnitt sichtbar und der Browser-Tab aktiv ist.
