@@ -57,7 +57,8 @@ const outputFormat = process.env.ELEVENLABS_OUTPUT_FORMAT ?? "mp3_44100_128";
 const voices = {
   // Sebastian - Calm & Natural
   assistant: process.env.ELEVENLABS_VOICE_ASSISTANT ?? "gzvDGHWqBQM6eoYO11Kp",
-  caller: process.env.ELEVENLABS_VOICE_CALLER,
+  // Mrs. Sophie (Friendly & professional)
+  caller: process.env.ELEVENLABS_VOICE_CALLER ?? "R24r0IV80Iw9eyByq1ps",
 };
 if (!voices.assistant || !voices.caller) {
   console.error(
