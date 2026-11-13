@@ -3936,23 +3936,40 @@ button.usecase-card:focus-visible {
   scroll-margin-top: 16px;
 }
 .phone-device {
-  padding: 9px;
-  border-radius: 34px;
+  position: relative;
+  width: 100%;
+  max-width: 250px;
+  align-self: center;
+  padding: 8px;
+  border-radius: 38px;
   background: #1b2633;
   box-shadow: 0 14px 32px #17334d30;
 }
+/* Kameraaussparung oben */
+.phone-device::before {
+  content: "";
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  z-index: 1;
+  width: 64px;
+  height: 18px;
+  border-radius: 999px;
+  background: #0d141c;
+  transform: translateX(-50%);
+}
 .phone-screen {
   position: relative;
-  height: 250px;
+  aspect-ratio: 9 / 18;
   overflow: hidden;
-  border-radius: 26px;
+  border-radius: 31px;
   background: linear-gradient(160deg, #3a5a7c, #1f3550 60%, #172a40);
 }
 .lock-screen {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 26px;
+  padding: 44px 16px 0;
   text-align: center;
   color: #e6edf5;
 }
@@ -3961,7 +3978,7 @@ button.usecase-card:focus-visible {
   color: #c9d5e2;
 }
 .lock-clock {
-  font-size: 54px;
+  font-size: 50px;
   font-weight: 300;
   line-height: 1.05;
   letter-spacing: -0.02em;
@@ -3975,17 +3992,17 @@ button.usecase-card:focus-visible {
 }
 .phone-push {
   position: absolute;
-  right: 10px;
-  bottom: 12px;
-  left: 10px;
+  top: 150px;
+  right: 8px;
+  left: 8px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 12px 14px;
+  padding: 11px 12px;
   border-radius: 18px;
   background: #ffffffee;
   font-size: 12px;
-  line-height: 1.45;
+  line-height: 1.4;
   color: #3f5266;
   box-shadow: 0 10px 30px #0b182638;
   backdrop-filter: blur(8px);
@@ -4017,17 +4034,22 @@ button.usecase-card:focus-visible {
 }
 .phone-push-actions {
   display: flex;
-  gap: 8px;
+  flex-direction: row;
+  gap: 6px;
   margin-top: 6px;
 }
 .phone-push-actions span {
   display: inline-flex;
+  flex: 1;
   align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 6px;
   border-radius: 999px;
-  background: #eef2f6;
+  background: #e3e9f0;
+  font-size: 11px;
   font-weight: 600;
+  white-space: nowrap;
   color: #17334d;
 }
 .story-note {
