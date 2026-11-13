@@ -1,90 +1,101 @@
-// Erzeugt die Sprachaufnahmen für die Telefon-Demo mit Azure AI Speech
-// (HD-Stimmen). Aufruf: `npm run audio:phone`.
+// Erzeugt die Sprachaufnahmen für die Telefon-Demo einmalig mit OpenAI
+// Text-to-Speech und speichert sie als MP3 in public/assets/phone/.
+// Die Webseite spielt nur diese Dateien ab und ruft keine API auf.
 //
-// Zugang über Umgebungsvariablen oder eine lokale Datei `.env` (nicht im
-// Repository, siehe .gitignore):
-//   AZURE_SPEECH_KEY           Schlüssel der Speech-Ressource
-//   AZURE_SPEECH_REGION        Region mit HD-Stimmen, Standard westeurope
+// Aufruf: `npm run audio:phone`
+// Zugang über die Umgebungsvariable OPENAI_API_KEY oder eine lokale Datei
+// `.env` (nicht im Repository, siehe .gitignore).
+//
+// Vorhandene Dateien werden übersprungen. Neu erzeugen:
+//   --only=3,5     nur diese Zeilen (1-basiert), auch wenn sie existieren
+//   --force        alle Zeilen
 // Optional:
-//   PHONE_VOICE_ASSISTANT      Standard de-DE-Florian:DragonHDLatestNeural
-//   PHONE_VOICE_CALLER         Standard de-DE-Seraphina:DragonHDLatestNeural
-//   --only=3,5                 nur bestimmte Zeilen neu erzeugen (1-basiert)
+//   OPENAI_TTS_MODEL           Standard gpt-4o-mini-tts
+//   PHONE_VOICE_ASSISTANT      Standard cedar (männlich)
+//   PHONE_VOICE_CALLER         Standard marin (weiblich)
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "public", "assets", "phone");
 
-const key = process.env.AZURE_SPEECH_KEY;
-const region = process.env.AZURE_SPEECH_REGION ?? "westeurope";
-if (!key) {
-  console.error(
-    "AZURE_SPEECH_KEY ist nicht gesetzt (Umgebungsvariable oder .env).",
-  );
-  process.exit(1);
-}
-
+const model = process.env.OPENAI_TTS_MODEL ?? "gpt-4o-mini-tts";
 const voices = {
-  assistant:
-    process.env.PHONE_VOICE_ASSISTANT ?? "de-DE-Florian:DragonHDLatestNeural",
-  caller:
-    process.env.PHONE_VOICE_CALLER ?? "de-DE-Seraphina:DragonHDLatestNeural",
+  assistant: process.env.PHONE_VOICE_ASSISTANT ?? "cedar",
+  caller: process.env.PHONE_VOICE_CALLER ?? "marin",
 };
-// Höchste MP3-Qualität, die Azure liefert
-const outputFormat = "audio-48khz-192kbitrate-mono-mp3";
-
-const escapeXml = (text) =>
-  text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+const instructions = {
+  assistant:
+    "Sprich Hochdeutsch ohne Akzent. Du bist ein freundlicher, ruhiger und professioneller Telefonassistent eines Handwerksbetriebs. Natürliches Gesprächstempo, warm und verbindlich, klar verständlich.",
+  caller:
+    "Sprich Hochdeutsch ohne Akzent. Du bist eine Kundin am Telefon, etwas besorgt, weil die Heizung ausgefallen ist. Alltagssprache, natürlich und echt, nicht übertrieben.",
+};
 
 const onlyArg = process.argv.find((arg) => arg.startsWith("--only="));
 const only = onlyArg
   ? new Set(onlyArg.slice("--only=".length).split(",").map(Number))
   : null;
+const force = process.argv.includes("--force");
+
+const exists = (file) =>
+  access(file).then(
+    () => true,
+    () => false,
+  );
 
 const lines = JSON.parse(
   await readFile(join(root, "src", "phoneLines.json"), "utf8"),
 );
 await mkdir(outDir, { recursive: true });
 
+const todo = [];
 for (const [index, line] of lines.entries()) {
   const number = index + 1;
-  if (only && !only.has(number)) continue;
-  const voice = voices[line.speaker];
-  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="de-DE"><voice name="${voice}">${escapeXml(line.text)}</voice></speak>`;
-  const response = await fetch(
-    `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
-    {
-      method: "POST",
-      headers: {
-        "Ocp-Apim-Subscription-Key": key,
-        "Content-Type": "application/ssml+xml",
-        "X-Microsoft-OutputFormat": outputFormat,
-        "User-Agent": "business-webseite-phone-demo",
-      },
-      body: ssml,
-    },
+  const file = join(outDir, `line-${String(number).padStart(2, "0")}.mp3`);
+  if (only ? !only.has(number) : !force && (await exists(file))) continue;
+  todo.push({ number, line, file });
+}
+if (todo.length === 0) {
+  console.log(
+    "Alle Aufnahmen sind schon vorhanden. Neu erzeugen mit --only=… oder --force.",
   );
+  process.exit(0);
+}
+
+const apiKey = process.env.OPENAI_API_KEY;
+if (!apiKey) {
+  console.error(
+    "OPENAI_API_KEY ist nicht gesetzt (Umgebungsvariable oder .env).",
+  );
+  process.exit(1);
+}
+
+for (const { number, line, file } of todo) {
+  const response = await fetch("https://api.openai.com/v1/audio/speech", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      voice: voices[line.speaker],
+      input: line.text,
+      instructions: instructions[line.speaker],
+      response_format: "mp3",
+    }),
+  });
   if (!response.ok) {
     console.error(
-      `Zeile ${number}: ${response.status} ${response.statusText} ${await response.text()}`,
+      `Zeile ${number}: ${response.status} ${await response.text()}`,
     );
-    if (response.status === 400)
-      console.error(
-        `Hinweis: HD-Stimmen gibt es nur in bestimmten Regionen (z. B. westeurope, swedencentral, francecentral). Aktuell: ${region}.`,
-      );
     process.exit(1);
   }
   const audio = Buffer.from(await response.arrayBuffer());
-  const file = join(outDir, `line-${String(number).padStart(2, "0")}.mp3`);
   await writeFile(file, audio);
   console.log(
-    `Zeile ${number} (${line.speaker}, ${voice}): ${Math.round(audio.length / 1024)} KB`,
+    `Zeile ${number} (${line.speaker}, ${voices[line.speaker]}): ${Math.round(audio.length / 1024)} KB gespeichert`,
   );
 }
