@@ -260,6 +260,8 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
                       type="button"
                       className="call-control"
                       onClick={showAll}
+                      aria-label="Zum Ergebnis"
+                      title="Zum Ergebnis"
                     >
                       <ListEnd size={16} aria-hidden="true" />
                       <span>Zum Ergebnis</span>

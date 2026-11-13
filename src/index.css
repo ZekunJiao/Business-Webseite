@@ -4257,7 +4257,10 @@ button.usecase-card:focus-visible {
   }
   .phone-story .my-phone-column {
     position: static;
-    max-width: 230px;
+    max-width: 260px;
+  }
+  .phone-story .phone-stage {
+    grid-template-columns: 1fr;
   }
 }
 @media (max-width: 760px) {
