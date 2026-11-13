@@ -1,18 +1,22 @@
-// Erzeugt die Sprachaufnahmen für die Telefon-Demo einmalig mit OpenAI
-// Text-to-Speech und speichert sie als MP3 in public/assets/phone/.
+// Erzeugt die Sprachaufnahmen für die Telefon-Demo einmalig mit ElevenLabs
+// und speichert sie als MP3 in public/assets/phone/.
 // Die Webseite spielt nur diese Dateien ab und ruft keine API auf.
 //
 // Aufruf: `npm run audio:phone`
-// Zugang über die Umgebungsvariable OPENAI_API_KEY oder eine lokale Datei
-// `.env` (nicht im Repository, siehe .gitignore).
+// Zugang über Umgebungsvariablen oder eine lokale Datei `.env` (nicht im
+// Repository, siehe .gitignore):
+//   ELEVENLABS_API_KEY            API-Schlüssel
+//   ELEVENLABS_VOICE_ASSISTANT    Stimmen-ID für den Assistenten
+//   ELEVENLABS_VOICE_CALLER       Stimmen-ID für die Anruferin
+// Optional:
+//   ELEVENLABS_MODEL              Standard eleven_v4
+//   ELEVENLABS_OUTPUT_FORMAT      Standard mp3_44100_128
+//                                 (mp3_44100_192 ab Creator-Tarif)
 //
+// Stimmen-IDs anzeigen:   npm run audio:phone -- --list-voices
 // Vorhandene Dateien werden übersprungen. Neu erzeugen:
 //   --only=3,5     nur diese Zeilen (1-basiert), auch wenn sie existieren
 //   --force        alle Zeilen
-// Optional:
-//   OPENAI_TTS_MODEL           Standard gpt-4o-mini-tts
-//   PHONE_VOICE_ASSISTANT      Standard cedar (männlich)
-//   PHONE_VOICE_CALLER         Standard marin (weiblich)
 
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -20,17 +24,48 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "public", "assets", "phone");
+const api = "https://api.elevenlabs.io";
 
-const model = process.env.OPENAI_TTS_MODEL ?? "gpt-4o-mini-tts";
+const apiKey = process.env.ELEVENLABS_API_KEY;
+if (!apiKey) {
+  console.error(
+    "ELEVENLABS_API_KEY ist nicht gesetzt (Umgebungsvariable oder .env).",
+  );
+  process.exit(1);
+}
+
+if (process.argv.includes("--list-voices")) {
+  const response = await fetch(`${api}/v2/voices?page_size=100`, {
+    headers: { "xi-api-key": apiKey },
+  });
+  if (!response.ok) {
+    console.error(`${response.status} ${await response.text()}`);
+    process.exit(1);
+  }
+  const { voices } = await response.json();
+  for (const voice of voices) {
+    const labels = Object.values(voice.labels ?? {}).join(", ");
+    console.log(`${voice.voice_id}  ${voice.name}  (${labels})`);
+  }
+  process.exit(0);
+}
+
+const model = process.env.ELEVENLABS_MODEL ?? "eleven_v4";
+const outputFormat = process.env.ELEVENLABS_OUTPUT_FORMAT ?? "mp3_44100_128";
 const voices = {
-  assistant: process.env.PHONE_VOICE_ASSISTANT ?? "cedar",
-  caller: process.env.PHONE_VOICE_CALLER ?? "marin",
+  assistant: process.env.ELEVENLABS_VOICE_ASSISTANT,
+  caller: process.env.ELEVENLABS_VOICE_CALLER,
 };
-const instructions = {
-  assistant:
-    "Sprich Hochdeutsch ohne Akzent. Du bist ein freundlicher, ruhiger und professioneller Telefonassistent eines Handwerksbetriebs. Natürliches Gesprächstempo, warm und verbindlich, klar verständlich.",
-  caller:
-    "Sprich Hochdeutsch ohne Akzent. Du bist eine Kundin am Telefon, etwas besorgt, weil die Heizung ausgefallen ist. Alltagssprache, natürlich und echt, nicht übertrieben.",
+if (!voices.assistant || !voices.caller) {
+  console.error(
+    "ELEVENLABS_VOICE_ASSISTANT und ELEVENLABS_VOICE_CALLER setzen. IDs anzeigen: npm run audio:phone -- --list-voices",
+  );
+  process.exit(1);
+}
+// Etwas weniger Stabilität klingt lebendiger, wie im echten Gespräch.
+const voiceSettings = {
+  assistant: { stability: 0.5, similarity_boost: 0.75, style: 0.15 },
+  caller: { stability: 0.4, similarity_boost: 0.75, style: 0.3 },
 };
 
 const onlyArg = process.argv.find((arg) => arg.startsWith("--only="));
@@ -55,7 +90,7 @@ for (const [index, line] of lines.entries()) {
   const number = index + 1;
   const file = join(outDir, `line-${String(number).padStart(2, "0")}.mp3`);
   if (only ? !only.has(number) : !force && (await exists(file))) continue;
-  todo.push({ number, line, file });
+  todo.push({ index, number, line, file });
 }
 if (todo.length === 0) {
   console.log(
@@ -64,27 +99,23 @@ if (todo.length === 0) {
   process.exit(0);
 }
 
-const apiKey = process.env.OPENAI_API_KEY;
-if (!apiKey) {
-  console.error(
-    "OPENAI_API_KEY ist nicht gesetzt (Umgebungsvariable oder .env).",
-  );
-  process.exit(1);
-}
-
-for (const { number, line, file } of todo) {
-  const response = await fetch("https://api.openai.com/v1/audio/speech", {
+for (const { index, number, line, file } of todo) {
+  const url = `${api}/v1/text-to-speech/${voices[line.speaker]}?output_format=${outputFormat}`;
+  const response = await fetch(url, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      "xi-api-key": apiKey,
       "Content-Type": "application/json",
+      Accept: "audio/mpeg",
     },
     body: JSON.stringify({
-      model,
-      voice: voices[line.speaker],
-      input: line.text,
-      instructions: instructions[line.speaker],
-      response_format: "mp3",
+      text: line.text,
+      model_id: model,
+      language_code: "de",
+      voice_settings: voiceSettings[line.speaker],
+      // Gesprächskontext für passende Betonung
+      previous_text: lines[index - 1]?.text,
+      next_text: lines[index + 1]?.text,
     }),
   });
   if (!response.ok) {
@@ -96,6 +127,6 @@ for (const { number, line, file } of todo) {
   const audio = Buffer.from(await response.arrayBuffer());
   await writeFile(file, audio);
   console.log(
-    `Zeile ${number} (${line.speaker}, ${voices[line.speaker]}): ${Math.round(audio.length / 1024)} KB gespeichert`,
+    `Zeile ${number} (${line.speaker}): ${Math.round(audio.length / 1024)} KB gespeichert`,
   );
 }
