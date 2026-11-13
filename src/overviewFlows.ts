@@ -1,3 +1,11 @@
+import {
+  CalendarDays,
+  FileText,
+  MessagesSquare,
+  Phone,
+  ReceiptText,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { scenarios, sources } from "./data";
 
 // Beispielfälle der Überblick-Animation. Alles ist eine Simulation mit
@@ -49,10 +57,18 @@ const teamStep = {
   text: "Dein Team prüft, ergänzt Offenes und sendet selbst. Nichts wird automatisch verschickt.",
 };
 
-// Ein Abschnitt der Seite: Überschrift, Fälle und die dort gezeigten Eingänge.
+// Karte in der Übersicht der Anwendungsfälle
+export type UseCaseCard = {
+  title: string;
+  teaser: string;
+  icon: LucideIcon;
+};
+
+// Ein Anwendungsfall: Karte, Überschrift, Fälle und die gezeigten Eingänge.
 export type OverviewSet = {
-  // Anker und Basis für die Beschriftungs-ID, z. B. "ueberblick"
+  // Wert für ?anwendungsfall=, Anker und Basis für die Beschriftungs-ID
   id: string;
+  card: UseCaseCard;
   kicker: string;
   title: string;
   intro: string;
@@ -344,9 +360,43 @@ export const phoneCases: OverviewCase[] = [
   },
 ];
 
+// Kopf über den Karten
+export const useCaseSection = {
+  kicker: "ANWENDUNGSFÄLLE · BEISPIELE",
+  title: "Wo ein Assistent im Büro unterstützen kann",
+  intro:
+    "Wähle einen Anwendungsfall. Darunter läuft ein Beispiel Schritt für Schritt ab.",
+};
+
+// Weitere Anwendungsfälle, für die es noch keine Demo gibt. Die Karten sind
+// sichtbar, aber nicht auswählbar.
+export const upcomingUseCases: UseCaseCard[] = [
+  {
+    title: "Angebote vorbereiten",
+    teaser: "Angaben aus Anfragen übernehmen, Offenes sichtbar machen.",
+    icon: FileText,
+  },
+  {
+    title: "Termine & Einsätze planen",
+    teaser: "Terminwünsche sammeln und Vorschläge vorbereiten.",
+    icon: CalendarDays,
+  },
+  {
+    title: "Rechnungen & Erinnerungen",
+    teaser: "Offene Posten im Blick behalten, Erinnerungen vorbereiten.",
+    icon: ReceiptText,
+  },
+];
+
 export const overviewSets: OverviewSet[] = [
   {
-    id: "ueberblick",
+    id: "anfragen",
+    card: {
+      title: "Anfragen beantworten",
+      teaser:
+        "E-Mails und Formulare erkennen, zuordnen und Antwort oder Eintrag vorbereiten.",
+      icon: MessagesSquare,
+    },
     kicker: "ANWENDUNGSFALL · KUNDENANFRAGEN",
     title: "Die Anfrage kommt rein. Die Antwort liegt bereit.",
     intro:
@@ -357,6 +407,12 @@ export const overviewSets: OverviewSet[] = [
   },
   {
     id: "telefon",
+    card: {
+      title: "Anrufe annehmen",
+      teaser:
+        "Auch nach Feierabend: Anliegen aufnehmen, Termin oder Rückruf vorbereiten.",
+      icon: Phone,
+    },
     kicker: "ANWENDUNGSFALL · TELEFONASSISTENZ",
     title: "Der Anruf kommt rein. Die Notiz liegt bereit.",
     intro:

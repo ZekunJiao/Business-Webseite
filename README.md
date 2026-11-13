@@ -81,9 +81,17 @@ Bis 760 px Breite (`MOBILE_QUERY` in `src/lib/useMediaQuery.ts`) zeigt `MobileEm
 
 Der Hero hat einen Einstiegs-Button „Ablauf ansehen“ (Sprung zu `#ueberblick`) und einen Textlink „Kennenlerngespräch vereinbaren“ zum Kontaktblock (`#kontakt`). Die Überblick-Animation ist der Einstieg. Die Detaildemo (Workflow-Tabs mit E-Mail-Demo, `#workflow`) ist vorerst ausgeblendet: Der Einbau in `src/App.tsx` und der Link „Vollständige Demo ansehen“ in `src/components/OverviewFlow.tsx` sind auskommentiert, der Code (`HandwerkWorkflows`, `EmailWorkflowDemo`, `MobileEmailFlow` usw.) bleibt erhalten. Zum Reaktivieren die Kommentare entfernen; die Abschnitte unten beschreiben die Detaildemo.
 
+## Anwendungsfälle auf /handwerk
+
+`UseCaseStage` (`src/components/UseCaseStage.tsx`, Anker `#ueberblick`) zeigt oben eine Karte je Anwendungsfall und darunter eine Bühne mit genau einer Überblick-Animation für den gewählten Fall. Ein Klick auf eine Karte wechselt den Fall; die Animation startet dabei neu. Weitere Karten mit „In Vorbereitung“ sind sichtbar, aber nicht wählbar und zeigen keine Inhalte.
+
+- **Inhalte:** `src/overviewFlows.ts`. `overviewSets` enthält die Anwendungsfälle mit Karte (`card`), Überschrift und Beispielfällen; `upcomingUseCases` die Platzhalter; `useCaseSection` den Kopf. Ein neuer Anwendungsfall ist ein weiterer Eintrag in `overviewSets`.
+- **Direktlink:** `/handwerk?anwendungsfall=telefon` wählt einen Fall und springt zur Bühne. Ohne Parameter oder mit unbekanntem Wert ist der erste Fall (`anfragen`) gewählt. Zurück/Vorwärts stellt die Auswahl wieder her; der alte Anker `#telefon` funktioniert weiter.
+- **Handy (bis 760 px):** Die Karten stehen in einer horizontal scrollbaren Reihe.
+
 ## Überblick-Animation
 
-Zwischen Hero und Workflow-Tabs auf `/handwerk` zeigt `OverviewFlow` (`src/components/OverviewFlow.tsx`) einen möglichen Ablauf in vier Spalten: Anliegen (E-Mail, Homepage-Formular), Assistent, Werkzeuge (Kundenverwaltung, Betriebswissen) und „Dein Team“. Drei Beispielfälle laufen in einer Schleife: Wartungsanfrage per E-Mail, allgemeine Frage per E-Mail und neue Anfrage über das Formular. Jeder Fall endet bei der menschlichen Prüfung; es wird nichts automatisch gesendet.
+Auf der Bühne der Anwendungsfälle zeigt `OverviewFlow` (`src/components/OverviewFlow.tsx`) einen möglichen Ablauf in vier Spalten: Anliegen (E-Mail, Homepage-Formular bzw. Telefon), Assistent, Werkzeuge (Kundenverwaltung, Betriebswissen) und „Dein Team“. Die Beispielfälle des gewählten Anwendungsfalls laufen in einer Schleife. Jeder Fall endet bei der menschlichen Prüfung; es wird nichts automatisch gesendet.
 
 - **Inhalte:** `src/overviewFlows.ts`. Die E-Mail-Fälle nutzen dieselben Beispieldaten wie die Detaildemo (`src/data.ts`). Das Homepage-Formular ist ein erfundenes Beispiel; die Seite hat kein echtes Formular.
 - **Zielsysteme:** im Diagramm bewusst generische Begriffe (Kundenverwaltung, Betriebswissen). Darunter nennt eine Zeile „Anbindbar an Handwerkersoftware, z. B.“ die Programme aus `src/integrations.ts`, mit Logos aus `public/assets/integrations/`. Sie erscheint nur auf schmalen Bildschirmen und bei reduzierter Bewegung; in der Desktop-Animation stehen die Logos bereits im Diagramm. Bestätigt ist: Die Anbindung an Handwerkersoftware ist möglich und die Logos dürfen gezeigt werden. Es gibt nur Tools in der Liste, für die eine Anbindung oder ein Vertrag besteht; aktuell stehen plancraft und ToolTime als Platzhalter dort und sind vor dem Versenden zu bestätigen. Die Aussage lautet „anbindbar“, nicht „bereits angebunden“ oder „Partner“. Ein Marken- oder Simulationshinweis steht bewusst nicht dabei. Das ToolTime-Logo ist für dunklen Grund gedacht und liegt deshalb auf einer dunklen Kachel.

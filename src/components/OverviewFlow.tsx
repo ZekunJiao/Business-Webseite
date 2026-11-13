@@ -181,7 +181,7 @@ function OverviewStatic({ cases }: { cases: OverviewCase[] }) {
     <div className="overview-static">
       {cases.map((item) => (
         <article key={item.id} className="overview-static-case">
-          <h3>{item.headline}</h3>
+          <h4>{item.headline}</h4>
           <CaseSteps item={item} />
         </article>
       ))}
@@ -712,7 +712,7 @@ function OverviewHeading({ set }: { set: OverviewSet }) {
         <span className="status-dot" />
         {set.kicker}
       </span>
-      <h2 id={`${set.id}-title`}>{set.title}</h2>
+      <h3 id={`${set.id}-title`}>{set.title}</h3>
       <p>{set.intro}</p>
     </div>
   );

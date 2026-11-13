@@ -42,11 +42,10 @@ import {
 } from "./lib/demoTiming";
 import HausverwaltungPage from "./pages/HausverwaltungPage";
 // Detaildemo vorerst ausgeblendet (siehe README). Zum Reaktivieren Import und
-// den auskommentierten Block unter <OverviewFlow /> wieder einschalten.
+// den auskommentierten Block unter <UseCaseStage /> wieder einschalten.
 // import { HandwerkWorkflows } from "./components/HandwerkWorkflows";
 import { AuthorBlock } from "./components/AuthorBlock";
-import { OverviewFlow } from "./components/OverviewFlow";
-import { overviewSets } from "./overviewFlows";
+import { UseCaseStage } from "./components/UseCaseStage";
 import { DemoResult } from "./components/DemoResult";
 import { MobileEmailFlow } from "./components/MobileEmailFlow";
 import { MOBILE_QUERY, useMediaQuery } from "./lib/useMediaQuery";
@@ -1193,9 +1192,7 @@ export default function App() {
             </span>
           </div>
         </div>
-        {overviewSets.map((set) => (
-          <OverviewFlow key={set.id} set={set} />
-        ))}
+        <UseCaseStage />
         {/* Detaildemo vorerst ausgeblendet:
         <HandwerkWorkflows>
           {(active) => <EmailWorkflowDemo active={active} />}
