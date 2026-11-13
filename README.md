@@ -91,14 +91,20 @@ Der Hero hat einen Einstiegs-Button „Ablauf ansehen“ (Sprung zu `#ueberblick
 
 ## Telefon-Demo
 
-Der Anwendungsfall „Kein Anruf geht verloren“ (`telefon`) zeigt statt des Diagramms `PhoneStory` (`src/components/PhoneStory.tsx`, Inhalte in `src/phoneStory.ts`): einen Vergleich „Ohne/Mit Assistent“ (ohne Zahlen), ein gezeichnetes Handy mit einem Beispielanruf (Heizung ausgefallen, Notfall an die Bereitschaft) und daneben eine Gesprächsnotiz, die sich während des Gesprächs füllt. Am Ende erscheint eine Push-Nachricht mit der Zusammenfassung; offene Angaben sind orange.
+Der Anwendungsfall „Kein Anruf geht verloren“ (`telefon`) zeigt statt des Diagramms `PhoneStory` (`src/components/PhoneStory.tsx`, Inhalte in `src/phoneStory.ts` und `src/phoneLines.json`): einen Vergleich „Ohne/Mit Assistent“ (ohne Zahlen) und darunter zwei getrennte Bereiche:
 
-- **Bedienung:** „Gespräch anhören“ bzw. „Assistent geht ran“ startet, derselbe Button pausiert und setzt fort. „Ganzes Gespräch zeigen“ springt zum Ergebnis.
-- **Ton:** Sprachausgabe des Browsers (Web Speech API), bevorzugt deutsche Stimmen; Qualität und Stimmen hängen vom Gerät ab. „Ton aus“ schaltet auf Lesetempo um; ohne Sprachausgabe im Browser entfällt der Schalter. Der Ton startet nur nach einem Klick.
+- **Das Telefonat** (links): Anruferin und digitaler Assistent mit Sprechwelle beim aktiven Sprecher, Status (Klingelt/Verbunden/Beendet) und Gesprächsdauer. Darunter eine Live-Mitschrift als Untertitel: aktuelle Zeile groß, die letzten drei Zeilen klein, nach dem Ende aufklappbar die ganze Mitschrift. Bewusst keine Chatblasen.
+- **Dein Handy** (rechts): Sperrbildschirm, der während des Gesprächs still bleibt. Nach dem Gespräch erscheint die Push-Nachricht mit der Zusammenfassung. Darunter füllt sich die Gesprächsnotiz live; offene Angaben sind orange.
+
+Bis 900 px Breite stehen beide untereinander; nach dem Gespräch scrollt die Seite zum Handy.
+
+- **Bedienung:** „Gespräch anhören“ bzw. „Assistent geht ran“ startet, derselbe Button pausiert und setzt an derselben Stelle fort. „Ganzes Gespräch zeigen“ springt zum Ergebnis. „Ton aus“ schaltet auf Lesetempo um.
+- **Ton:** vorab erzeugte MP3s je Zeile in `public/assets/phone/line-01.mp3` … `line-08.mp3`, abgespielt über ein `<audio>`-Element, erst nach einem Klick. Kann eine Datei nicht geladen oder abgespielt werden (fehlt, blockiert, startet nicht innerhalb von 6 s), läuft die Mitschrift im Lesetempo weiter und ein Hinweis „Ton konnte nicht abgespielt werden“ erscheint. Bei der Demo steht „Stimmen KI-generiert“.
+- **Audio erzeugen:** `OPENAI_API_KEY` lokal setzen (nicht ins Repository), dann `npm run audio:phone` (`scripts/generate-phone-audio.mjs`, OpenAI Text-to-Speech, Modell `gpt-4o-mini-tts`; Assistent Stimme `cedar`, Anruferin `marin`). Einzelne Zeilen: `npm run audio:phone -- --only=3,5`. Modell und Stimmen sind über `OPENAI_TTS_MODEL`, `PHONE_VOICE_ASSISTANT` und `PHONE_VOICE_CALLER` änderbar. Nach Textänderungen in `src/phoneLines.json` die betroffenen Zeilen neu erzeugen. Die MP3s werden eingecheckt. Hinweis: OpenAI hat die Abschaltung von `gpt-4o-mini-tts` für Januar 2027 angekündigt; bereits erzeugte Dateien bleiben nutzbar.
 - **Inhalte:** Betrieb („Haustechnik Muster“), Anruferin und Angaben sind erfunden. Der Assistent stellt sich als digitaler Assistent vor.
 - **Technik:** Das bisherige Diagramm mit den Telefon-Beispielfällen steht aufklappbar unter „So hängt es technisch zusammen“ (`OverviewFlow` mit `embedded`) und wird erst beim Aufklappen gerendert.
-- **Reduzierte Bewegung:** kein Klingeln und keine Einblendungen; der Ablauf startet nur auf Klick.
-- **Offen:** eine echte Demo-Nummer zum Selbst-Anrufen (braucht Telefonie-Anbieter) und aufgenommene Audiodateien statt Browserstimme.
+- **Reduzierte Bewegung:** kein Klingeln, keine Sprechwelle und keine Einblendungen; der Ablauf startet nur auf Klick.
+- **Offen:** eine echte Demo-Nummer zum Selbst-Anrufen (braucht Telefonie-Anbieter).
 
 ## Überblick-Animation
 

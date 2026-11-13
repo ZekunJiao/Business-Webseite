@@ -12,6 +12,8 @@ import {
   Play,
   RotateCcw,
   Siren,
+  Sparkles,
+  UserRound,
   UserRoundCheck,
   Volume2,
   VolumeX,
@@ -21,102 +23,113 @@ import { OverviewFlow } from "./OverviewFlow";
 import { phoneStory } from "../phoneStory";
 import type { PhoneSpeaker } from "../phoneStory";
 import type { OverviewSet } from "../overviewFlows";
+import { useMediaQuery } from "../lib/useMediaQuery";
 
 type Status = "idle" | "playing" | "paused" | "done";
 
 const { lines, notes } = phoneStory;
 
-const speechSupported =
-  typeof window !== "undefined" && "speechSynthesis" in window;
+const speakerName: Record<PhoneSpeaker, string> = {
+  assistant: "Assistent",
+  caller: "Anruferin",
+};
 
-// Deutsche Stimmen, natürlich klingende zuerst (z. B. "Online (Natural)" in
-// Edge, Google-Stimmen in Chrome).
-function germanVoices(): SpeechSynthesisVoice[] {
-  if (!speechSupported) return [];
-  const rank = (voice: SpeechSynthesisVoice) =>
-    /natural/i.test(voice.name) ? 0 : /google/i.test(voice.name) ? 1 : 2;
-  return window.speechSynthesis
-    .getVoices()
-    .filter((voice) => voice.lang.toLowerCase().startsWith("de"))
-    .sort((a, b) => rank(a) - rank(b));
-}
+// Ab hier stehen Telefonat und Handy untereinander (siehe index.css).
+const STACKED_QUERY = "(max-width: 900px)";
+// Startet eine Aufnahme nicht in dieser Zeit, läuft die Demo ohne Ton weiter.
+const AUDIO_START_TIMEOUT_MS = 6000;
+const LINE_GAP_MS = 350;
 
-function useGermanVoices() {
-  const [voices, setVoices] = useState(germanVoices);
-  useEffect(() => {
-    if (!speechSupported) return;
-    const update = () => setVoices(germanVoices());
-    window.speechSynthesis.addEventListener("voiceschanged", update);
-    return () =>
-      window.speechSynthesis.removeEventListener("voiceschanged", update);
-  }, []);
-  return voices;
-}
+const readingTime = (text: string) => 1100 + text.length * 38;
+const clock = (seconds: number) =>
+  `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 
 export function PhoneStory({ set }: { set: OverviewSet }) {
   const reduced = !!useReducedMotion();
-  const voices = useGermanVoices();
-  // Neue Stimmen sollen eine laufende Zeile nicht neu starten.
-  const voicesRef = useRef(voices);
-  voicesRef.current = voices;
+  const stacked = useMediaQuery(STACKED_QUERY);
   const [status, setStatus] = useState<Status>("idle");
-  // Anzahl der bereits sichtbaren Gesprächszeilen
+  // Anzahl der bereits gesprochenen bzw. sichtbaren Zeilen
   const [shown, setShown] = useState(0);
-  const [sound, setSound] = useState(speechSupported);
+  const [sound, setSound] = useState(true);
+  const [audioFailed, setAudioFailed] = useState(false);
+  const [seconds, setSeconds] = useState(0);
   const [technicalOpen, setTechnicalOpen] = useState(false);
-  const chatRef = useRef<HTMLOListElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const myPhoneRef = useRef<HTMLDivElement>(null);
 
-  // Spielt die aktuelle Zeile ab (Sprache oder Lesezeit) und blendet danach
-  // die nächste ein.
+  // Spielt die aktuelle Zeile ab (Aufnahme oder Lesezeit) und geht danach
+  // zur nächsten. Pause hält die Aufnahme an derselben Stelle an.
   useEffect(() => {
     if (status !== "playing" || shown === 0) return;
-    const line = lines[shown - 1];
-    let finished = false;
+    const index = shown - 1;
     const timers: number[] = [];
+    let finished = false;
     const next = () => {
       if (finished) return;
       finished = true;
-      if (shown >= lines.length) setStatus("done");
-      else setShown(shown + 1);
+      timers.push(
+        window.setTimeout(() => {
+          if (shown >= lines.length) setStatus("done");
+          else setShown(shown + 1);
+        }, LINE_GAP_MS),
+      );
     };
-    const synth = speechSupported ? window.speechSynthesis : null;
-    if (sound && synth) {
-      const voices = voicesRef.current;
-      const utterance = new SpeechSynthesisUtterance(line.text);
-      const voice = voiceFor(line.speaker, voices);
-      utterance.lang = voice?.lang ?? "de-DE";
-      if (voice) utterance.voice = voice;
-      utterance.rate = 1.05;
-      // Gibt es nur eine Stimme, klingt die Anruferin etwas höher.
-      utterance.pitch =
-        line.speaker === "caller" && voices.length < 2 ? 1.25 : 1;
-      const done = () => timers.push(window.setTimeout(next, 450));
-      utterance.onend = done;
-      utterance.onerror = done;
-      synth.cancel();
-      synth.speak(utterance);
-      // Falls der Browser das Ende nicht meldet
-      timers.push(window.setTimeout(next, line.text.length * 110 + 4000));
-    } else {
-      timers.push(window.setTimeout(next, 1100 + line.text.length * 38));
+    const audio = audioRef.current;
+    if (!sound || audioFailed || !audio) {
+      timers.push(window.setTimeout(next, readingTime(lines[index].text)));
+      return () => timers.forEach((timer) => window.clearTimeout(timer));
     }
+    const fail = () => {
+      if (!finished) setAudioFailed(true);
+    };
+    const source = new URL(phoneStory.audio[index], window.location.href)
+      .href;
+    if (audio.src !== source) audio.src = source;
+    audio.onended = next;
+    audio.onerror = fail;
+    const started = () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
+      timers.length = 0;
+    };
+    audio.addEventListener("playing", started, { once: true });
+    timers.push(window.setTimeout(fail, AUDIO_START_TIMEOUT_MS));
+    audio.play().catch(fail);
     return () => {
       finished = true;
       timers.forEach((timer) => window.clearTimeout(timer));
-      synth?.cancel();
+      audio.removeEventListener("playing", started);
+      audio.onended = null;
+      audio.onerror = null;
+      audio.pause();
     };
-  }, [status, shown, sound]);
+  }, [status, shown, sound, audioFailed]);
 
+  // Gesprächsdauer
   useEffect(() => {
-    const chat = chatRef.current;
-    if (chat) chat.scrollTop = chat.scrollHeight;
-  }, [shown, status]);
+    if (status !== "playing") return;
+    const timer = window.setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [status]);
+
+  // Untereinander: nach dem Gespräch zum eigenen Handy scrollen.
+  useEffect(() => {
+    if (status !== "done" || !stacked || shown === 0) return;
+    myPhoneRef.current?.scrollIntoView({
+      behavior: reduced ? "auto" : "smooth",
+      block: "start",
+    });
+  }, [status, stacked, reduced, shown]);
 
   const start = () => {
+    const audio = audioRef.current;
+    if (audio) audio.removeAttribute("src");
+    setAudioFailed(false);
+    setSeconds(0);
     setShown(1);
     setStatus("playing");
   };
   const showAll = () => {
+    audioRef.current?.pause();
     setShown(lines.length);
     setStatus("done");
   };
@@ -134,6 +147,9 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
     notes.find((note) => note.id === id)?.label ?? id;
   const noteValue = (id: string) =>
     notes.find((note) => note.id === id)?.value ?? "";
+  const current = shown > 0 ? lines[shown - 1] : null;
+  const speaking = status === "playing" ? current?.speaker : undefined;
+  const earlier = lines.slice(0, Math.max(0, shown - 1)).reverse();
   const PrimaryIcon =
     status === "playing" ? Pause : status === "done" ? RotateCcw : Play;
   const primaryLabel =
@@ -144,13 +160,20 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
         : status === "paused"
           ? "Fortsetzen"
           : "Noch einmal";
+  const callState =
+    status === "idle"
+      ? "Klingelt …"
+      : status === "done"
+        ? "Beendet"
+        : status === "paused"
+          ? "Pausiert"
+          : "Verbunden";
 
   return (
     <section
       id={set.id}
       className="overview phone-story"
       aria-labelledby={`${set.id}-title`}
-      data-reduced={reduced || undefined}
     >
       <div className="overview-head">
         <span className="overview-kicker">
@@ -179,29 +202,28 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
       </div>
 
       <div className="phone-controls">
-        <strong className="phone-example">
-          Beispiel 1 von 1 · {phoneStory.headline}
-        </strong>
+        <span className="phone-example">
+          <strong>Beispiel 1 von 1 · {phoneStory.headline}</strong>
+          <span>Stimmen KI-generiert</span>
+        </span>
         <div className="phone-control-buttons">
-          <Button type="button" onClick={primary}>
+          <Button type="button" className="phone-primary" onClick={primary}>
             <PrimaryIcon size={16} aria-hidden="true" />
             {primaryLabel}
           </Button>
-          {speechSupported ? (
-            <Button
-              type="button"
-              variant="outline"
-              aria-pressed={sound}
-              onClick={() => setSound((value) => !value)}
-            >
-              {sound ? (
-                <Volume2 size={16} aria-hidden="true" />
-              ) : (
-                <VolumeX size={16} aria-hidden="true" />
-              )}
-              {sound ? "Ton an" : "Ton aus"}
-            </Button>
-          ) : null}
+          <Button
+            type="button"
+            variant="outline"
+            aria-pressed={sound}
+            onClick={() => setSound((value) => !value)}
+          >
+            {sound ? (
+              <Volume2 size={16} aria-hidden="true" />
+            ) : (
+              <VolumeX size={16} aria-hidden="true" />
+            )}
+            {sound ? "Ton an" : "Ton aus"}
+          </Button>
           {status !== "done" ? (
             <Button type="button" variant="outline" onClick={showAll}>
               <ListEnd size={16} aria-hidden="true" />
@@ -210,131 +232,177 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
           ) : null}
         </div>
       </div>
+      {sound && audioFailed && status !== "idle" ? (
+        <p className="phone-audio-notice" role="status">
+          <VolumeX size={15} aria-hidden="true" />
+          Ton konnte nicht abgespielt werden. Die Mitschrift läuft ohne Ton.
+        </p>
+      ) : null}
+      <audio ref={audioRef} preload="none" />
 
       <div className="phone-stage">
-        <div className="phone-device">
-          <div className="phone-screen" data-status={status}>
-            {status === "idle" ? (
-              <div className="phone-incoming">
-                <span className="phone-incoming-time">
-                  {phoneStory.callTime}
-                </span>
-                <span className="phone-ring" aria-hidden="true">
-                  <Phone size={30} />
-                </span>
-                <strong>Eingehender Anruf</strong>
-                <span>für {phoneStory.business}</span>
-                <span className="phone-incoming-note">
-                  Du bist auf der Baustelle und kannst nicht rangehen.
-                </span>
-                <button
-                  type="button"
-                  className="phone-accept"
-                  onClick={start}
+        <div className="call-panel" data-status={status}>
+          <div className="call-panel-head">
+            <span className="call-panel-label">Das Telefonat</span>
+            <span className="call-state" data-status={status}>
+              <span className="call-state-dot" aria-hidden="true" />
+              {callState}
+            </span>
+            <span className="call-timer" aria-hidden="true">
+              {status === "idle" ? phoneStory.callTime : clock(seconds)}
+            </span>
+          </div>
+
+          <div className="call-people">
+            <Participant
+              speaker="caller"
+              title="Anruferin"
+              subtitle="Kundin · Mobilnummer"
+              speaking={speaking === "caller"}
+              ringing={status === "idle"}
+            />
+            <span className="call-line" aria-hidden="true" />
+            <Participant
+              speaker="assistant"
+              title="Digitaler Assistent"
+              subtitle={phoneStory.business}
+              speaking={speaking === "assistant"}
+              ringing={false}
+            />
+          </div>
+
+          {status === "idle" ? (
+            <div className="call-start">
+              <p>
+                Eine Kundin ruft an. Du bist auf der Baustelle und kannst nicht
+                rangehen.
+              </p>
+              <button type="button" className="phone-accept" onClick={start}>
+                <PhoneCall size={18} aria-hidden="true" />
+                Assistent geht ran
+              </button>
+            </div>
+          ) : (
+            <div className="call-subtitles">
+              <span className="call-subtitles-label">Live-Mitschrift</span>
+              {current ? (
+                <div
+                  className="call-current"
+                  data-speaker={current.speaker}
+                  key={shown}
+                  aria-live="polite"
                 >
-                  <PhoneCall size={18} aria-hidden="true" />
-                  Assistent geht ran
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="phone-call-head">
-                  <span
-                    className="phone-live"
-                    data-ended={status === "done" || undefined}
-                  />
-                  <div>
-                    <strong>
-                      {status === "done" ? "Gespräch beendet" : "Im Gespräch"}
-                    </strong>
-                    <span>Digitaler Assistent · {phoneStory.business}</span>
-                  </div>
+                  <strong>{speakerName[current.speaker]}</strong>
+                  <p>{current.text}</p>
+                  {current.notes?.length ? (
+                    <span className="call-noted">
+                      notiert: {current.notes.map(noteLabel).join(", ")}
+                    </span>
+                  ) : null}
                 </div>
-                <ol
-                  ref={chatRef}
-                  className="phone-chat"
-                  aria-label="Gesprächsverlauf"
-                >
-                  {lines.slice(0, shown).map((line, index) => (
-                    <li key={index} data-speaker={line.speaker}>
-                      <span className="phone-speaker">
-                        {line.speaker === "assistant"
-                          ? "Assistent"
-                          : "Anruferin"}
-                      </span>
-                      <p>{line.text}</p>
-                      {line.notes?.length ? (
-                        <span className="phone-noted">
-                          notiert: {line.notes.map(noteLabel).join(", ")}
-                        </span>
-                      ) : null}
+              ) : null}
+              {earlier.length ? (
+                <ol className="call-earlier" aria-label="Bisher gesagt">
+                  {earlier.slice(0, 3).map((line) => (
+                    <li key={line.text} data-speaker={line.speaker}>
+                      <strong>{speakerName[line.speaker]}:</strong> {line.text}
                     </li>
                   ))}
                 </ol>
-                {status === "done" ? (
-                  <div className="phone-push" role="status">
-                    <span className="phone-push-app">
-                      <Bell size={13} aria-hidden="true" />
-                      Telefonassistent · jetzt
-                    </span>
-                    <strong>
-                      <Siren size={15} aria-hidden="true" />
-                      Notfall: {phoneStory.headline}
-                    </strong>
-                    <span>
-                      {noteValue("name")} · {noteValue("address")} · Fehler{" "}
-                      {noteValue("error")}
-                    </span>
-                    <span className="phone-push-open">
-                      Gerät {noteValue("device")}
-                    </span>
-                    <span className="phone-push-actions" aria-hidden="true">
-                      <span>
-                        <Phone size={13} /> Zurückrufen
-                      </span>
-                      <span>
-                        <Camera size={13} /> Foto anfragen
-                      </span>
-                    </span>
-                  </div>
-                ) : null}
-              </>
-            )}
-          </div>
+              ) : null}
+              {status === "done" ? (
+                <details className="call-transcript">
+                  <summary>Ganze Mitschrift</summary>
+                  <ol>
+                    {lines.map((line) => (
+                      <li key={line.text} data-speaker={line.speaker}>
+                        <strong>{speakerName[line.speaker]}:</strong>{" "}
+                        {line.text}
+                      </li>
+                    ))}
+                  </ol>
+                </details>
+              ) : null}
+            </div>
+          )}
         </div>
 
-        <div className="phone-note" aria-label="Gesprächsnotiz">
-          <div className="phone-note-head">
-            <ClipboardList size={18} aria-hidden="true" />
-            <strong>Gesprächsnotiz</strong>
-            <span>
-              {status === "idle"
-                ? "wird beim Gespräch mitgeschrieben"
-                : status === "done"
-                  ? "fertig · an die Bereitschaft geschickt"
-                  : "wird mitgeschrieben …"}
-            </span>
-          </div>
-          <dl>
-            {notes.map((note) => {
-              const visible = revealed.has(note.id);
-              return (
-                <div
-                  key={note.id}
-                  data-visible={visible || undefined}
-                  data-open={(visible && note.open) || undefined}
-                  data-urgent={(visible && note.id === "urgency") || undefined}
-                >
-                  <dt>{note.label}</dt>
-                  <dd>{visible ? note.value : "…"}</dd>
+        <div className="my-phone-column" ref={myPhoneRef}>
+          <span className="call-panel-label">Dein Handy</span>
+          <div className="phone-device">
+            <div className="phone-screen">
+              <div className="lock-screen">
+                <span className="lock-day">{phoneStory.day}</span>
+                <span className="lock-clock">{phoneStory.clock}</span>
+                <span className="lock-note">
+                  {status === "done"
+                    ? "Du bist auf der Baustelle."
+                    : "Du bist auf der Baustelle. Das Handy bleibt in der Tasche."}
+                </span>
+              </div>
+              {status === "done" ? (
+                <div className="phone-push" role="status">
+                  <span className="phone-push-app">
+                    <Bell size={13} aria-hidden="true" />
+                    Telefonassistent · jetzt
+                  </span>
+                  <strong>
+                    <Siren size={15} aria-hidden="true" />
+                    Notfall: {phoneStory.headline}
+                  </strong>
+                  <span>
+                    {noteValue("name")} · {noteValue("address")} · Fehler{" "}
+                    {noteValue("error")}
+                  </span>
+                  <span className="phone-push-open">
+                    Gerät {noteValue("device")}
+                  </span>
+                  <span className="phone-push-actions" aria-hidden="true">
+                    <span>
+                      <Phone size={13} /> Zurückrufen
+                    </span>
+                    <span>
+                      <Camera size={13} /> Foto anfragen
+                    </span>
+                  </span>
                 </div>
-              );
-            })}
-          </dl>
-          <p className="phone-note-legend">
-            <span aria-hidden="true" /> Orange = noch offen. Hier fragt dein
-            Team nach.
-          </p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="phone-note" aria-label="Gesprächsnotiz">
+            <div className="phone-note-head">
+              <ClipboardList size={18} aria-hidden="true" />
+              <strong>Gesprächsnotiz</strong>
+              <span>
+                {status === "idle"
+                  ? "wird beim Gespräch mitgeschrieben"
+                  : status === "done"
+                    ? "fertig · an die Bereitschaft geschickt"
+                    : "wird mitgeschrieben …"}
+              </span>
+            </div>
+            <dl>
+              {notes.map((note) => {
+                const visible = revealed.has(note.id);
+                return (
+                  <div
+                    key={note.id}
+                    data-visible={visible || undefined}
+                    data-open={(visible && note.open) || undefined}
+                    data-urgent={(visible && note.id === "urgency") || undefined}
+                  >
+                    <dt>{note.label}</dt>
+                    <dd>{visible ? note.value : "…"}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+            <p className="phone-note-legend">
+              <span aria-hidden="true" /> Orange = noch offen. Hier fragt dein
+              Team nach.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -364,10 +432,39 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
   );
 }
 
-function voiceFor(
-  speaker: PhoneSpeaker,
-  voices: SpeechSynthesisVoice[],
-): SpeechSynthesisVoice | undefined {
-  if (speaker === "assistant") return voices[0];
-  return voices[1] ?? voices[0];
+function Participant({
+  speaker,
+  title,
+  subtitle,
+  speaking,
+  ringing,
+}: {
+  speaker: PhoneSpeaker;
+  title: string;
+  subtitle: string;
+  speaking: boolean;
+  ringing: boolean;
+}) {
+  const Icon = speaker === "assistant" ? Sparkles : UserRound;
+  return (
+    <div
+      className="call-person"
+      data-speaker={speaker}
+      data-speaking={speaking || undefined}
+      data-ringing={ringing || undefined}
+    >
+      <span className="call-avatar">
+        <Icon size={26} aria-hidden="true" />
+      </span>
+      <strong>{title}</strong>
+      <span>{subtitle}</span>
+      <span className="call-wave" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+        <i />
+        <i />
+      </span>
+    </div>
+  );
 }

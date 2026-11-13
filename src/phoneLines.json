@@ -1,0 +1,39 @@
+[
+  {
+    "speaker": "assistant",
+    "text": "Guten Abend, hier ist der digitale Assistent von Haustechnik Muster. Das Team ist gerade nicht erreichbar. Worum geht es?"
+  },
+  {
+    "speaker": "caller",
+    "text": "Hallo, unsere Heizung ist seit heute früh komplett aus. Warmes Wasser haben wir auch keins.",
+    "notes": ["issue"]
+  },
+  {
+    "speaker": "assistant",
+    "text": "Das klingt dringend. Darf ich Ihren Namen und Ihre Adresse aufnehmen?",
+    "notes": ["urgency"]
+  },
+  {
+    "speaker": "caller",
+    "text": "Sabine Krüger, Lindenstraße 12 in Freising.",
+    "notes": ["name", "address"]
+  },
+  {
+    "speaker": "assistant",
+    "text": "Danke. Zeigt die Heizung eine Fehlermeldung an?"
+  },
+  {
+    "speaker": "caller",
+    "text": "Da steht F 28. Welches Gerät das genau ist, weiß ich leider nicht.",
+    "notes": ["error", "device"]
+  },
+  {
+    "speaker": "assistant",
+    "text": "Kein Problem. Ich gebe Ihre Angaben sofort an den Bereitschaftsdienst weiter. Er meldet sich unter der Nummer, von der Sie anrufen.",
+    "notes": ["callback"]
+  },
+  {
+    "speaker": "caller",
+    "text": "Super, vielen Dank!"
+  }
+]

@@ -1,5 +1,9 @@
 // Beispielanruf für die Telefon-Demo. Betrieb, Anruferin und Angaben sind
 // erfunden. Der Assistent stellt sich als digitaler Assistent vor.
+// Die Gesprächszeilen stehen in phoneLines.json, damit auch das Audio-Skript
+// (scripts/generate-phone-audio.mjs) sie lesen kann.
+
+import phoneLines from "./phoneLines.json";
 
 export type PhoneSpeaker = "assistant" | "caller";
 
@@ -22,46 +26,16 @@ export const phoneStory = {
   business: "Haustechnik Muster",
   caller: "Sabine Krüger",
   callTime: "Di · 18:47",
+  // Sperrbildschirm "Dein Handy"
+  clock: "18:47",
+  day: "Dienstag",
   headline: "Heizung ausgefallen",
-  lines: [
-    {
-      speaker: "assistant",
-      text: "Guten Abend, hier ist der digitale Assistent von Haustechnik Muster. Das Team ist gerade nicht erreichbar. Worum geht es?",
-    },
-    {
-      speaker: "caller",
-      text: "Hallo, unsere Heizung ist seit heute früh komplett aus. Warmes Wasser haben wir auch keins.",
-      notes: ["issue"],
-    },
-    {
-      speaker: "assistant",
-      text: "Das klingt dringend. Darf ich Ihren Namen und Ihre Adresse aufnehmen?",
-      notes: ["urgency"],
-    },
-    {
-      speaker: "caller",
-      text: "Sabine Krüger, Lindenstraße 12 in Freising.",
-      notes: ["name", "address"],
-    },
-    {
-      speaker: "assistant",
-      text: "Danke. Zeigt die Heizung eine Fehlermeldung an?",
-    },
-    {
-      speaker: "caller",
-      text: "Da steht F 28. Welches Gerät das genau ist, weiß ich leider nicht.",
-      notes: ["error", "device"],
-    },
-    {
-      speaker: "assistant",
-      text: "Kein Problem. Ich gebe Ihre Angaben sofort an den Bereitschaftsdienst weiter. Er meldet sich unter der Nummer, von der Sie anrufen.",
-      notes: ["callback"],
-    },
-    {
-      speaker: "caller",
-      text: "Super, vielen Dank!",
-    },
-  ] satisfies PhoneLine[],
+  lines: phoneLines as PhoneLine[],
+  // Vorab erzeugte Sprachaufnahmen je Zeile (npm run audio:phone)
+  audio: phoneLines.map(
+    (_, index) =>
+      `/assets/phone/line-${String(index + 1).padStart(2, "0")}.mp3`,
+  ),
   notes: [
     { id: "urgency", label: "Dringlichkeit", value: "Notfall · Bereitschaft informiert" },
     { id: "issue", label: "Anliegen", value: "Heizung aus seit heute früh, kein Warmwasser" },
