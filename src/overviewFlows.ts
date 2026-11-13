@@ -360,7 +360,7 @@ export const overviewSets: OverviewSet[] = [
     kicker: "ANWENDUNGSFALL · KUNDENANFRAGEN",
     title: "Die Anfrage kommt rein. Die Antwort liegt bereit.",
     intro:
-      "Der Assistent liest die Mail, erkennt den Kunden, findet die passenden Infos in deinen Unterlagen und schreibt einen Antwortentwurf. Dein Team prüft und sendet selbst.",
+      "Der Assistent liest die Mail, findet Kunde und passende Unterlagen und schreibt einen Antwortentwurf. Dein Team prüft und sendet selbst.",
     channels: ["email", "form"],
     cases: overviewCases,
     showIntegrations: true,

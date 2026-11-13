@@ -108,14 +108,18 @@ Bis 900 px Breite stehen beide untereinander; nach dem Gespräch scrollt die Sei
 
 ## Posteingang-Demo
 
-Der Anwendungsfall „Anfragen beantworten“ (`anfragen`) zeigt statt des Diagramms `InboxStory` (`src/components/InboxStory.tsx`, Inhalte in `src/inboxStory.ts`): einen Vergleich „Ohne/Mit Assistent“ (ohne Zahlen) und darunter zwei Spalten:
+Der Anwendungsfall „Anfragen beantworten“ (`anfragen`) zeigt statt des Diagramms `InboxStory` (`src/components/InboxStory.tsx`, Inhalte in `src/inboxStory.ts`): einen Vergleich „Ohne/Mit Assistent“ (ohne Zahlen) und darunter drei nummerierte Spalten in Leserichtung:
 
-- **Dein Posteingang** (links): drei Beispielmails als Liste, die geöffnete Mail und eine Checkliste, was der Assistent gerade tut (Mail lesen, Kundenverwaltung prüfen, Betriebswissen durchsuchen bzw. Dringlichkeit erkennen, Entwurf schreiben).
-- **Vorbereitet für dein Team** (rechts): Antwortentwurf, der sich absatzweise füllt, mit Quellenhinweisen auf das Betriebswissen und orange markierten Stellen, die das Team ergänzt. Darunter der „Eintrag in deiner Software“; offene Angaben sind orange, Dringendes rot.
+1. **Die Anfrage kommt rein:** Eingang mit drei Beispielanfragen (neueste oben); ein Kennzeichen an jeder Zeile zeigt den Eingangsweg („E-Mail“ oder „Formular“). Darunter die geöffnete Anfrage. Beim Lesen markiert der Assistent die übernommenen Stellen gelb wie mit einem Textmarker. Die Formular-Anfrage erscheint als ausgefüllte Formularfelder.
+2. **Der Assistent arbeitet:** vier Schritte mit Symbolen (Mail lesen, Kundenverwaltung, Unterlagen bzw. Dringlichkeit, Entwurf). Jeder erledigte Schritt zeigt sein Ergebnis, z. B. „Kein Eintrag: neuer Kunde“ oder das gefundene Dokument.
+3. **Für dein Team vorbereitet:** Antwortentwurf, der sich absatzweise füllt, mit Hinweisen „aus deinen Unterlagen: …“ und orangen Stellen „Ergänzt dein Team“. Darunter der „Eintrag in deiner Software“; jedes Feld zeigt, ob es aus der Anfrage oder aus der Kundenverwaltung stammt.
 
-- **Fälle:** Neue Anfrage über das Kontaktformular (Badsanierung, Neukunde), Wartungswunsch einer Bestandskundin, Störungsmeldung mit Foto (dringend). Bewusst die drei häufigsten Anfragearten als Annahme, keine erhobenen Zahlen. Betrieb, Personen, Adressen und Anlagen sind erfunden; Quellentitel stammen aus `sources` in `src/data.ts`.
-- **Bedienung:** Startet einmal von selbst, sobald die Demo im Blick ist. „Pausieren/Fortsetzen“, „Ergebnis zeigen“, danach „Noch einmal“ und „Nächstes Beispiel“. Ein Klick auf eine Mail im Posteingang startet diesen Fall. Bearbeitete Mails tragen „Entwurf bereit“.
-- **Reduzierte Bewegung:** kein Autostart und keine Einblendungen; jeder Fall erscheint direkt fertig.
+- **Abschluss:** „Prüfen & senden“ füllt die orangen Stellen mit dem Satz des Teams (grün, „Von dir ergänzt“), markiert die Mail als „Beantwortet“ und speichert den Eintrag. Erst dieser Klick sendet; der Assistent sendet nie selbst.
+- **Dringend:** Sobald der Assistent die Störung als dringend erkennt, rutscht die Mail im Posteingang nach oben.
+- **Fälle:** Neue Anfrage über das Kontaktformular (Badsanierung, Neukunde), Wartungswunsch einer Bestandskundin, Störungsmeldung mit Foto (dringend). Bewusst die drei häufigsten Anfragearten als Annahme, keine erhobenen Zahlen. Betrieb, Personen, Adressen, Anlagen und Dokumentnamen sind erfunden.
+- **Bedienung:** Startet einmal von selbst, sobald die Bühne gut im Blick ist (obere zwei Drittel des Fensters). „Pausieren/Fortsetzen“, „Ergebnis zeigen“, danach „Noch einmal“ und „Nächste Mail“. Ein Klick auf eine Mail im Posteingang startet diesen Fall.
+- **Schmale Bildschirme (bis 1100 px):** statt drei Spalten ein Umschalter „Anfrage / Assistent / Entwurf“, der dem Ablauf automatisch folgt und sich von Hand umschalten lässt.
+- **Reduzierte Bewegung:** kein Autostart, keine Einblendungen oder Markerstriche; jeder Fall erscheint direkt fertig, „Prüfen & senden“ funktioniert weiter.
 - **Technik:** Das Diagramm mit denselben drei Fällen steht aufklappbar unter „So hängt es technisch zusammen“. Gemeinsame Layout-Klassen mit der Telefon-Demo heißen `story-*`, eigene Klassen `mailbox-*`.
 
 ## Überblick-Animation
