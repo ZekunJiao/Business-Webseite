@@ -3,6 +3,8 @@ import { useReducedMotion } from "motion/react";
 import { OverviewFlow } from "./OverviewFlow";
 import { PhoneStory } from "./PhoneStory";
 import { InboxStory } from "./InboxStory";
+import { QuoteStory } from "./QuoteStory";
+import { ScheduleStory } from "./ScheduleStory";
 import {
   overviewSets,
   upcomingUseCases,
@@ -122,6 +124,10 @@ export function UseCaseStage() {
           <PhoneStory key={set.id} set={set} />
         ) : set.id === "anfragen" ? (
           <InboxStory key={set.id} set={set} />
+        ) : set.id === "angebote" ? (
+          <QuoteStory key={set.id} set={set} />
+        ) : set.id === "termine" ? (
+          <ScheduleStory key={set.id} set={set} />
         ) : (
           <OverviewFlow key={set.id} set={set} />
         )}

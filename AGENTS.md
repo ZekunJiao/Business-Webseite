@@ -11,9 +11,17 @@ Die Website soll:
 - mögliche Lösungen visuell und interaktiv erlebbar machen,
 - Vertrauen aufbauen und konkrete Kundengespräche unterstützen.
 
-Ich bin Zekun Jiao, Product Manager bei BMW Group mit Bachelor und Master
-in Informatik von der TUM. Meine Erfahrung umfasst Softwareentwicklung,
-Cloud, KI, Automatisierung und technische Produktentwicklung.
+Ich bin Zekun Jiao, AI Transformation Lead bei BMW Group (nicht mehr
+Product Manager; diese Bezeichnung habe ich für die Website gewählt), mit
+Bachelor und Master in Informatik von der TUM. Bei BMW arbeite ich an der
+KI-Transformation von Fachbereichen: Wir bauen KI-Agenten, die Erkenntnisse aus sehr großen
+Datenmengen liefern. Meine Erfahrung umfasst Softwareentwicklung, Cloud, KI
+(Sprach- und Telefonassistenz, Agenten), Automatisierung und technische
+Produktentwicklung.
+
+Nebenberuflich habe ich in den letzten 12 Monaten 6+ bezahlte Projekte für
+4+ Kunden umgesetzt; der am längsten laufende Ablauf ist seit über 12 Monaten
+im Einsatz. Die Kennzahlen dazu stehen in `src/contact.ts`.
 
 Lies zu Beginn eines neuen Chats die PROJECT_DESCRIPTION.md, sofern vorhanden.
 Sie beschreibt den übergeordneten Geschäftskontext.
@@ -67,8 +75,6 @@ Die Website selbst soll als hochwertige Arbeitsprobe funktionieren.
 - Technische Details dürfen bei Interesse vertieft werden.
 - Beispiele sind als solche erkennbar (z. B. „Beispiel 1 von 5“). Ein
   gesonderter Simulations- oder Markenhinweis ist nicht erforderlich.
-- Erfinde keine Kunden, Referenzen, Ergebnisse oder Einsparungen.
-- Verwende reale Kundeninformationen nur im ausdrücklich freigegebenen Umfang.
 
 Die erste Inhaltssprache ist Deutsch.
 

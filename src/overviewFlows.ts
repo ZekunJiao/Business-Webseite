@@ -315,16 +315,6 @@ export const useCaseSection = {
 // sichtbar, aber nicht auswählbar.
 export const upcomingUseCases: UseCaseCard[] = [
   {
-    title: "Angebote vorbereiten",
-    teaser: "Angaben aus Anfragen übernehmen, Offenes sichtbar machen.",
-    icon: FileText,
-  },
-  {
-    title: "Termine & Einsätze planen",
-    teaser: "Terminwünsche sammeln und Vorschläge vorbereiten.",
-    icon: CalendarDays,
-  },
-  {
     title: "Rechnungen & Erinnerungen",
     teaser: "Offene Posten im Blick behalten, Erinnerungen vorbereiten.",
     icon: ReceiptText,
@@ -364,5 +354,40 @@ export const overviewSets: OverviewSet[] = [
     channels: ["email", "form"],
     cases: overviewCases,
     showIntegrations: true,
+  },
+  {
+    // Eigene Demo (QuoteStory) ohne technisches Diagramm: Der Eingang ist
+    // hier eine Notiz vom Termin, kein Kanal aus channelNames.
+    id: "angebote",
+    card: {
+      title: "Angebote vorbereiten",
+      teaser:
+        "Aus der Notiz vom Termin wird ein Angebotsentwurf. Offene Angebote gehen nicht unter.",
+      icon: FileText,
+    },
+    kicker: "ANWENDUNGSFALL · ANGEBOTE",
+    title: "Du warst beim Kunden. Das Angebot liegt bereit.",
+    intro:
+      "Der Assistent macht aus deiner Notiz einen Angebotsentwurf mit deinen Preisen, weist auf fehlende Positionen hin und erinnert an offene Angebote. Dein Team prüft und sendet selbst.",
+    channels: [],
+    cases: [],
+    showIntegrations: false,
+  },
+  {
+    // Eigene Demo (ScheduleStory), ebenfalls ohne technisches Diagramm.
+    id: "termine",
+    card: {
+      title: "Termine & Einsätze planen",
+      teaser:
+        "Termine finden, Notfälle einschieben, Ausfälle auffangen.",
+      icon: CalendarDays,
+    },
+    kicker: "ANWENDUNGSFALL · TERMINE & EINSÄTZE",
+    title: "Der Plan ändert sich. Der Vorschlag liegt bereit.",
+    intro:
+      "Der Assistent schaut in den Kalender, prüft, wer es kann und wer in der Nähe ist, und bereitet Plan und Kundennachrichten vor. Dein Team entscheidet und sendet selbst.",
+    channels: [],
+    cases: [],
+    showIntegrations: false,
   },
 ];

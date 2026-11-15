@@ -63,7 +63,7 @@ Auf schmalen Bildschirmen sind die Map-Knoten untereinander angeordnet; Tastatur
 
 ## Absender und Kontakt
 
-Name, Rolle, Kurzvorstellung und Kontaktdaten stehen in `src/contact.ts`. Vor dem Versenden des Links `email` und `phone` dort eintragen; leere Felder werden nicht angezeigt, dann erscheint kein Kontaktlink. Der Block „Kontakt“ (`AuthorBlock`, Anker `#kontakt`) steht unter den Demos, die Kopfzeile verlinkt dorthin. Bisher ist kein Kontaktkanal bestätigt.
+Name, Rolle, Vorstellung, „Was ich baue“, Kennzahlen aus Kundenprojekten (Angaben von Zekun Jiao), Umfang der bisherigen Kundenarbeit und die Punkte „Was du von mir bekommst“ stehen zusammen mit den Kontaktdaten in `src/contact.ts`. Vor dem Versenden des Links `email` und `phone` dort eintragen; leere Felder werden nicht angezeigt, dann erscheint kein Kontaktlink. Der Block „Kontakt“ (`AuthorBlock`, Anker `#kontakt`) steht unter den Demos, die Kopfzeile verlinkt dorthin. Bisher ist kein Kontaktkanal bestätigt.
 
 ## Orientierung in der E-Mail-Demo
 
@@ -86,6 +86,7 @@ Der Hero hat einen Einstiegs-Button „Ablauf ansehen“ (Sprung zu `#ueberblick
 `UseCaseStage` (`src/components/UseCaseStage.tsx`, Anker `#ueberblick`) zeigt oben eine Karte je fertigem Anwendungsfall und darunter eine Bühne mit genau einer Demo für den gewählten Fall. Ein Klick auf eine Karte wechselt den Fall. Geplante Anwendungsfälle (`upcomingUseCases`) stehen nicht als Karten, sondern als dezente Zeile „Weitere Abläufe in Vorbereitung: …“ unter den Karten.
 
 - **Inhalte:** `src/overviewFlows.ts`. `overviewSets` enthält die Anwendungsfälle mit Karte (`card`), Überschrift und Beispielfällen; `upcomingUseCases` die Platzhalter; `useCaseSection` den Kopf. Ein neuer Anwendungsfall ist ein weiterer Eintrag in `overviewSets`.
+- **Fertige Fälle:** `telefon`, `anfragen`, `angebote` und `termine`; jeder hat eine eigene Demo-Komponente, die `UseCaseStage` anhand der `id` auswählt.
 - **Direktlink:** `/handwerk?anwendungsfall=anfragen` wählt einen Fall und springt zur Bühne. Ohne Parameter oder mit unbekanntem Wert ist der erste Fall (`telefon`) gewählt. Zurück/Vorwärts stellt die Auswahl wieder her; der Anker `#telefon` funktioniert weiter.
 - **Handy (bis 760 px):** Die Karten stehen kompakt untereinander (Symbol links, Text rechts).
 
@@ -121,6 +122,33 @@ Der Anwendungsfall „Anfragen beantworten“ (`anfragen`) zeigt statt des Diagr
 - **Schmale Bildschirme (bis 1100 px):** statt drei Spalten ein Umschalter „Anfrage / Assistent / Entwurf“, der dem Ablauf automatisch folgt und sich von Hand umschalten lässt.
 - **Reduzierte Bewegung:** kein Autostart, keine Einblendungen oder Markerstriche; jeder Fall erscheint direkt fertig, „Prüfen & senden“ funktioniert weiter.
 - **Technik:** Das Diagramm mit denselben drei Fällen steht aufklappbar unter „So hängt es technisch zusammen“. Gemeinsame Layout-Klassen mit der Telefon-Demo heißen `story-*`, eigene Klassen `mailbox-*`.
+
+## Angebots-Demo
+
+Der Anwendungsfall „Angebote vorbereiten“ (`angebote`, Direktlink `/handwerk?anwendungsfall=angebote`) zeigt `QuoteStory` (`src/components/QuoteStory.tsx`, Inhalte in `src/quoteStory.ts`). Aufbau wie die Posteingang-Demo: Vergleich „Ohne/Mit Assistent“ (ohne Zahlen) und drei nummerierte Spalten:
+
+1. **Das kommt von dir:** Liste mit drei Beispielen und darunter der geöffnete Eingang: die eigene Sprachnotiz als Mitschrift, eigene Stichpunkte aus dem Handy oder ein bereits verschicktes Angebot. Die Zeilen zeigen die Leistung mit Symbol der Eingangsart und „für Kunde“, damit der Eingang nicht wie eine Kundennachricht wirkt. Übernommene Stellen werden gelb markiert.
+2. **Der Assistent arbeitet:** Bei beiden Angebotsfällen dieselben fünf Schritte (Notiz lesen, Kunde finden, Preisliste, Vergleich mit ähnlichen Angeboten, schreiben); nur die Ergebnisse unterscheiden sich. Die Preisliste liefert Preise, der Vergleich findet fehlende Positionen. Beim Nachfassen drei Schritte.
+3. **Für dein Team vorbereitet:** Angebotsentwurf mit Positionen, die nacheinander erscheinen, darunter Netto, MwSt. und Brutto; im dritten Fall ein Mailentwurf. Darunter der „Eintrag in deiner Software“ mit der Herkunft jeder Angabe.
+
+- **Fälle:** „Vom Vor-Ort-Termin zum Angebot“ (Badsanierung aus einer Sprachnotiz, ein Preis fehlt in der Preisliste), „Nichts vergessen“ (Heizungstausch, drei Positionen als Vorschlag aus ähnlichen Angeboten), „Nachfassen“ (Angebot seit 8 Tagen ohne Antwort). Die Auswahl dieser drei Probleme ist eine Annahme auf Basis von Fachpresse und Ratgebern, keine erhobene Zahl. Es werden keine Einsparungen genannt.
+- **Preise:** erfundene Beispielpreise, in der Demo als solche gekennzeichnet. Summen werden aus Menge × Einzelpreis berechnet (`vatRate` in `src/quoteStory.ts`). Offene Preise und Vorschläge zählen erst nach „Prüfen & senden“ mit; bis dahin steht „ohne offene Position“ bzw. „ohne Vorschläge“ dabei.
+- **Abschluss:** „Prüfen & senden“ trägt den fehlenden Preis ein bzw. übernimmt die Vorschläge (grün) und setzt das Kennzeichen in der Liste auf „Gesendet“ oder „Nachgefasst“. Der Assistent sendet nie selbst.
+- **Bedienung, schmale Bildschirme, reduzierte Bewegung:** wie bei der Posteingang-Demo (Autostart einmal, Umschalter „Eingang / Assistent / Angebot“ bis 1100 px, bei reduzierter Bewegung direkt das fertige Ergebnis).
+- **Technik:** Kein Aufklapper „So hängt es technisch zusammen“, weil das Diagramm nur E-Mail, Formular und Telefon als Eingang kennt; `channels` und `cases` des Eintrags in `overviewSets` sind deshalb leer. `ColumnLabel` und `Marked` liegen für beide Demos in `src/components/storyParts.tsx`. Eigene Klassen heißen `quote-*`, der Rest nutzt `story-*` und `mailbox-*`.
+
+## Termin-Demo
+
+Der Anwendungsfall „Termine & Einsätze planen“ (`termine`, Direktlink `/handwerk?anwendungsfall=termine`) zeigt `ScheduleStory` (`src/components/ScheduleStory.tsx`, Inhalte in `src/scheduleStory.ts`). Hülle wie bei Anfragen und Angeboten, drei Spalten:
+
+1. **Das kommt rein:** Eingang mit drei Nachrichten, jeweils mit Absender und Rolle (Kundin, Kunde, „dein Monteur“), darunter die geöffnete Nachricht mit gelben Markierungen.
+2. **Der Assistent arbeitet:** in allen drei Beispielen dieselben fünf Schritte (Nachricht lesen, Kalender, wer es kann, Fahrweg und Material, Vorschlag schreiben); nur die Ergebnisse unterscheiden sich.
+3. **Für dein Team vorbereitet:** der Einsatzplan als Tabelle (Monteure × Tage bzw. Tagesabschnitte). Der Plan ist von Anfang an mit dem Stand vor der Änderung sichtbar. Vorschläge erscheinen orange, verlegte Termine bleiben bis zum Senden durchgestrichen am alten Platz. Darunter „Warum so?“ mit der Begründung zu jedem Vorschlag und die Nachrichten an die betroffenen Kunden.
+
+- **Fälle:** „Termin finden“ (zwei Terminvorschläge für eine Wartung), „Notfall einschieben“ (Störung heute, eine Wartung rückt auf morgen), „Monteur fällt aus“ (Krankmeldung, zwei Termine neu verteilt, ein Tag bleibt als offene Entscheidung). Die Auswahl ist eine Annahme, keine erhobene Zahl. Betrieb, Monteure, Kunden und Termine sind erfunden.
+- **Abschluss:** „Prüfen & senden“ macht Vorschläge grün („vorgemerkt“ bzw. „eingeplant“), entfernt die durchgestrichenen alten Plätze und füllt die offene Stelle. Der Assistent sendet nie selbst.
+- **Handy (bis 760 px):** Der Plan wird zur Liste je Monteur; vor jedem Termin steht der Spaltenname.
+- **Technik:** Kein technisches Diagramm (wie bei Angeboten). Eigene Klassen heißen `schedule-*`. Den Ablauf (Takte, Pause, Autostart, Senden, reduzierte Bewegung) liefert `useStoryPlayback` in `src/lib/useStoryPlayback.ts`; die Angebots-Demo nutzt denselben Hook, die Posteingang-Demo hat ihre eigene, gleich aufgebaute Logik.
 
 ## Überblick-Animation
 
