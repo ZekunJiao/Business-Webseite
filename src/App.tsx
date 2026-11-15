@@ -1088,9 +1088,9 @@ export default function App() {
             <span>Arbeit erleichtert.</span>
           </h1>
           <p>
-            Ich bin Zekun Jiao. Ich verbinde Softwareentwicklung und
-            Produktdenken, um Geschäftsprozesse verständlicher und einfacher zu
-            machen.
+            Ich bin Zekun Jiao, Informatiker (TU München) und AI
+            Transformation Lead bei der BMW Group. Ich baue KI-Assistenten und
+            Automatisierung, die Betrieben Routinearbeit abnehmen.
           </p>
         </div>
         <section className="industry-cards" aria-label="Branchen entdecken">

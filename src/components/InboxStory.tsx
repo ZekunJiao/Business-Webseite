@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
 import { useReducedMotion } from "motion/react";
 import {
   BookOpen,
@@ -32,6 +31,7 @@ import { inboxStory } from "../inboxStory";
 import type { InboxCase, InboxOrigin, InboxStepKind } from "../inboxStory";
 import type { OverviewSet } from "../overviewFlows";
 import { useMediaQuery } from "../lib/useMediaQuery";
+import { ColumnLabel, Marked } from "./storyParts";
 
 type Status = "idle" | "playing" | "paused" | "done" | "sent";
 type View = "mail" | "assistant" | "result";
@@ -662,40 +662,5 @@ function Channel({ form }: { form: boolean }) {
       )}
       {form ? "Formular" : "E-Mail"}
     </span>
-  );
-}
-
-function ColumnLabel({
-  number,
-  children,
-}: {
-  number: number;
-  children: ReactNode;
-}) {
-  return (
-    <span className="mailbox-column-label">
-      <span aria-hidden="true">{number}</span>
-      {children}
-    </span>
-  );
-}
-
-const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-// Hebt die Textstellen hervor, die der Assistent übernimmt. Die Markierung
-// erscheint per CSS nacheinander, sobald die Mail data-marked trägt.
-function Marked({ text, marks }: { text: string; marks: string[] }) {
-  const pattern = new RegExp(`(${marks.map(escape).join("|")})`);
-  return text.split(pattern).map((part, position) =>
-    marks.includes(part) ? (
-      <mark
-        key={position}
-        style={{ transitionDelay: `${marks.indexOf(part) * 160}ms` }}
-      >
-        {part}
-      </mark>
-    ) : (
-      part
-    ),
   );
 }
