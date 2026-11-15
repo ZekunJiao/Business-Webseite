@@ -86,7 +86,7 @@ Der Hero hat einen Einstiegs-Button „Ablauf ansehen“ (Sprung zu `#ueberblick
 `UseCaseStage` (`src/components/UseCaseStage.tsx`, Anker `#ueberblick`) zeigt oben eine Karte je fertigem Anwendungsfall und darunter eine Bühne mit genau einer Demo für den gewählten Fall. Ein Klick auf eine Karte wechselt den Fall. Geplante Anwendungsfälle (`upcomingUseCases`) stehen nicht als Karten, sondern als dezente Zeile „Weitere Abläufe in Vorbereitung: …“ unter den Karten.
 
 - **Inhalte:** `src/overviewFlows.ts`. `overviewSets` enthält die Anwendungsfälle mit Karte (`card`), Überschrift und Beispielfällen; `upcomingUseCases` die Platzhalter; `useCaseSection` den Kopf. Ein neuer Anwendungsfall ist ein weiterer Eintrag in `overviewSets`.
-- **Fertige Fälle:** `telefon`, `anfragen`, `angebote` und `termine`; jeder hat eine eigene Demo-Komponente, die `UseCaseStage` anhand der `id` auswählt.
+- **Fertige Fälle:** `telefon`, `anfragen`, `angebote`, `termine` und `rechnungen`; jeder hat eine eigene Demo-Komponente, die `UseCaseStage` anhand der `id` auswählt.
 - **Direktlink:** `/handwerk?anwendungsfall=anfragen` wählt einen Fall und springt zur Bühne. Ohne Parameter oder mit unbekanntem Wert ist der erste Fall (`telefon`) gewählt. Zurück/Vorwärts stellt die Auswahl wieder her; der Anker `#telefon` funktioniert weiter.
 - **Handy (bis 760 px):** Die Karten stehen kompakt untereinander (Symbol links, Text rechts).
 
@@ -149,6 +149,20 @@ Der Anwendungsfall „Termine & Einsätze planen“ (`termine`, Direktlink `/han
 - **Abschluss:** „Prüfen & senden“ macht Vorschläge grün („vorgemerkt“ bzw. „eingeplant“), entfernt die durchgestrichenen alten Plätze und füllt die offene Stelle. Der Assistent sendet nie selbst.
 - **Handy (bis 760 px):** Der Plan wird zur Liste je Monteur; vor jedem Termin steht der Spaltenname.
 - **Technik:** Kein technisches Diagramm (wie bei Angeboten). Eigene Klassen heißen `schedule-*`. Den Ablauf (Takte, Pause, Autostart, Senden, reduzierte Bewegung) liefert `useStoryPlayback` in `src/lib/useStoryPlayback.ts`; die Angebots-Demo nutzt denselben Hook, die Posteingang-Demo hat ihre eigene, gleich aufgebaute Logik.
+
+## Rechnungs-Demo
+
+Der Anwendungsfall „Rechnungen & Erinnerungen“ (`rechnungen`, Direktlink `/handwerk?anwendungsfall=rechnungen`) zeigt `InvoiceStory` (`src/components/InvoiceStory.tsx`, Inhalte in `src/invoiceStory.ts`). Hülle wie bei Angeboten und Terminen, drei Spalten:
+
+1. **Das kommt rein:** drei Meldungen mit Absender und Rolle: Fertigmeldung der Monteurin, Hinweis aus der eigenen Software, Zahlungseingang vom Bankkonto.
+2. **Der Assistent arbeitet:** in allen drei Beispielen dieselben fünf Schritte (Meldung lesen, Auftrag und Rechnung finden, abgleichen, Verlauf prüfen, Entwurf schreiben).
+3. **Für dein Team vorbereitet:** oben die Liste „Offene Posten“, von Anfang an mit dem Stand vor der Änderung sichtbar; die betroffene Zeile wird orange (Vorschlag) und nach dem Senden grün. Darunter beim ersten Beispiel der Rechnungsentwurf mit Positionen und Summen, dann „Warum so?“ mit den Belegen und die Nachricht an den Kunden.
+
+- **Fälle:** „Rechnung nach Auftragsende“ (Badsanierung aus der Angebots-Demo, sechs Positionen wie im Angebot, zwei Stunden Mehraufwand als offene Entscheidung), „Zahlungserinnerung“ (Rechnung 14 Tage überfällig, erste freundliche Erinnerung), „Zahlung passt nicht“ (Skonto nach Fristende abgezogen, Restbetrag nachfordern oder ausbuchen). Die Auswahl ist eine Annahme, keine erhobene Zahl.
+- **Beträge:** erfundene Beispielbeträge. Die Rechnungssumme wird aus Menge × Einzelpreis berechnet (`vatRate` in `src/invoiceStory.ts`); der Mehraufwand zählt erst nach „Prüfen & senden“ mit. Die Beträge in den Texten des dritten Beispiels (3.141,60 € abzüglich 2 % = 3.078,77 €, Rest 62,83 €) sind von Hand eingetragen und bei Änderungen nachzurechnen.
+- **Abgrenzung:** vereinfachte Darstellung, keine Rechts- oder Steuerberatung. Gezeigt wird eine Zahlungserinnerung, keine förmliche Mahnung mit Verzugszinsen; die Rechnung enthält nicht alle Pflichtangaben. Die Beispielkunden sind Privatleute, die E-Rechnungspflicht zwischen Unternehmen kommt deshalb nicht vor.
+- **Technik:** Kein technisches Diagramm. Eigene Klassen heißen `invoice-*` (Offene Posten); Positionen und Summen nutzen `quote-*`, Begründung und Nachricht `schedule-*`. Ablauf über `useStoryPlayback`.
+- **Karten der Anwendungsfälle:** Zwischen 761 und 1100 px stehen drei Karten je Reihe; zwei übrige Karten teilen sich die letzte Reihe. `upcomingUseCases` ist jetzt leer, die Zeile „Weitere Abläufe in Vorbereitung“ entfällt.
 
 ## Überblick-Animation
 

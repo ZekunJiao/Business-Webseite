@@ -2917,6 +2917,20 @@ button.usecase-card:focus-visible {
 .usecase-stage .overview {
   margin: 0;
 }
+/* Mittlere Breiten: drei Karten je Reihe; bleiben zwei übrig, teilen sie
+   sich die letzte Reihe, statt eine einzelne Karte stehen zu lassen. */
+@media (min-width: 761px) and (max-width: 1100px) {
+  .usecase-cards {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .usecase-card {
+    grid-column: span 2;
+  }
+  .usecase-card:nth-child(3n + 1):nth-last-child(2),
+  .usecase-card:nth-child(3n + 2):last-child {
+    grid-column: span 3;
+  }
+}
 @media (max-width: 760px) {
   .usecase-cards {
     grid-template-columns: 1fr;
@@ -5630,5 +5644,118 @@ button.usecase-card:focus-visible {
   .schedule-reasons li,
   .schedule-message {
     animation: none;
+  }
+}
+
+/* Rechnungs-Demo: nutzt Spalten, Eingang, Assistent und Entwurf der
+   Posteingang-Demo (mailbox-*), Positionen und Summen der Angebots-Demo
+   (quote-*) sowie Begründung und Nachricht der Termin-Demo (schedule-*).
+   Eigen ist nur die Liste der offenen Posten. */
+.invoice-story .mailbox-stage {
+  grid-template-columns:
+    minmax(0, 0.95fr) minmax(210px, 0.65fr) minmax(0, 1.4fr);
+}
+.invoice-ledger {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.invoice-ledger li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  align-items: center;
+  padding: 9px 12px;
+  border: 1px solid #e1e7ee;
+  border-radius: 10px;
+  background: #f9fafb;
+  font-size: 13px;
+  line-height: 1.4;
+  transition:
+    border-color 0.3s,
+    background 0.3s;
+}
+.invoice-ledger li[data-focus] {
+  border-color: #b9c6d4;
+  background: #fff;
+  box-shadow: 0 4px 14px #17334d12;
+}
+.invoice-ledger-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.invoice-ledger-text strong {
+  font-weight: 650;
+  color: #142b43;
+}
+.invoice-ledger-text span {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #7a8796;
+}
+.invoice-ledger-amount {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: #142b43;
+}
+.invoice-ledger-status {
+  grid-column: 1 / -1;
+  width: fit-content;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e6eef7;
+  font-size: 11px;
+  font-weight: 650;
+  color: #2f6fae;
+  animation: call-line-in 0.35s ease-out;
+}
+.invoice-ledger li[data-tone="missing"] .invoice-ledger-status {
+  background: #eef2f6;
+  color: #53677a;
+}
+.invoice-ledger li[data-tone="overdue"] .invoice-ledger-status {
+  background: #fbe9e7;
+  color: #b4312a;
+}
+.invoice-ledger li[data-tone="paid"] .invoice-ledger-status,
+.invoice-ledger li[data-tone="confirmed"] .invoice-ledger-status {
+  background: #e7f5ec;
+  color: #23784a;
+}
+.invoice-ledger li[data-tone="proposed"] {
+  border: 1px dashed #efb98d;
+  background: #fdf3ea;
+}
+.invoice-ledger li[data-tone="proposed"] .invoice-ledger-status {
+  background: #fff;
+  color: #b4581f;
+}
+.invoice-ledger li[data-tone="confirmed"] {
+  border-color: #a9d8bb;
+  background: #f0f9f3;
+}
+.invoice-document {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #edf1f5;
+}
+.invoice-document .schedule-message-to {
+  margin-bottom: 0;
+}
+@media (max-width: 1100px) {
+  .invoice-story .mailbox-stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .invoice-ledger li,
+  .invoice-ledger-status {
+    animation: none;
+    transition: none;
   }
 }

@@ -5,6 +5,7 @@ import { PhoneStory } from "./PhoneStory";
 import { InboxStory } from "./InboxStory";
 import { QuoteStory } from "./QuoteStory";
 import { ScheduleStory } from "./ScheduleStory";
+import { InvoiceStory } from "./InvoiceStory";
 import {
   overviewSets,
   upcomingUseCases,
@@ -128,6 +129,8 @@ export function UseCaseStage() {
           <QuoteStory key={set.id} set={set} />
         ) : set.id === "termine" ? (
           <ScheduleStory key={set.id} set={set} />
+        ) : set.id === "rechnungen" ? (
+          <InvoiceStory key={set.id} set={set} />
         ) : (
           <OverviewFlow key={set.id} set={set} />
         )}

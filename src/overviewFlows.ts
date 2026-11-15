@@ -313,13 +313,7 @@ export const useCaseSection = {
 
 // Weitere Anwendungsfälle, für die es noch keine Demo gibt. Die Karten sind
 // sichtbar, aber nicht auswählbar.
-export const upcomingUseCases: UseCaseCard[] = [
-  {
-    title: "Rechnungen & Erinnerungen",
-    teaser: "Offene Posten im Blick behalten, Erinnerungen vorbereiten.",
-    icon: ReceiptText,
-  },
-];
+export const upcomingUseCases: UseCaseCard[] = [];
 
 export const overviewSets: OverviewSet[] = [
   {
@@ -386,6 +380,23 @@ export const overviewSets: OverviewSet[] = [
     title: "Der Plan ändert sich. Der Vorschlag liegt bereit.",
     intro:
       "Der Assistent schaut in den Kalender, prüft, wer es kann und wer in der Nähe ist, und bereitet Plan und Kundennachrichten vor. Dein Team entscheidet und sendet selbst.",
+    channels: [],
+    cases: [],
+    showIntegrations: false,
+  },
+  {
+    // Eigene Demo (InvoiceStory), ebenfalls ohne technisches Diagramm.
+    id: "rechnungen",
+    card: {
+      title: "Rechnungen & Erinnerungen",
+      teaser:
+        "Rechnung nach Auftragsende, offene Posten und Zahlungen im Blick.",
+      icon: ReceiptText,
+    },
+    kicker: "ANWENDUNGSFALL · RECHNUNGEN & ERINNERUNGEN",
+    title: "Der Auftrag ist fertig. Die Rechnung liegt bereit.",
+    intro:
+      "Der Assistent gleicht Angebot, Stunden und Zahlungseingänge ab, bereitet Rechnung oder Erinnerung vor und nennt den Grund dafür. Dein Team entscheidet und sendet selbst.",
     channels: [],
     cases: [],
     showIntegrations: false,
