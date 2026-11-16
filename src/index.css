@@ -5893,3 +5893,63 @@ button.usecase-card:focus-visible {
     transition: none;
   }
 }
+
+/* Impressum und Datenschutz */
+.legal-page {
+  max-width: 760px;
+  padding-top: 48px;
+  color: #26394d;
+  line-height: 1.65;
+  font-size: 16px;
+}
+.legal-page h1 {
+  font-size: clamp(30px, 4vw, 42px);
+  letter-spacing: -0.04em;
+  font-weight: 650;
+  line-height: 1.15;
+  margin: 18px 0 28px;
+  color: #142b43;
+}
+.legal-page h2 {
+  font-size: 18px;
+  font-weight: 650;
+  margin: 32px 0 8px;
+  color: #142b43;
+}
+.legal-page p,
+.legal-page ul {
+  margin: 0 0 12px;
+}
+.legal-page ul {
+  padding-left: 20px;
+}
+.legal-page a {
+  color: #9a4a1c;
+  overflow-wrap: anywhere;
+}
+.legal-back {
+  font-size: 14px;
+  text-decoration: none;
+}
+.legal-missing {
+  background: #fff3e0;
+  color: #8a4a12;
+  padding: 0 6px;
+  border-radius: 4px;
+}
+.legal-stand {
+  margin-top: 32px !important;
+  font-size: 13px;
+  color: #7b8896;
+}
+.legal-page footer {
+  margin-top: 40px;
+  border-top: 1px solid #dce3eb;
+}
+.legal-links {
+  display: inline-flex;
+  gap: 16px;
+}
+footer .legal-links a {
+  color: inherit;
+}

@@ -40,6 +40,15 @@ type Contact = {
   photo?: string;
   email?: string;
   phone?: string;
+  /** Vollständige Profil-URL, z. B. "https://www.linkedin.com/in/…". */
+  linkedin?: string;
+  /**
+   * Ladungsfähige Anschrift für Impressum und Datenschutzerklärung
+   * (kein Postfach). Leer: Die Rechtsseiten zeigen einen Hinweis „folgt“.
+   */
+  address?: { street: string; postalCode: string; city: string };
+  /** Umsatzsteuer-ID nach § 27a UStG, nur falls vorhanden. */
+  vatId?: string;
 };
 
 export const contact: Contact = {
@@ -221,6 +230,9 @@ export const contact: Contact = {
     },
   ],
   photo: "/assets/zekun-jiao.jpg",
-  email: "",
+  email: "zekun@kmu-workflow.de",
   phone: "",
+  linkedin: "https://www.linkedin.com/in/zekun-jiao/",
+  address: { street: "", postalCode: "", city: "" },
+  vatId: "",
 };

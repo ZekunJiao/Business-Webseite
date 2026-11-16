@@ -1,3 +1,4 @@
+import { LegalLinks } from "./LegalPage";
 import { ArrowDown, Building2, Layers3, Play, UserRound } from "lucide-react";
 
 const sections = [
@@ -70,7 +71,9 @@ export default function HausverwaltungPage() {
         </section>
         <footer>
           <span>Hausverwaltung · Vorlagenseite</span>
-          <span>Inhalte folgen.</span>
+          <span>
+            Inhalte folgen. · <LegalLinks />
+          </span>
         </footer>
       </main>
     </div>

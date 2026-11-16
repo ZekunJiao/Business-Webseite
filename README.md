@@ -63,7 +63,11 @@ Auf schmalen Bildschirmen sind die Map-Knoten untereinander angeordnet; Tastatur
 
 ## Absender und Kontakt
 
-Name, Rolle, Vorstellung, „Was ich baue“, Kennzahlen aus Kundenprojekten (Angaben von Zekun Jiao), Umfang der bisherigen Kundenarbeit und die Punkte „Was du von mir bekommst“ stehen zusammen mit den Kontaktdaten in `src/contact.ts`. Vor dem Versenden des Links `email` und `phone` dort eintragen; leere Felder werden nicht angezeigt, dann erscheint kein Kontaktlink. Der Block „Kontakt“ (`AuthorBlock`, Anker `#kontakt`) steht unter den Demos, die Kopfzeile verlinkt dorthin. Bisher ist kein Kontaktkanal bestätigt.
+Name, Rolle, Vorstellung, „Was ich baue“, Kennzahlen aus Kundenprojekten (Angaben von Zekun Jiao), Umfang der bisherigen Kundenarbeit und die Punkte „Was du von mir bekommst“ stehen zusammen mit den Kontaktdaten in `src/contact.ts`. Bestätigt sind E-Mail und LinkedIn (`email`, `linkedin`); `phone` ist leer. Leere Felder werden nicht angezeigt. Der Block „Kontakt“ (`AuthorBlock`, Anker `#kontakt`) steht unter den Demos, die Kopfzeile verlinkt dorthin.
+
+## Impressum und Datenschutz
+
+`/impressum` und `/datenschutz` (`src/pages/LegalPage.tsx`) sind von jeder Seite über den Footer verlinkt. Name, E-Mail, Anschrift und gegebenenfalls Umsatzsteuer-ID kommen aus `src/contact.ts`; fehlt die Anschrift, steht dort sichtbar „Anschrift folgt“. Die Datenschutzerklärung beschreibt den aktuellen Stand (Cloudflare-Hosting, Passwortschutz, keine Cookies, kein Tracking, keine externen Einbindungen). Kommen Analyse, Formulare oder externe Dienste hinzu, muss sie angepasst werden; den Stand oben in der Datei mitpflegen. Die Texte sind Vorlagen und keine Rechtsberatung.
 
 ## Orientierung in der E-Mail-Demo
 

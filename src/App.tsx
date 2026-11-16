@@ -50,6 +50,7 @@ import { DemoResult } from "./components/DemoResult";
 import { MobileEmailFlow } from "./components/MobileEmailFlow";
 import { MOBILE_QUERY, useMediaQuery } from "./lib/useMediaQuery";
 import { contact } from "./contact";
+import LegalPage, { LegalLinks } from "./pages/LegalPage";
 function crmCopy(text: string, fragments: string[][]) {
   const parts: ReactNode[] = [];
   let offset = 0;
@@ -1050,6 +1051,12 @@ export default function App() {
   const isHausverwaltung = path === "/hausverwaltung";
   const isHome = path === "/";
   const isHandwerk = ["/workflow", "/handwerk"].includes(path);
+  const legalKind =
+    path === "/impressum"
+      ? "impressum"
+      : path === "/datenschutz"
+        ? "datenschutz"
+        : null;
   useEffect(() => {
     if (path === "/workflow") {
       window.history.replaceState(
@@ -1060,7 +1067,11 @@ export default function App() {
     }
     document.title = isHome
       ? "Zekun Jiao · Software, KI und Automatisierung"
-      : isHausverwaltung
+      : legalKind === "impressum"
+        ? "Impressum · Zekun Jiao"
+        : legalKind === "datenschutz"
+          ? "Datenschutz · Zekun Jiao"
+          : isHausverwaltung
         ? "Hausverwaltung · Vorlagenseite"
         : isHandwerk
           ? "Handwerk · Abläufe interaktiv entdecken"
@@ -1071,12 +1082,14 @@ export default function App() {
     if (description)
       description.content = isHome
         ? "Software, KI und Automatisierung für verständliche Geschäftsprozesse."
-        : isHausverwaltung
+        : legalKind
+          ? "Impressum und Datenschutzerklärung von Zekun Jiao."
+          : isHausverwaltung
           ? "Eigenständige Vorlagenseite für Hausverwaltungen. Inhalte und Demonstrationen sind in Vorbereitung."
           : isHandwerk
             ? "Digitale Abläufe fürs Handwerk entdecken: mögliche Abläufe als interaktive Beispiele erleben."
             : "Die angefragte Seite wurde nicht gefunden.";
-  }, [path, isHome, isHausverwaltung, isHandwerk]);
+  }, [path, isHome, isHausverwaltung, isHandwerk, legalKind]);
   if (isHome)
     return (
       <main>
@@ -1117,10 +1130,11 @@ export default function App() {
         </section>
         <footer>
           <span>Zekun Jiao · Software, KI und Automatisierung</span>
-          <span>Branchenbereiche zur Erkundung möglicher Lösungen</span>
+          <LegalLinks />
         </footer>
       </main>
     );
+  if (legalKind) return <LegalPage kind={legalKind} />;
   if (isHausverwaltung) return <HausverwaltungPage />;
   if (!isHandwerk)
     return (
@@ -1129,6 +1143,10 @@ export default function App() {
           <h1>Seite nicht gefunden.</h1>
           <p>Bitte prüfen Sie den erhaltenen Link.</p>
         </div>
+        <footer>
+          <span />
+          <LegalLinks />
+        </footer>
       </main>
     );
   return (
@@ -1204,7 +1222,9 @@ export default function App() {
             Mögliche Abläufe für den Büroalltag im Handwerk ·{" "}
             <a href="/">{contact.name}</a>
           </span>
-          <span>Beispieldemo · Keine echten Kundendaten</span>
+          <span>
+            Beispieldemo · Keine echten Kundendaten · <LegalLinks />
+          </span>
         </footer>
       </main>
     </>

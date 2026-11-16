@@ -1,9 +1,10 @@
-import { Check, Mail, Phone, UserRound } from "lucide-react";
+import { Check, Linkedin, Mail, Phone, UserRound } from "lucide-react";
 import { contact } from "../contact";
 
 export function AuthorBlock({ id }: { id?: string }) {
   const email = contact.email?.trim();
   const phone = contact.phone?.trim();
+  const linkedin = contact.linkedin?.trim();
   const photo = contact.photo?.trim();
   return (
     <section className="author-block" id={id} aria-labelledby="author-heading">
@@ -29,7 +30,7 @@ export function AuthorBlock({ id }: { id?: string }) {
           <h2 id="author-heading">{contact.name}</h2>
           <span className="author-role">{contact.role}</span>
         </div>
-        {(email || phone) && (
+        {(email || phone || linkedin) && (
           <div className="author-links">
             {email && (
               <a href={`mailto:${email}`}>
@@ -41,6 +42,12 @@ export function AuthorBlock({ id }: { id?: string }) {
               <a href={`tel:${phone.replace(/[^+\d]/g, "")}`}>
                 <Phone size={16} />
                 {phone}
+              </a>
+            )}
+            {linkedin && (
+              <a href={linkedin} target="_blank" rel="noopener noreferrer">
+                <Linkedin size={16} />
+                LinkedIn
               </a>
             )}
           </div>
