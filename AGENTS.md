@@ -19,9 +19,9 @@ Datenmengen liefern. Meine Erfahrung umfasst Softwareentwicklung, Cloud, KI
 (Sprach- und Telefonassistenz, Agenten), Automatisierung und technische
 Produktentwicklung.
 
-Nebenberuflich habe ich in den letzten 12 Monaten 6+ bezahlte Projekte für
-4+ Kunden umgesetzt; der am längsten laufende Ablauf ist seit über 12 Monaten
-im Einsatz. Die Kennzahlen dazu stehen in `src/contact.ts`.
+Nebenberuflich habe ich seit Februar 2026 mindestens sechs bezahlte Projekte
+für mindestens vier Kunden umgesetzt. Die Kennzahlen dazu stehen in
+`src/contact.ts`.
 
 Lies zu Beginn eines neuen Chats die PROJECT_DESCRIPTION.md, sofern vorhanden.
 Sie beschreibt den übergeordneten Geschäftskontext.

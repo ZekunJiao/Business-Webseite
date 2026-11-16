@@ -23,6 +23,7 @@ import { phoneStory } from "../phoneStory";
 import type { PhoneSpeaker } from "../phoneStory";
 import type { OverviewSet } from "../overviewFlows";
 import { useMediaQuery } from "../lib/useMediaQuery";
+import { ring } from "../lib/ringtone";
 
 type Status = "idle" | "playing" | "paused" | "done";
 
@@ -68,14 +69,21 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
   const reduced = !!useReducedMotion();
   const stacked = useMediaQuery(STACKED_QUERY);
   const [status, setStatus] = useState<Status>("idle");
-  // Anzahl der bereits gesprochenen bzw. sichtbaren Zeilen
+  // Anzahl der sichtbaren Zeilen (die letzte läuft gerade)
   const [shown, setShown] = useState(0);
+  // Anzahl der fertig gesprochenen Zeilen. Erst danach steht in der
+  // Gesprächsnotiz, was in der Zeile gesagt wurde.
+  const [spoken, setSpoken] = useState(0);
   const [sound, setSound] = useState(true);
   const [audioFailed, setAudioFailed] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [technicalOpen, setTechnicalOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const myPhoneRef = useRef<HTMLDivElement>(null);
+  const callPanelRef = useRef<HTMLDivElement>(null);
+  const acceptRef = useRef<HTMLButtonElement>(null);
+  // Der Klingelton läuft höchstens einmal je Seitenaufruf.
+  const rang = useRef(false);
   const durations = useLineDurations();
   const totalSeconds = () =>
     Math.round(
@@ -98,6 +106,7 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
     const next = () => {
       if (finished) return;
       finished = true;
+      setSpoken(shown);
       timers.push(
         window.setTimeout(() => {
           if (shown >= lines.length) setStatus("done");
@@ -135,6 +144,43 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
     };
   }, [status, shown, sound, audioFailed]);
 
+  // Klingelton, sobald das Telefonat gut im Blick ist und noch klingelt.
+  // Weg scrollen, Tab wechseln oder "Assistent geht ran" bricht ab. Hat er
+  // noch nicht gespielt (Browser wartet auf den ersten Klick), versucht er es
+  // beim nächsten Mal im Blick erneut.
+  useEffect(() => {
+    const panel = callPanelRef.current;
+    if (status !== "idle" || !sound || rang.current || !panel) return;
+    let stop: (() => void) | null = null;
+    let inView = false;
+    const cancel = () => {
+      stop?.();
+      stop = null;
+    };
+    const tryRing = () => {
+      if (!inView || stop || rang.current || document.hidden) return;
+      stop = ring(acceptRef.current, () => {
+        rang.current = true;
+      });
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+        if (inView) tryRing();
+        else cancel();
+      },
+      { threshold: 0.6 },
+    );
+    const onVisibility = () => (document.hidden ? cancel() : tryRing());
+    observer.observe(panel);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+      cancel();
+    };
+  }, [status, sound]);
+
   // Gesprächsdauer
   useEffect(() => {
     if (status !== "playing") return;
@@ -156,6 +202,7 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
     if (audio) audio.removeAttribute("src");
     setAudioFailed(false);
     setSeconds(0);
+    setSpoken(0);
     setShown(1);
     setStatus("playing");
   };
@@ -173,7 +220,7 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
   const revealed = new Set(
     status === "done"
       ? notes.map((note) => note.id)
-      : lines.slice(0, shown).flatMap((line) => line.notes ?? []),
+      : lines.slice(0, spoken).flatMap((line) => line.notes ?? []),
   );
   const revealedNotes = notes.filter((note) => revealed.has(note.id));
   const noteLabel = (id: string) =>
@@ -182,7 +229,6 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
     notes.find((note) => note.id === id)?.value ?? "";
   const current = shown > 0 ? lines[shown - 1] : null;
   const speaking = status === "playing" ? current?.speaker : undefined;
-  const earlier = lines.slice(0, Math.max(0, shown - 1)).reverse();
   const PrimaryIcon =
     status === "playing" ? Pause : status === "done" ? RotateCcw : Play;
   const primaryLabel =
@@ -219,7 +265,7 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
 
       <div className="story-stage phone-stage">
         <div className="phone-main">
-          <div className="call-panel" data-status={status}>
+          <div className="call-panel" data-status={status} ref={callPanelRef}>
             <div className="call-panel-head">
               <span className="call-panel-label">Das Telefonat</span>
               <span className="call-state" data-status={status}>
@@ -298,10 +344,15 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
             {status === "idle" ? (
               <div className="call-start">
                 <p>
-                  Eine Kundin ruft an. Du bist auf der Baustelle und kannst nicht
-                  rangehen.
+                  Eine Kundin ruft an. Es ist Feierabend, im Büro geht niemand
+                  mehr ran.
                 </p>
-                <button type="button" className="phone-accept" onClick={start}>
+                <button
+                  type="button"
+                  className="phone-accept"
+                  onClick={start}
+                  ref={acceptRef}
+                >
                   <PhoneCall size={18} aria-hidden="true" />
                   Assistent geht ran
                 </button>
@@ -328,15 +379,6 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
                       </span>
                     ) : null}
                   </div>
-                ) : null}
-                {earlier.length ? (
-                  <ol className="call-earlier" aria-label="Bisher gesagt">
-                    {earlier.slice(0, 3).map((line) => (
-                      <li key={line.text} data-speaker={line.speaker}>
-                        <strong>{speakerName[line.speaker]}:</strong> {line.text}
-                      </li>
-                    ))}
-                  </ol>
                 ) : null}
                 {status === "done" ? (
                   <details className="call-transcript">
@@ -403,8 +445,8 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
                 <span className="lock-clock">{phoneStory.clock}</span>
                 <span className="lock-note">
                   {status === "done"
-                    ? "Du bist auf der Baustelle."
-                    : "Du bist auf der Baustelle. Das Handy bleibt in der Tasche."}
+                    ? "Feierabend."
+                    : "Feierabend. Im Büro ist niemand mehr."}
                 </span>
               </div>
               {status === "done" ? (

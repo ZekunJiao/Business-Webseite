@@ -1,18 +1,29 @@
-import { Check, Mail, Phone } from "lucide-react";
+import { Check, Mail, Phone, UserRound } from "lucide-react";
 import { contact } from "../contact";
 
 export function AuthorBlock({ id }: { id?: string }) {
   const email = contact.email?.trim();
   const phone = contact.phone?.trim();
+  const photo = contact.photo?.trim();
   return (
     <section className="author-block" id={id} aria-labelledby="author-heading">
       <div className="author-head">
-        <span className="author-avatar" aria-hidden="true">
-          {contact.name
-            .split(" ")
-            .map((part) => part[0])
-            .join("")}
-        </span>
+        {photo ? (
+          <img
+            className="author-photo"
+            src={photo}
+            alt={contact.name}
+            width={96}
+            height={96}
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <span className="author-photo author-photo-placeholder" aria-hidden="true">
+            <UserRound size={40} strokeWidth={1.5} />
+            <small>Foto folgt</small>
+          </span>
+        )}
         <div className="author-copy">
           <span className="eyebrow">ÜBER MICH</span>
           <h2 id="author-heading">{contact.name}</h2>
@@ -49,10 +60,36 @@ export function AuthorBlock({ id }: { id?: string }) {
               <div key={result.value}>
                 <dt>{result.value}</dt>
                 <dd>{result.label}</dd>
+                {result.context ? (
+                  <dd className="author-result-context">{result.context}</dd>
+                ) : null}
+                {result.breakdown ? (
+                  <dd className="author-breakdown">
+                    <details>
+                      <summary>{result.breakdown.title}</summary>
+                      <table>
+                        <tbody>
+                          {result.breakdown.rows.map((row) => (
+                            <tr key={row.label} data-tone={row.tone}>
+                              <th scope="row">
+                                {row.label}
+                                {row.detail ? <small>{row.detail}</small> : null}
+                              </th>
+                              <td>{row.value}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      {result.breakdown.notes?.map((note) => (
+                        <p key={note}>{note}</p>
+                      ))}
+                    </details>
+                  </dd>
+                ) : null}
               </div>
             ))}
           </dl>
-          <p className="author-track">{contact.trackRecord.join(" · ")}</p>
+          <p className="author-track">{contact.trackRecord}</p>
           <p className="author-note">{contact.resultsNote}</p>
         </div>
         <div>

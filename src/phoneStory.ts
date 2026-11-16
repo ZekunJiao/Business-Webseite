@@ -18,12 +18,13 @@ export type PhoneNoteField = {
 export type PhoneLine = {
   speaker: PhoneSpeaker;
   text: string;
-  // Notizfelder, die nach dieser Zeile feststehen
+  // Notizfelder, die nach dieser Zeile feststehen. Sie erscheinen in der
+  // Gesprächsnotiz erst, wenn die Zeile zu Ende gesprochen ist.
   notes?: string[];
 };
 
 export const phoneStory = {
-  business: "Haustechnik Muster",
+  business: "Haustechnik Mustermann",
   caller: "Sabine Krüger",
   callTime: "Di · 18:47",
   // Sperrbildschirm "Dein Handy"
@@ -37,7 +38,7 @@ export const phoneStory = {
       `/assets/phone/line-${String(index + 1).padStart(2, "0")}.mp3`,
   ),
   notes: [
-    { id: "urgency", label: "Dringlichkeit", value: "Notfall · Bereitschaft informiert" },
+    { id: "urgency", label: "Dringlichkeit", value: "Notfall" },
     { id: "issue", label: "Anliegen", value: "Heizung aus seit heute früh, kein Warmwasser" },
     { id: "name", label: "Name", value: "Sabine Krüger" },
     { id: "address", label: "Adresse", value: "Lindenstraße 12, Freising" },
@@ -48,7 +49,11 @@ export const phoneStory = {
       value: "unbekannt · Typenschildfoto anfragen",
       open: true,
     },
-    { id: "callback", label: "Rückruf", value: "Anrufernummer" },
+    {
+      id: "callback",
+      label: "Rückruf",
+      value: "Bereitschaft informiert · ruft unter der Anrufernummer zurück",
+    },
   ] satisfies PhoneNoteField[],
   // Hinweis im Startzustand, ohne Zahlen
   without: "Ohne Assistent springt jetzt die Mailbox an.",

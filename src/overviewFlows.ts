@@ -326,7 +326,7 @@ export const overviewSets: OverviewSet[] = [
       cta: "Gespräch anhören",
     },
     kicker: "ANWENDUNGSFALL · TELEFONASSISTENZ",
-    title: "Du bist auf der Baustelle. Der Assistent geht ran.",
+    title: "Feierabend im Büro. Der Assistent geht ran.",
     intro:
       "Er fragt das Wichtige ab, erkennt Notfälle und schickt dir eine kurze Zusammenfassung aufs Handy. Dein Team ruft zurück und entscheidet.",
     channels: ["phone"],
