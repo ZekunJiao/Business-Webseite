@@ -1056,7 +1056,9 @@ export default function App() {
       ? "impressum"
       : path === "/datenschutz"
         ? "datenschutz"
-        : null;
+        : path === "/kontakt"
+          ? "kontakt"
+          : null;
   useEffect(() => {
     if (path === "/workflow") {
       window.history.replaceState(
@@ -1071,6 +1073,8 @@ export default function App() {
         ? "Impressum · Zekun Jiao"
         : legalKind === "datenschutz"
           ? "Datenschutz · Zekun Jiao"
+          : legalKind === "kontakt"
+            ? "Kontakt · Zekun Jiao"
           : isHausverwaltung
         ? "Hausverwaltung · Vorlagenseite"
         : isHandwerk
@@ -1083,7 +1087,7 @@ export default function App() {
       description.content = isHome
         ? "Software, KI und Automatisierung für verständliche Geschäftsprozesse."
         : legalKind
-          ? "Impressum und Datenschutzerklärung von Zekun Jiao."
+          ? "Kontakt, Impressum und Datenschutzerklärung von Zekun Jiao."
           : isHausverwaltung
           ? "Eigenständige Vorlagenseite für Hausverwaltungen. Inhalte und Demonstrationen sind in Vorbereitung."
           : isHandwerk

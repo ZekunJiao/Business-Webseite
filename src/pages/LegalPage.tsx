@@ -1,15 +1,17 @@
 import type { ReactNode } from "react";
 import { contact } from "../contact";
+import { ContactForm } from "../components/ContactForm";
 
 // Impressum (§ 5 DDG) und Datenschutzerklärung (Art. 13 DSGVO).
 // Angaben kommen aus src/contact.ts. Stand bei inhaltlichen Änderungen anpassen.
 const STAND = "November 2026";
 
-export type LegalKind = "impressum" | "datenschutz";
+export type LegalKind = "impressum" | "datenschutz" | "kontakt";
 
 export function LegalLinks() {
   return (
     <span className="legal-links">
+      <a href="/kontakt">Kontakt</a>
       <a href="/impressum">Impressum</a>
       <a href="/datenschutz">Datenschutz</a>
     </span>
@@ -58,6 +60,8 @@ function Impressum() {
       <h2>Kontakt</h2>
       <p>
         E-Mail: <EmailLink />
+        <br />
+        Kontaktformular: <a href="/kontakt">zekun.de/kontakt</a>
         {phone ? (
           <>
             <br />
@@ -116,32 +120,34 @@ function Datenschutz() {
         diese Zwecke erforderlich ist.
       </p>
 
-      <h2>3. Zugangsschutz</h2>
+      <h2>3. Kontakt per E-Mail und Kontaktformular</h2>
       <p>
-        Solange die Website mit einem Passwort geschützt ist, speichert Ihr
-        Browser die eingegebenen Zugangsdaten für die Dauer der Sitzung, um
-        weitere Seitenaufrufe zu ermöglichen. Dabei werden keine weiteren
-        Daten über Sie erhoben. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO.
-      </p>
-
-      <h2>4. Kontakt per E-Mail</h2>
-      <p>
-        Wenn Sie mir eine E-Mail schreiben, verarbeite ich Ihre Angaben (zum
-        Beispiel Name, E-Mail-Adresse und Inhalt der Nachricht), um Ihre
-        Anfrage zu beantworten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b
+        Wenn Sie mir eine E-Mail schreiben oder das Kontaktformular nutzen,
+        verarbeite ich Ihre Angaben (Name, E-Mail-Adresse, auf Wunsch
+        Telefonnummer und den Inhalt der Nachricht), um Ihre Anfrage zu
+        beantworten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b
         DSGVO, wenn Ihre Anfrage auf einen Vertrag zielt, sonst Art. 6 Abs. 1
         lit. f DSGVO. Ich lösche die Daten, sobald sie dafür nicht mehr nötig
         sind, sofern keine gesetzlichen Aufbewahrungspflichten bestehen.
       </p>
+      <p>
+        Das Kontaktformular übermittelt Ihre Angaben verschlüsselt an
+        Cloudflare (siehe Abschnitt 2), das sie als E-Mail an mein Postfach
+        weiterleitet. Auf der Website selbst wird nichts gespeichert. Mein
+        Postfach betreibe ich bei Google Workspace (Google Cloud EMEA Limited,
+        Gordon House, Barrow Street, Dublin 4, Irland); mit Google besteht ein
+        Vertrag zur Auftragsverarbeitung. Eine Übermittlung in die USA ist
+        möglich; Google ist nach dem EU-US Data Privacy Framework zertifiziert.
+      </p>
 
-      <h2>5. Interaktive Beispiele</h2>
+      <h2>4. Interaktive Beispiele</h2>
       <p>
         Die Beispiele auf dieser Website laufen vollständig in Ihrem Browser.
         Es werden dabei keine Eingaben an mich oder an Dritte übertragen. Die
         gezeigten Personen, Betriebe und Nachrichten sind erfunden.
       </p>
 
-      <h2>6. Link zu LinkedIn</h2>
+      <h2>5. Link zu LinkedIn</h2>
       <p>
         Auf dieser Website gibt es einen einfachen Link zu meinem
         LinkedIn-Profil. Es ist kein LinkedIn-Plugin eingebunden; Daten
@@ -150,7 +156,7 @@ function Datenschutz() {
         Company, Wilton Place, Dublin 2, Irland).
       </p>
 
-      <h2>7. Ihre Rechte</h2>
+      <h2>6. Ihre Rechte</h2>
       <p>Sie haben jederzeit das Recht auf</p>
       <ul>
         <li>Auskunft über Ihre gespeicherten Daten (Art. 15 DSGVO),</li>
@@ -172,9 +178,22 @@ function Datenschutz() {
   );
 }
 
+function Kontakt() {
+  return (
+    <>
+      <p>
+        Beschreib kurz, worum es geht. Ich melde mich in der Regel innerhalb
+        eines Werktags. Du erreichst mich auch per E-Mail an <EmailLink />.
+      </p>
+      <ContactForm />
+    </>
+  );
+}
+
 const pages: Record<LegalKind, { title: string; body: () => ReactNode }> = {
   impressum: { title: "Impressum", body: Impressum },
   datenschutz: { title: "Datenschutzerklärung", body: Datenschutz },
+  kontakt: { title: "Kontakt", body: Kontakt },
 };
 
 export default function LegalPage({ kind }: { kind: LegalKind }) {
@@ -186,7 +205,9 @@ export default function LegalPage({ kind }: { kind: LegalKind }) {
       </a>
       <h1>{title}</h1>
       <Body />
-      <p className="legal-stand">Stand: {STAND}</p>
+      {kind === "kontakt" ? null : (
+        <p className="legal-stand">Stand: {STAND}</p>
+      )}
       <footer>
         <span>{contact.name} · Software, KI und Automatisierung</span>
         <LegalLinks />

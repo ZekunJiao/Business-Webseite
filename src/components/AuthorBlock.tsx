@@ -1,5 +1,6 @@
 import { Check, Linkedin, Mail, Phone, UserRound } from "lucide-react";
 import { contact } from "../contact";
+import { ContactForm } from "./ContactForm";
 
 export function AuthorBlock({ id }: { id?: string }) {
   const email = contact.email?.trim();
@@ -113,6 +114,14 @@ export function AuthorBlock({ id }: { id?: string }) {
             ))}
           </ul>
         </div>
+      </div>
+      <div className="author-contact">
+        <h3>Schreib mir</h3>
+        <p>
+          Kurz beschreiben, worum es geht. Ich melde mich in der Regel
+          innerhalb eines Werktags.
+        </p>
+        <ContactForm />
       </div>
     </section>
   );

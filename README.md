@@ -25,13 +25,21 @@ Gewählt: Cloudflare Workers (statische Dateien aus `dist/`), automatisch aus de
 - Deploy command: `npx wrangler deploy`
 - Node-Version: über `.node-version` (22)
 
-`wrangler.jsonc` stellt `not_found_handling: single-page-application` ein. Deshalb funktionieren `/handwerk` und `/hausverwaltung` auch beim direkten Aufruf. Jeder Push auf `main` veröffentlicht automatisch neu. Die Adresse lautet `https://business-webseite.xiaokun77.workers.dev` (zu finden unter Settings → Domains & Routes). Eine eigene Domain ist noch nicht festgelegt.
+`wrangler.jsonc` stellt `not_found_handling: single-page-application` ein. Deshalb funktionieren `/handwerk` und `/hausverwaltung` auch beim direkten Aufruf. Jeder Push auf `main` veröffentlicht automatisch neu. Domain: `zekun.de` (registriert bei IONOS, DNS bei Cloudflare); daneben besteht noch `https://business-webseite.xiaokun77.workers.dev`. Die eigene Domain wird im Worker unter Settings → Domains & Routes → Custom Domain verbunden.
 
 Vor dem Versenden des Links offen: Kontaktdaten in `src/contact.ts` und Bestätigung der Werkzeuge in `src/integrations.ts`.
 
-### Passwortschutz
+### Öffentlich, aber nicht in Suchmaschinen
 
-Die gesamte Seite ist passwortgeschützt (`worker/index.ts`, HTTP Basic Auth; der Worker liefert nach korrektem Passwort die Dateien aus `dist/` aus, siehe `run_worker_first` in `wrangler.jsonc`). Der Browser fragt nach Benutzername und Passwort; der Benutzername ist beliebig, nur das Passwort zählt. Das Passwort steht nicht im Repository: Im Cloudflare-Dashboard unter dem Projekt → Settings → Variables and Secrets → Add → Typ „Secret“, Name `SITE_PASSWORD`. Ohne gesetztes Passwort antwortet die Seite mit 503 (gesperrt). Antworten tragen `X-Robots-Tag: noindex, nofollow`, damit Suchmaschinen nichts indexieren. Lokal (`npm run dev`, `npm run preview`) läuft der Worker nicht; dort gibt es keinen Schutz. Passwort ändern: Secret ändern. Zum Entfernen `main`, `run_worker_first` und `binding` aus `wrangler.jsonc` sowie den Ordner `worker/` löschen.
+Entschieden: Die Seite ist ohne Passwort erreichbar und soll vorerst nicht in Suchmaschinen erscheinen. Der Worker (`worker/index.ts`, siehe `run_worker_first` in `wrangler.jsonc`) liefert die Dateien aus `dist/` aus und setzt auf jede Antwort `X-Robots-Tag: noindex, nofollow`. Keine `robots.txt` mit `Disallow` anlegen, sonst sehen Suchmaschinen das `noindex` nicht. Zum Freigeben für Suchmaschinen die Header-Zeile im Worker entfernen. Lokal (`npm run dev`, `npm run preview`) läuft der Worker nicht. Das frühere Secret `SITE_PASSWORD` wird nicht mehr verwendet und kann im Cloudflare-Dashboard gelöscht werden.
+
+### Kontaktformular
+
+Zweiter Kontaktweg neben der E-Mail (Impressumspflicht). Das Formular (`src/components/ContactForm.tsx`) steht im Block „Über mich“ auf `/handwerk` und auf `/kontakt`; der Footer verlinkt `/kontakt`. Es sendet an `POST /api/kontakt` im Worker, der die Nachricht über Cloudflare Email Routing (Binding `send_email` in `wrangler.jsonc`) als E-Mail an `KONTAKT_TO` schickt; Antworten gehen per Reply-To an den Absender. Nichts wird gespeichert. Schutz gegen Spam: verstecktes Feld, Längenbegrenzung, nur Anfragen von derselben Domain.
+
+Einmalig im Cloudflare-Dashboard nötig, sonst schlägt der Versand fehl: `zekun.de` → Email → Email Routing → aktivieren (legt MX- und SPF-Einträge an) und unter Destination addresses `zekun@kmu-workflow.de` hinzufügen und per Link in der Bestätigungsmail freischalten. Absender ist `formular@zekun.de` (`KONTAKT_FROM`).
+
+Lokal testen: `npm run build`, dann `npx wrangler dev`; der Mailversand wird dort nur simuliert. Unter `npm run dev` gibt es keinen Worker, das Formular zeigt dann den Fehlerhinweis mit der E-Mail-Adresse.
 
 ## Umsetzung
 
@@ -67,7 +75,7 @@ Name, Rolle, Vorstellung, „Was ich baue“, Kennzahlen aus Kundenprojekten (An
 
 ## Impressum und Datenschutz
 
-`/impressum` und `/datenschutz` (`src/pages/LegalPage.tsx`) sind von jeder Seite über den Footer verlinkt. Name, E-Mail, Anschrift und gegebenenfalls Umsatzsteuer-ID kommen aus `src/contact.ts`; fehlt die Anschrift, steht dort sichtbar „Anschrift folgt“. Die Datenschutzerklärung beschreibt den aktuellen Stand (Cloudflare-Hosting, Passwortschutz, keine Cookies, kein Tracking, keine externen Einbindungen). Kommen Analyse, Formulare oder externe Dienste hinzu, muss sie angepasst werden; den Stand oben in der Datei mitpflegen. Die Texte sind Vorlagen und keine Rechtsberatung.
+`/impressum` und `/datenschutz` (`src/pages/LegalPage.tsx`) sind von jeder Seite über den Footer verlinkt. Name, E-Mail, Anschrift und gegebenenfalls Umsatzsteuer-ID kommen aus `src/contact.ts`; fehlt die Anschrift, steht dort sichtbar „Anschrift folgt“. Die Datenschutzerklärung beschreibt den aktuellen Stand (Cloudflare-Hosting, Kontaktformular über Cloudflare an ein Google-Workspace-Postfach, keine Cookies, kein Tracking, keine externen Einbindungen). Kommen Analyse, Formulare oder externe Dienste hinzu, muss sie angepasst werden; den Stand oben in der Datei mitpflegen. Die Texte sind Vorlagen und keine Rechtsberatung.
 
 ## Orientierung in der E-Mail-Demo
 
