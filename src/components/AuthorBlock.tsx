@@ -61,7 +61,7 @@ export function AuthorBlock({ id }: { id?: string }) {
         ))}
       </ul>
       <div className="author-columns">
-        <div>
+        <div id="zahlen" className="author-numbers">
           <h3>Zahlen aus Kundenprojekten</h3>
           <dl className="author-results">
             {contact.results.map((result) => (

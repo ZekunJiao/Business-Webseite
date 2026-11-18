@@ -13,6 +13,8 @@ type BreakdownRow = {
 type Result = {
   value: string;
   label: string;
+  /** Kurzfassung für den Einstieg der Branchenseite. Ohne teaser: nur unten. */
+  teaser?: string;
   context?: string;
   breakdown?: { title: string; rows: BreakdownRow[]; notes?: string[] };
 };
@@ -69,6 +71,7 @@ export const contact: Contact = {
       value: "30 von 40",
       label:
         "bisher verpassten Anrufen pro Woche nimmt der Assistent an, jeden mit verwertbarer Gesprächsnotiz",
+      teaser: "bisher verpassten Anrufen pro Woche nimmt der Assistent jetzt an",
       context:
         "Wärmepumpenbetrieb in München, 12 Mitarbeiter · je 4 Wochen vor und nach der Einführung",
       breakdown: {
@@ -103,6 +106,7 @@ export const contact: Contact = {
     {
       value: "8 → 2 Std.",
       label: "bis zur ersten Antwort auf E-Mails und Formularanfragen",
+      teaser: "bis zur ersten Antwort auf Anfragen per E-Mail und Formular",
       context:
         "3 Betriebe · Median aus 90 Anfragen vorher und 512 nachher · nur Geschäftszeiten (Mo–Fr 7–17 Uhr)",
       breakdown: {
@@ -208,7 +212,7 @@ export const contact: Contact = {
     },
   ],
   trackRecord:
-    "Seit Februar 2026 habe ich mindestens sechs bezahlte Projekte für mindestens vier Kunden umgesetzt.",
+    "Seit Februar 2026 habe ich sechs bezahlte Projekte für vier Kunden umgesetzt.",
   resultsNote:
     "Werte aus bisherigen Kundenprojekten. Was bei dir möglich ist, hängt von deinem Betrieb ab.",
   strengths: [
@@ -230,9 +234,9 @@ export const contact: Contact = {
     },
   ],
   photo: "/assets/zekun-jiao.jpg",
-  email: "zekun@kmu-workflow.de",
+  email: "zekun@zekun.de",
   phone: "",
   linkedin: "https://www.linkedin.com/in/zekun-jiao/",
-  address: { street: "", postalCode: "", city: "" },
+  address: { street: "Königsdorferstraße 7", postalCode: "81371", city: "München" },
   vatId: "",
 };

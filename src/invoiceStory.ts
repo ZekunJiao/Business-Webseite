@@ -92,7 +92,7 @@ export const invoiceStory = {
   without:
     "Der Auftrag ist fertig, die Rechnung schreibst du Wochen später. Wer nicht zahlt, fällt erst auf, wenn das Konto leer wird.",
   with: "Die Rechnung liegt als Entwurf bereit, sobald der Auftrag fertig ist. Überfällige Rechnungen und unpassende Zahlungen kommen von selbst hoch.",
-  closing: "Viele Grüße\nIhr Team von Haustechnik Muster",
+  closing: "Viele Grüße\nIhr Team von Haustechnik Mustermann",
   vatRate: 0.19,
   cases: [
     {

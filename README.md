@@ -32,7 +32,7 @@ Entschieden: Nur `prod` ist live auf `zekun.de`. `main` ist der Arbeitsstand; je
 
 `wrangler.jsonc` stellt `not_found_handling: single-page-application` ein. Deshalb funktionieren `/handwerk` und `/hausverwaltung` auch beim direkten Aufruf. Domain: `zekun.de` (registriert bei IONOS, DNS bei Cloudflare); daneben besteht noch `https://business-webseite.xiaokun77.workers.dev`. Die eigene Domain wird im Worker unter Settings → Domains & Routes → Custom Domain verbunden.
 
-Vor dem Versenden des Links offen: Kontaktdaten in `src/contact.ts` und Bestätigung der Werkzeuge in `src/integrations.ts`.
+Vor dem Versenden des Links offen: Bestätigung der Werkzeuge in `src/integrations.ts`.
 
 ### Öffentlich, aber nicht in Suchmaschinen
 
@@ -76,7 +76,7 @@ Auf schmalen Bildschirmen sind die Map-Knoten untereinander angeordnet; Tastatur
 
 ## Absender und Kontakt
 
-Name, Rolle, Vorstellung, „Was ich baue“, Kennzahlen aus Kundenprojekten (Angaben von Zekun Jiao), Umfang der bisherigen Kundenarbeit und die Punkte „Was du von mir bekommst“ stehen zusammen mit den Kontaktdaten in `src/contact.ts`. Bestätigt sind E-Mail und LinkedIn (`email`, `linkedin`); `phone` ist leer. Leere Felder werden nicht angezeigt. Der Block „Kontakt“ (`AuthorBlock`, Anker `#kontakt`) steht unter den Demos, die Kopfzeile verlinkt dorthin.
+Name, Rolle, Vorstellung, „Was ich baue“, Kennzahlen aus Kundenprojekten (Angaben von Zekun Jiao), Umfang der bisherigen Kundenarbeit und die Punkte „Was du von mir bekommst“ stehen zusammen mit den Kontaktdaten in `src/contact.ts`. Bestätigt sind E-Mail (`zekun@zekun.de`, Weiterleitung über Cloudflare an das Google-Workspace-Postfach), LinkedIn und Anschrift; `phone` ist leer. Leere Felder werden nicht angezeigt. Der Block „Kontakt“ (`AuthorBlock`, Anker `#kontakt`) steht unter den Demos, die Kopfzeile verlinkt dorthin.
 
 ## Impressum und Datenschutz
 
@@ -96,7 +96,13 @@ Bis 760 px Breite (`MOBILE_QUERY` in `src/lib/useMediaQuery.ts`) zeigt `MobileEm
 
 ## Hero auf /handwerk
 
-Der Hero hat einen Einstiegs-Button „Ablauf ansehen“ (Sprung zu `#ueberblick`) und einen Textlink „Kennenlerngespräch vereinbaren“ zum Kontaktblock (`#kontakt`). Die Überblick-Animation ist der Einstieg. Die Detaildemo (Workflow-Tabs mit E-Mail-Demo, `#workflow`) ist vorerst ausgeblendet: Der Einbau in `src/App.tsx` und der Link „Vollständige Demo ansehen“ in `src/components/OverviewFlow.tsx` sind auskommentiert, der Code (`HandwerkWorkflows`, `EmailWorkflowDemo`, `MobileEmailFlow` usw.) bleibt erhalten. Zum Reaktivieren die Kommentare entfernen; die Abschnitte unten beschreiben die Detaildemo.
+Der Hero hat einen Einstiegs-Button „Beispiele ansehen“ (Sprung zu `#ueberblick`) und einen Textlink „Kennenlerngespräch anfragen“ zum Kontaktblock (`#kontakt`); eine Terminbuchung gibt es nicht. Darunter stehen zwei Kennzahlen „Aus Kundenprojekten“: alle Einträge in `contact.results` mit `teaser`, verlinkt auf die Rechnungen im Kontaktblock (`#zahlen`). Die Überblick-Animation ist der Einstieg. Die Detaildemo (Workflow-Tabs mit E-Mail-Demo, `#workflow`) ist vorerst ausgeblendet: Der Einbau in `src/App.tsx` und der Link „Vollständige Demo ansehen“ in `src/components/OverviewFlow.tsx` sind auskommentiert, der Code (`HandwerkWorkflows`, `EmailWorkflowDemo`, `MobileEmailFlow` usw.) bleibt erhalten. Zum Reaktivieren die Kommentare entfernen; die Abschnitte unten beschreiben die Detaildemo.
+
+Zwischen Anwendungsfällen und Kontaktblock steht „So läuft es ab“ (`src/components/ProcessFaq.tsx`, Anker `#ablauf`): drei Schritte der Zusammenarbeit und häufige Fragen. Die Antworten sind Zusagen an Interessenten; Preise stehen dort erst, wenn das Angebot festgelegt ist.
+
+## Linkvorschau und Schrift
+
+`index.html` enthält Titel, Beschreibung und Open-Graph-Tags für die Vorschau in WhatsApp, LinkedIn und E-Mail-Programmen. Weil die Seite ohne Server-Rendering ausgeliefert wird, gelten sie für alle Pfade. Vorschaubild: `public/og-handwerk.png` (1200 × 630). LinkedIn speichert Vorschauen zwischen; nach Änderungen im Post Inspector neu abrufen. Die Schrift Inter liegt über `@fontsource-variable/inter` im Build (keine externe Schriftquelle); geladen wird nur der benötigte Zeichensatz.
 
 ## Anwendungsfälle auf /handwerk
 
@@ -117,7 +123,7 @@ Der Anwendungsfall „Kein Anruf geht verloren“ (`telefon`) zeigt statt des Di
 Bis 900 px Breite steht alles untereinander (Telefonat, Notiz, Handy); nach dem Gespräch scrollt die Seite zum Handy.
 
 - **Bedienung:** Einziger Start ist „Assistent geht ran“. Danach stehen im Kopf des Telefonats Pausieren/Fortsetzen, Ton an/aus und „Zum Ergebnis“ (auf dem Handy nur als Symbole mit Beschriftung für Screenreader); nach dem Ende „Noch einmal“. „Zum Ergebnis“ setzt die Gesprächsdauer auf die Länge der Aufnahmen (aus den MP3-Metadaten, sonst geschätzt). „Ton aus“ schaltet auf Lesetempo um.
-- **Ton:** vorab erzeugte MP3s je Zeile in `public/assets/phone/line-01.mp3` … `line-08.mp3`, abgespielt über ein `<audio>`-Element, erst nach einem Klick. Kann eine Datei nicht geladen oder abgespielt werden (fehlt, blockiert, startet nicht innerhalb von 6 s), läuft die Mitschrift im Lesetempo weiter und ein Hinweis „Ton konnte nicht abgespielt werden“ erscheint. Bei der Demo steht „Stimmen KI-generiert“.
+- **Ton:** vorab erzeugte MP3s je Zeile in `public/assets/phone/line-01.mp3` … `line-08.mp3`, abgespielt über ein `<audio>`-Element, erst nach einem Klick. Auch die Längen der Aufnahmen (für „Zum Ergebnis“) werden erst nach „Assistent geht ran“ abgefragt; der Seitenaufruf lädt keine Audiodaten. Kann eine Datei nicht geladen oder abgespielt werden (fehlt, blockiert, startet nicht innerhalb von 6 s), läuft die Mitschrift im Lesetempo weiter und ein Hinweis „Ton konnte nicht abgespielt werden“ erscheint. Bei der Demo steht „Stimmen KI-generiert“.
 - **Audio erzeugen (einmalig):** `scripts/generate-phone-audio.mjs` ruft ElevenLabs auf (Modell `eleven_v4`, Sprache Deutsch, MP3 44,1 kHz/128 kbit/s) und speichert die MP3s. Jede Zeile bekommt die Nachbarzeilen als Kontext (`previous_text`/`next_text`), damit der Gesprächsfluss stimmt. Die Webseite spielt nur diese Dateien ab und ruft keine API auf. Benötigt `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ASSISTANT` und `ELEVENLABS_VOICE_CALLER` (Stimmen-IDs) in der Shell oder in einer lokalen `.env` (in `.gitignore`, nie einchecken). Stimmen-IDs aus dem eigenen Konto anzeigen: `npm run audio:phone -- --list-voices` (Stimmen aus der Voice Library vorher zu „My Voices“ hinzufügen). Dann `npm run audio:phone` (nutzt mit `--use-env-proxy` den Proxy aus `HTTPS_PROXY`, z. B. im Firmennetz). Vorhandene Dateien werden übersprungen; einzelne Zeilen neu: `npm run audio:phone -- --only=3,5`, alle neu: `npm run audio:phone -- --force`. Modell und Format über `ELEVENLABS_MODEL` und `ELEVENLABS_OUTPUT_FORMAT` änderbar (`mp3_44100_192` ab Creator-Tarif). Nach Textänderungen in `src/phoneLines.json` die betroffenen Zeilen neu erzeugen. Die MP3s werden eingecheckt. Für die Veröffentlichung braucht es einen ElevenLabs-Tarif mit kommerzieller Lizenz (ab Starter); Dateien aus dem Free-Tarif nur zum Testen.
 - **Inhalte:** Betrieb („Haustechnik Mustermann“), Anruferin und Angaben sind erfunden. Der Assistent stellt sich als digitaler Assistent vor.
 - **Technik:** Das bisherige Diagramm mit den Telefon-Beispielfällen steht aufklappbar unter „So hängt es technisch zusammen“ (`OverviewFlow` mit `embedded`) und wird erst beim Aufklappen gerendert.

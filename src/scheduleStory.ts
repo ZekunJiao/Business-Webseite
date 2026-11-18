@@ -65,7 +65,7 @@ export const scheduleStory = {
   without:
     "Termine klären kostet Anrufe. Ein Notfall oder eine Krankmeldung wirft den Tag um, und du telefonierst allen hinterher.",
   with: "Der Assistent schlägt vor, wer wann fährt, nennt den Grund dafür und schreibt die Nachrichten an die betroffenen Kunden.",
-  closing: "Viele Grüße\nIhr Team von Haustechnik Muster",
+  closing: "Viele Grüße\nIhr Team von Haustechnik Mustermann",
   cases: [
     {
       id: "termin",

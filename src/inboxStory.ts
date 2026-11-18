@@ -51,7 +51,7 @@ export const inboxStory = {
   without:
     "Mails sammeln sich. Abends suchst du Kundendaten und Unterlagen zusammen und schreibst jede Antwort von Hand.",
   with: "Zu jeder Mail liegen Kunde, Anliegen und ein Antwortentwurf bereit. Offenes ist markiert.",
-  closing: "Viele Grüße\nIhr Team von Haustechnik Muster",
+  closing: "Viele Grüße\nIhr Team von Haustechnik Mustermann",
   cases: [
     {
       id: "neu",

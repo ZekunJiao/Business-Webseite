@@ -45,11 +45,13 @@ const clock = (seconds: number) =>
   `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 
 // Länge der Aufnahmen aus den Metadaten; fehlt eine, gilt die Lesezeit.
-function useLineDurations() {
+// Erst nach dem Start laden, damit der Seitenaufruf keine Audiodaten zieht.
+function useLineDurations(enabled: boolean) {
   const [durations, setDurations] = useState<(number | null)[]>(() =>
     lines.map(() => null),
   );
   useEffect(() => {
+    if (!enabled) return;
     const players = phoneStory.audio.map((src, index) => {
       const audio = new Audio();
       audio.preload = "metadata";
@@ -61,7 +63,7 @@ function useLineDurations() {
       return audio;
     });
     return () => players.forEach((audio) => audio.removeAttribute("src"));
-  }, []);
+  }, [enabled]);
   return durations;
 }
 
@@ -84,7 +86,7 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
   const acceptRef = useRef<HTMLButtonElement>(null);
   // Der Klingelton läuft höchstens einmal je Seitenaufruf.
   const rang = useRef(false);
-  const durations = useLineDurations();
+  const durations = useLineDurations(status !== "idle");
   const totalSeconds = () =>
     Math.round(
       lines.reduce(

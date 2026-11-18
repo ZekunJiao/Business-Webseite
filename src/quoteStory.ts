@@ -72,7 +72,7 @@ export const quoteStory = {
   without:
     "Notizen vom Termin bleiben liegen. Angebote schreibst du abends, Positionen gehen unter, und bei verschickten Angeboten hakt niemand nach.",
   with: "Aus deiner Notiz wird ein Angebotsentwurf mit deinen Preisen. Fehlendes ist markiert, offene Angebote kommen von selbst wieder hoch.",
-  closing: "Viele Grüße\nIhr Team von Haustechnik Muster",
+  closing: "Viele Grüße\nIhr Team von Haustechnik Mustermann",
   vatRate: 0.19,
   cases: [
     {

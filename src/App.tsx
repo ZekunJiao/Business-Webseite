@@ -45,6 +45,7 @@ import HausverwaltungPage from "./pages/HausverwaltungPage";
 // den auskommentierten Block unter <UseCaseStage /> wieder einschalten.
 // import { HandwerkWorkflows } from "./components/HandwerkWorkflows";
 import { AuthorBlock } from "./components/AuthorBlock";
+import { ProcessFaq } from "./components/ProcessFaq";
 import { UseCaseStage } from "./components/UseCaseStage";
 import { DemoResult } from "./components/DemoResult";
 import { MobileEmailFlow } from "./components/MobileEmailFlow";
@@ -1078,7 +1079,7 @@ export default function App() {
           : isHausverwaltung
         ? "Hausverwaltung · Vorlagenseite"
         : isHandwerk
-          ? "Handwerk · Abläufe interaktiv entdecken"
+          ? "Digitale Abläufe fürs Handwerk · Zekun Jiao"
           : "Seite nicht gefunden";
     const description = document.querySelector<HTMLMetaElement>(
       'meta[name="description"]',
@@ -1091,7 +1092,7 @@ export default function App() {
           : isHausverwaltung
           ? "Eigenständige Vorlagenseite für Hausverwaltungen. Inhalte und Demonstrationen sind in Vorbereitung."
           : isHandwerk
-            ? "Digitale Abläufe fürs Handwerk entdecken: mögliche Abläufe als interaktive Beispiele erleben."
+            ? "Interaktive Beispiele für den Büroalltag im Handwerk: Anrufe, Anfragen, Angebote, Termine und Rechnungen. Von Zekun Jiao."
             : "Die angefragte Seite wurde nicht gefunden.";
   }, [path, isHome, isHausverwaltung, isHandwerk, legalKind]);
   if (isHome)
@@ -1135,7 +1136,7 @@ export default function App() {
       <main>
         <div className="hero">
           <h1>Seite nicht gefunden.</h1>
-          <p>Bitte prüfen Sie den erhaltenen Link.</p>
+          <p>Bitte prüf den Link, den du bekommen hast.</p>
         </div>
         <footer>
           <span />
@@ -1186,7 +1187,7 @@ export default function App() {
               </a>
             </Button>
             <a className="hero-cta-link" href="#kontakt">
-              Kennenlerngespräch vereinbaren
+              Kennenlerngespräch anfragen
             </a>
           </div>
           <div className="hero-meta">
@@ -1203,8 +1204,25 @@ export default function App() {
               Menschliche Prüfung
             </span>
           </div>
+          <div className="hero-proof">
+            <span className="hero-proof-label">Aus Kundenprojekten</span>
+            <dl>
+              {contact.results
+                .filter((result) => result.teaser)
+                .map((result) => (
+                  <div key={result.value}>
+                    <dt>{result.value}</dt>
+                    <dd>{result.teaser}</dd>
+                  </div>
+                ))}
+            </dl>
+            <a href="#zahlen">
+              Wie gemessen <ArrowDown size={14} aria-hidden="true" />
+            </a>
+          </div>
         </div>
         <UseCaseStage />
+        <ProcessFaq />
         {/* Detaildemo vorerst ausgeblendet:
         <HandwerkWorkflows>
           {(active) => <EmailWorkflowDemo active={active} />}
