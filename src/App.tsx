@@ -1121,16 +1121,6 @@ export default function App() {
               Posteingang zum Antwortentwurf.
             </p>
           </a>
-          <a href="/hausverwaltung">
-            <span className="eyebrow">IM AUFBAU</span>
-            <h2>
-              Hausverwaltung <ArrowUpRight size={22} />
-            </h2>
-            <p>
-              Ein eigener Bereich für die Hausverwaltung. Anwendungsfälle und
-              Demos folgen.
-            </p>
-          </a>
         </section>
         <footer>
           <span>Zekun Jiao · Software, KI und Automatisierung</span>

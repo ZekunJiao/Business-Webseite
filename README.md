@@ -2,7 +2,7 @@
 
 Persönliche Geschäftswebsite von Zekun Jiao (Software, KI und Automatisierung) mit branchenneutraler Startseite und eigenständigen Branchenseiten. Die interaktive E-Mail-Demo für das Handwerk liegt unter `/handwerk`. Daneben ist `/hausverwaltung` als eigenständige Vorlagenseite initialisiert: mit Einstieg und Platzhaltern für Anwendungsfälle, Demos sowie Vorstellung/Kontakt. Es gibt keine Navigation zwischen den Branchenseiten; `/hausverwaltung` wird nur über die direkt eingegebene oder zugesandte Adresse erreicht. Das ist keine Zugriffsbeschränkung.
 
-Die branchenneutrale Startseite `/` verlinkt auf beide Branchen. Der frühere Pfad `/workflow` leitet auf `/handwerk` weiter; `#workflow` bleibt dort ein Sprunganker zur Demo. Beide Branchenpfade können direkt aufgerufen und neu geladen werden (Vite stellt dafür den SPA-Fallback bereit). Unbekannte Pfade zeigen eine neutrale Fehlerseite ohne Branchenlinks. Als Hosting ist Cloudflare Workers vorgesehen (siehe Abschnitt „Hosting“).
+Die branchenneutrale Startseite `/` verlinkt vorerst nur auf `/handwerk`; die Karte für `/hausverwaltung` ist ausgeblendet, die Seite selbst bleibt per Direktlink erreichbar. Der frühere Pfad `/workflow` leitet auf `/handwerk` weiter; `#workflow` bleibt dort ein Sprunganker zur Demo. Beide Branchenpfade können direkt aufgerufen und neu geladen werden (Vite stellt dafür den SPA-Fallback bereit). Unbekannte Pfade zeigen eine neutrale Fehlerseite ohne Branchenlinks. Als Hosting ist Cloudflare Workers vorgesehen (siehe Abschnitt „Hosting“).
 
 ## Start und Prüfung
 
