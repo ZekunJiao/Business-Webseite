@@ -1227,7 +1227,7 @@ export default function App() {
             <a href="/">{contact.name}</a>
           </span>
           <span>
-            Beispieldemo · Keine echten Kundendaten · <LegalLinks />
+            <LegalLinks />
           </span>
         </footer>
       </main>
