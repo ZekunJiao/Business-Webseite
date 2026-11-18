@@ -5,10 +5,14 @@
 // 2. POST /api/kontakt nimmt das Kontaktformular entgegen und schickt es über
 //    Cloudflare Email Routing (Binding KONTAKT_MAIL, siehe wrangler.jsonc) an
 //    das hinterlegte Postfach. Nachrichten werden nicht gespeichert.
+// 3. Vorerst leitet die Startseite "/" vorübergehend (302) auf /handwerk um.
+//    Zum Abschalten HOME_REDIRECT_FROM auf null setzen.
 // Lokal (npm run dev / preview) läuft dieser Worker nicht; `npx wrangler dev`
 // nach `npm run build` startet ihn mit simuliertem Mailversand.
 
 import { EmailMessage } from "cloudflare:email";
+
+const HOME_REDIRECT_FROM: string | null = "/";
 
 type Env = {
   ASSETS: { fetch(request: Request): Promise<Response> };
@@ -114,9 +118,12 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const { pathname } = new URL(request.url);
+    const url = new URL(request.url);
+    const { pathname } = url;
     const response =
-      pathname === "/api/kontakt"
+      pathname === HOME_REDIRECT_FROM
+        ? Response.redirect(new URL(`/handwerk${url.search}`, url), 302)
+        : pathname === "/api/kontakt"
         ? request.method === "POST"
           ? await handleContact(request, env)
           : new Response(null, { status: 405, headers: { Allow: "POST" } })
