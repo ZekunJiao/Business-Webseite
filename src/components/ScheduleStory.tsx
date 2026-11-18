@@ -16,7 +16,7 @@ import {
   ScanText,
   Send,
   SkipForward,
-  Sparkles,
+  UserRoundCog,
   Wrench,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -260,7 +260,7 @@ export function ScheduleStory({ set }: { set: OverviewSet }) {
       <div className="mailbox-assistant" data-status={status}>
         <div className="mailbox-assistant-head">
           <span className="mailbox-assistant-icon" aria-hidden="true">
-            <Sparkles size={18} />
+            <UserRoundCog size={18} />
           </span>
           <span>
             <strong>Assistent</strong>
@@ -466,7 +466,6 @@ export function ScheduleStory({ set }: { set: OverviewSet }) {
     >
       <div className="overview-head">
         <span className="overview-kicker">
-          <span className="status-dot" />
           {set.kicker}
         </span>
         <h3 id={`${set.id}-title`}>{set.title}</h3>

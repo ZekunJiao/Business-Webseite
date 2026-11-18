@@ -710,7 +710,6 @@ function OverviewHeading({ set }: { set: OverviewSet }) {
   return (
     <div className="overview-head">
       <span className="overview-kicker">
-        <span className="status-dot" />
         {set.kicker}
       </span>
       <h3 id={`${set.id}-title`}>{set.title}</h3>

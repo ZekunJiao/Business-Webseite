@@ -1,4 +1,4 @@
-import { BrainCircuit, Pause, PenLine, Search, Sparkles } from "lucide-react";
+import { BrainCircuit, ListChecks, Pause, PenLine, Search, UserRoundCog } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type AiActivity =
@@ -6,10 +6,10 @@ export type AiActivity =
 
 // Symbol je Tätigkeit; auch die Überblick-Animation nutzt diese Zuordnung.
 export const aiActivityIcons: Record<AiActivity, LucideIcon> = {
-  idle: Sparkles,
+  idle: UserRoundCog,
   thinking: BrainCircuit,
   searching: Search,
-  matching: Sparkles,
+  matching: ListChecks,
   writing: PenLine,
   paused: Pause,
 };
@@ -21,7 +21,7 @@ export function AiSymbol({ activity = "idle" }: { activity?: AiActivity }) {
       <span className="ai-symbol-icon">
         <Icon size={22} />
       </span>
-      <strong className="ai-symbol-label">AI</strong>
+      <strong className="ai-symbol-label">KI</strong>
     </span>
   );
 }

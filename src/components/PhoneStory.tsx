@@ -12,7 +12,7 @@ import {
   Play,
   RotateCcw,
   Siren,
-  Sparkles,
+  Headset,
   UserRound,
   UserRoundCheck,
   Volume2,
@@ -258,7 +258,6 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
     >
       <div className="phone-story-head">
         <span className="overview-kicker">
-          <span className="status-dot" />
           {set.kicker}
         </span>
         <h3 id={`${set.id}-title`}>{set.title}</h3>
@@ -522,7 +521,7 @@ function Participant({
   speaking: boolean;
   ringing: boolean;
 }) {
-  const Icon = speaker === "assistant" ? Sparkles : UserRound;
+  const Icon = speaker === "assistant" ? Headset : UserRound;
   return (
     <div
       className="call-person"

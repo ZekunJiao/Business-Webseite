@@ -16,7 +16,7 @@ import {
   Inbox,
   Folder,
   X,
-  Sparkles,
+  Info,
   ContactRound,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -557,7 +557,7 @@ export function EmailWorkflowDemo({
         )}
         {!isRequest && step >= 1 && (
           <div className="sr-only" role="status">
-            <Sparkles size={14} />
+            <Info size={14} />
             {scanStatus}
             {!playing && step === 1 && <span> · pausiert</span>}
           </div>
@@ -1021,7 +1021,7 @@ export function EmailWorkflowDemo({
           )}
         </div>
         <div className="canvas-caption">
-          <Sparkles size={14} />
+          <Info size={14} />
           <span>
             Ein Klick auf ein Symbol öffnet das System. Die Linien zeigen den
             Weg der Informationen.
@@ -1163,16 +1163,11 @@ export default function App() {
         </span>
       </header>
       <main>
-        <div className="hero">
+        <div className="hero hero-dark">
           <div className="eyebrow hero-eyebrow">
-            <span />
-            BEISPIELE · ABLÄUFE FÜR HANDWERKSBETRIEBE
+            BEISPIELE FÜR HANDWERKSBETRIEBE
           </div>
-          <h1>
-            Weniger Routine.
-            <br />
-            <span>Mehr Zeit fürs Handwerk.</span>
-          </h1>
+          <h1>Dein Büro läuft weiter, während du auf der Baustelle bist.</h1>
           <p>
             Entdecke an Beispielen, wie digitale Abläufe deinen Büroalltag
             unterstützen können.
@@ -1190,20 +1185,18 @@ export default function App() {
               Kennenlerngespräch anfragen
             </a>
           </div>
-          <div className="hero-meta">
+          <a className="hero-person" href="#kontakt">
+            {contact.photo && (
+              <img src={contact.photo} alt="" width="44" height="44" />
+            )}
             <span>
-              <Check size={15} />
-              Nachvollziehbare Antworten
+              <strong>{contact.name}</strong>
+              <span>
+                Informatiker (TU München) · AI Transformation Lead bei der BMW
+                Group
+              </span>
             </span>
-            <span>
-              <Check size={15} />
-              Offene Punkte sichtbar
-            </span>
-            <span>
-              <Check size={15} />
-              Menschliche Prüfung
-            </span>
-          </div>
+          </a>
           <div className="hero-proof">
             <span className="hero-proof-label">Aus Kundenprojekten</span>
             <dl>

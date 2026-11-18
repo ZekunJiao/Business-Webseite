@@ -49,7 +49,6 @@ export function ProcessFaq() {
     <section id="ablauf" className="process" aria-labelledby="ablauf-title">
       <div className="usecases-head">
         <span className="overview-kicker">
-          <span className="status-dot" />
           ZUSAMMENARBEIT
         </span>
         <h2 id="ablauf-title">So läuft es ab</h2>
@@ -59,7 +58,7 @@ export function ProcessFaq() {
         {steps.map((step, index) => (
           <li key={step.title}>
             <span className="process-step-number" aria-hidden="true">
-              {index + 1}
+              {String(index + 1).padStart(2, "0")}
             </span>
             <strong>{step.title}</strong>
             <p>{step.text}</p>

@@ -75,7 +75,6 @@ export function UseCaseStage() {
     >
       <div className="usecases-head">
         <span className="overview-kicker">
-          <span className="status-dot" />
           {useCaseSection.kicker}
         </span>
         <h2 id="ueberblick-title">{useCaseSection.title}</h2>

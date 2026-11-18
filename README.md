@@ -96,13 +96,17 @@ Bis 760 px Breite (`MOBILE_QUERY` in `src/lib/useMediaQuery.ts`) zeigt `MobileEm
 
 ## Hero auf /handwerk
 
-Der Hero hat einen Einstiegs-Button „Beispiele ansehen“ (Sprung zu `#ueberblick`) und einen Textlink „Kennenlerngespräch anfragen“ zum Kontaktblock (`#kontakt`); eine Terminbuchung gibt es nicht. Darunter stehen zwei Kennzahlen „Aus Kundenprojekten“: alle Einträge in `contact.results` mit `teaser`, verlinkt auf die Rechnungen im Kontaktblock (`#zahlen`). Die Überblick-Animation ist der Einstieg. Die Detaildemo (Workflow-Tabs mit E-Mail-Demo, `#workflow`) ist vorerst ausgeblendet: Der Einbau in `src/App.tsx` und der Link „Vollständige Demo ansehen“ in `src/components/OverviewFlow.tsx` sind auskommentiert, der Code (`HandwerkWorkflows`, `EmailWorkflowDemo`, `MobileEmailFlow` usw.) bleibt erhalten. Zum Reaktivieren die Kommentare entfernen; die Abschnitte unten beschreiben die Detaildemo.
+Der Hero hat einen Einstiegs-Button „Beispiele ansehen“ (Sprung zu `#ueberblick`) und einen Textlink „Kennenlerngespräch anfragen“ zum Kontaktblock (`#kontakt`); eine Terminbuchung gibt es nicht. Darunter steht eine Zeile mit Foto, Name und Hintergrund (verlinkt auf `#kontakt`), danach zwei Kennzahlen „Aus Kundenprojekten“: alle Einträge in `contact.results` mit `teaser`, verlinkt auf die Rechnungen im Kontaktblock (`#zahlen`). Die Überblick-Animation ist der Einstieg. Die Detaildemo (Workflow-Tabs mit E-Mail-Demo, `#workflow`) ist vorerst ausgeblendet: Der Einbau in `src/App.tsx` und der Link „Vollständige Demo ansehen“ in `src/components/OverviewFlow.tsx` sind auskommentiert, der Code (`HandwerkWorkflows`, `EmailWorkflowDemo`, `MobileEmailFlow` usw.) bleibt erhalten. Zum Reaktivieren die Kommentare entfernen; die Abschnitte unten beschreiben die Detaildemo.
 
 Zwischen Anwendungsfällen und Kontaktblock steht „So läuft es ab“ (`src/components/ProcessFaq.tsx`, Anker `#ablauf`): drei Schritte der Zusammenarbeit und häufige Fragen. Die Antworten sind Zusagen an Interessenten; Preise stehen dort erst, wenn das Angebot festgelegt ist.
 
 ## Linkvorschau und Schrift
 
-`index.html` enthält Titel, Beschreibung und Open-Graph-Tags für die Vorschau in WhatsApp, LinkedIn und E-Mail-Programmen. Weil die Seite ohne Server-Rendering ausgeliefert wird, gelten sie für alle Pfade. Vorschaubild: `public/og-handwerk.png` (1200 × 630). LinkedIn speichert Vorschauen zwischen; nach Änderungen im Post Inspector neu abrufen. Die Schrift Inter liegt über `@fontsource-variable/inter` im Build (keine externe Schriftquelle); geladen wird nur der benötigte Zeichensatz.
+`index.html` enthält Titel, Beschreibung und Open-Graph-Tags für die Vorschau in WhatsApp, LinkedIn und E-Mail-Programmen. Weil die Seite ohne Server-Rendering ausgeliefert wird, gelten sie für alle Pfade. Vorschaubild: `public/og-handwerk.png` (1200 × 630). LinkedIn speichert Vorschauen zwischen; nach Änderungen im Post Inspector neu abrufen. Die Schrift Inter liegt über `@fontsource-variable/inter` im Build (keine externe Schriftquelle); geladen wird nur der benötigte Zeichensatz. Überschriften (`h1`–`h3`) nutzen Archivo (`@fontsource-variable/archivo`, nur Gewichtsachse).
+
+## Farben und Gestaltung
+
+Die Grundfarben stehen als Variablen in `:root` in `src/index.css`: Dunkelblau (`--ink`) für Schrift, zwei Grautöne (`--muted`, `--muted-light`), Linien (`--line`, `--line-strong`) und Orange als sparsamer Akzent (`--accent`, `--accent-strong`, `--accent-text`). Der Seitenhintergrund ist reines Weiß (`--bg`); nur der Hero auf `/handwerk` steht auf einer dunkelblauen Fläche über die volle Breite (`.hero-dark`). Der Assistent erscheint in den Demos in Petrol statt Lila und mit sachlichen Symbolen (Headset, Person mit Zahnrad) statt Sparkles. Anwendungsfälle und „So läuft es ab“ sind als Leiste bzw. Zeitleiste ohne Karten gestaltet; Ecken sind höchstens 8–10 px rund, dekorative Schatten entfallen.
 
 ## Anwendungsfälle auf /handwerk
 
