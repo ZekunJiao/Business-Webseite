@@ -27,6 +27,7 @@ import type { ScheduleCase, ScheduleStepKind } from "../scheduleStory";
 import type { OverviewSet } from "../overviewFlows";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { useStoryPlayback } from "../lib/useStoryPlayback";
+import { StoryTechnical } from "./StoryTechnical";
 
 type View = "input" | "assistant" | "result";
 type SlotState = "base" | "ghost" | "proposed" | "flag" | "confirmed";
@@ -556,6 +557,7 @@ export function ScheduleStory({ set }: { set: OverviewSet }) {
           </>
         )}
       </div>
+      <StoryTechnical set={set} />
     </section>
   );
 }

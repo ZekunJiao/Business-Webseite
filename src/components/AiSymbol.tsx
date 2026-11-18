@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react";
 export type AiActivity =
   "idle" | "thinking" | "searching" | "matching" | "writing" | "paused";
 
-// Symbol je Tätigkeit; auch die Überblick-Animation nutzt diese Zuordnung.
+// Symbol je Tätigkeit; auch Gesamtbild und Technik-Bausteine nutzen es.
 export const aiActivityIcons: Record<AiActivity, LucideIcon> = {
   idle: UserRoundCog,
   thinking: BrainCircuit,

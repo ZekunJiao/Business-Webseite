@@ -47,6 +47,7 @@ import HausverwaltungPage from "./pages/HausverwaltungPage";
 import { AuthorBlock } from "./components/AuthorBlock";
 import { ProcessFaq } from "./components/ProcessFaq";
 import { UseCaseStage } from "./components/UseCaseStage";
+import { SystemOverview } from "./components/SystemOverview";
 import { DemoResult } from "./components/DemoResult";
 import { MobileEmailFlow } from "./components/MobileEmailFlow";
 import { MOBILE_QUERY, useMediaQuery } from "./lib/useMediaQuery";
@@ -1215,6 +1216,7 @@ export default function App() {
           </div>
         </div>
         <UseCaseStage />
+        <SystemOverview />
         <ProcessFaq />
         {/* Detaildemo vorerst ausgeblendet:
         <HandwerkWorkflows>

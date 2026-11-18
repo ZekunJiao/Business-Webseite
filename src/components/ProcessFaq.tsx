@@ -35,7 +35,7 @@ const faqs = [
   {
     question: "Wie ist es mit dem Datenschutz?",
     answer:
-      "Vor dem Start klären wir, welche Daten wohin gehen. Für die Verarbeitung schließen wir einen Vertrag zur Auftragsverarbeitung nach DSGVO.",
+      "Server und Daten bleiben in der EU, Ablaufsteuerung und Anbindungen laufen in Deutschland. Mit euren Daten wird kein KI-Modell trainiert. Wo ein Dienst außerhalb der EU nötig ist, etwa beim Telefonassistenten, sage ich das vorher. Für die Verarbeitung schließen wir einen Vertrag zur Auftragsverarbeitung nach DSGVO.",
   },
   {
     question: "Was kostet das?",

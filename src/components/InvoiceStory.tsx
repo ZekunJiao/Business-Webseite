@@ -34,6 +34,7 @@ import type {
 import type { OverviewSet } from "../overviewFlows";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { useStoryPlayback } from "../lib/useStoryPlayback";
+import { StoryTechnical } from "./StoryTechnical";
 
 type View = "input" | "assistant" | "result";
 
@@ -591,6 +592,7 @@ export function InvoiceStory({ set }: { set: OverviewSet }) {
           </>
         )}
       </div>
+      <StoryTechnical set={set} />
     </section>
   );
 }

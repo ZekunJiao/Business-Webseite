@@ -6,51 +6,45 @@ import {
   ReceiptText,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { scenarios } from "./data";
 
-// Beispielfälle der Überblick-Animation. Alles ist eine Simulation mit
-// erfundenen Beispieldaten; die E-Mail-Fälle nutzen dieselben Szenarien wie
-// die Detaildemo.
-
-export type OverviewChannel = "email" | "form" | "phone";
-export type OverviewSystem = "crm" | "knowledge";
-
-export type OverviewStep = {
-  // Kurzer Text auf der Linie
-  chip: string;
-  // Vollständiger Satz für Statuszeile, Handy- und Textansicht
-  text: string;
+// Technische Bausteine je Anwendungsfall. Ein Satz in Alltagssprache, dazu
+// die eingesetzten Dienste mit ihrer Rolle ("Womit") und optional Hinweise.
+// Nur Dienste eintragen, die tatsächlich im Einsatz sind (Angaben von Zekun
+// Jiao). Ist tools leer, entfällt die Zeile "Womit".
+export type TechTool = { role: string; name: string };
+export type TechBlock = { text: string; tools: TechTool[]; notes?: string[] };
+export type TechBlocks = {
+  input: TechBlock;
+  assistant: TechBlock;
+  connection: TechBlock;
+  // Zusätzliche Hinweise zu Datenschutz & Betrieb nur für diesen
+  // Anwendungsfall; sie stehen unter den gemeinsamen aus techOperations.
+  operationsNotes?: string[];
 };
 
-export type OverviewCase = {
-  id: string;
-  channel: OverviewChannel;
-  system: OverviewSystem;
-  // Name eines Eintrags aus src/integrations.ts, der in diesem Beispiel
-  // leuchtet. Nur für system "crm". Beispiel, keine Aussage über einen Kunden.
-  // Namen ohne Eintrag dort (z. B. "Excel") leuchten in der Kachel
-  // "Excel & andere".
-  tool?: string;
-  label: string;
-  headline: string;
-  // Eingang, Assistent, System, Team
-  steps: [OverviewStep, OverviewStep, OverviewStep, OverviewStep];
-  // Statuszeile unter "Dein Team" im letzten Schritt, z. B. "prüft die Anfrage".
-  // Wird unverändert angezeigt.
-  teamStatus: string;
-  // Statuszeile unter dem Assistenten in Schritt 2 und 3, z. B.
-  // "erkennt die Kundin …" und "bereitet die Anfrage vor …".
-  assistantStatus: [string, string];
-  // Statuszeile unter dem leuchtenden Werkzeug im letzten Schritt. Nutzt den
-  // Begriff des jeweiligen Werkzeugs (z. B. "Projekt" bei HERO).
-  toolStatus: string;
-  // Gibt es dazu eine ausführliche Demo weiter unten?
-  detailDemo: boolean;
+const llm: TechTool = {
+  role: "Sprachmodell",
+  name: "GPT über Azure OpenAI (EU)",
+};
+const flow: TechTool = {
+  role: "Ablaufsteuerung",
+  name: "n8n, selbst gehostet",
 };
 
-const teamStep = {
-  chip: "Team prüft",
-  text: "Dein Team prüft, ergänzt Offenes und sendet selbst. Nichts wird automatisch verschickt.",
+// Datenschutz & Betrieb: gilt für alle Anwendungsfälle.
+export const techOperations: TechBlock = {
+  text: "Server und Daten in der EU. Nichts wird automatisch gesendet: Antworten, Angebote und Erinnerungen entstehen als Entwurf.",
+  tools: [
+    { role: "Server", name: "Hetzner in Deutschland" },
+    { role: "Sprachmodell", name: "Azure OpenAI, EU-Rechenzentrum" },
+  ],
+  notes: [
+    "Aufnahmen, Transkripte und Zwischenergebnisse werden nach 30 Tagen automatisch gelöscht, Ablaufprotokolle nach 14 Tagen.",
+    "Das Ergebnis liegt in eurer Software, nicht bei mir.",
+    "Kein Training mit euren Daten: bei Azure OpenAI vertraglich ausgeschlossen, bei anderen Diensten, wo möglich, abgeschaltet.",
+    "Auftragsverarbeitungsvertrag nach Art. 28 DSGVO, verschlüsselte Übertragung und Speicherung.",
+    "Auf Wunsch laufen Ablaufsteuerung und Anbindungen auf eurem eigenen Server.",
+  ],
 };
 
 // Karte in der Übersicht der Anwendungsfälle
@@ -62,7 +56,7 @@ export type UseCaseCard = {
   cta?: string;
 };
 
-// Ein Anwendungsfall: Karte, Überschrift, Fälle und die gezeigten Eingänge.
+// Ein Anwendungsfall: Karte, Überschrift und technische Bausteine.
 export type OverviewSet = {
   // Wert für ?anwendungsfall=, Anker und Basis für die Beschriftungs-ID
   id: string;
@@ -70,238 +64,9 @@ export type OverviewSet = {
   kicker: string;
   title: string;
   intro: string;
-  channels: OverviewChannel[];
-  cases: OverviewCase[];
-  // Zeile "Anbindbar an Handwerkersoftware" auf schmalen Bildschirmen
-  showIntegrations: boolean;
+  // Bausteine unter "So hängt es technisch zusammen"
+  tech: TechBlocks;
 };
-
-export const channelNames: Record<OverviewChannel, string> = {
-  email: "E-Mail",
-  form: "Homepage-Formular",
-  phone: "Telefon",
-};
-
-export const systemNames: Record<OverviewSystem, string> = {
-  crm: "Kundenverwaltung",
-  knowledge: "Betriebswissen",
-};
-
-// Dieselben drei Fälle wie in der Posteingang-Demo (src/inboxStory.ts).
-export const overviewCases: OverviewCase[] = [
-  {
-    id: "form-excel",
-    teamStatus: "prüft die Zeile",
-    assistantStatus: ["ordnet die Spalten zu …", "bereitet die Zeile vor …"],
-    toolStatus: "Zeile eingetragen",
-    channel: "form",
-    system: "crm",
-    tool: "Excel",
-    label: "Formular: Neue Anfrage",
-    headline: "Anfrage über die Homepage landet in Excel",
-    steps: [
-      {
-        chip: "Badsanierung",
-        text: "Eine Anfrage zur Badsanierung kommt über das Formular auf der Homepage herein (Beispiel).",
-      },
-      {
-        chip: "Spalten zugeordnet",
-        text: "Der Assistent ordnet die Angaben den Spalten der bestehenden Anfragenliste zu.",
-      },
-      {
-        chip: "Zeile vorbereitet",
-        text: "In der Excel-Liste liegt eine neue Zeile bereit. Unklare Felder sind markiert.",
-      },
-      {
-        chip: "Team prüft",
-        text: "Dein Team prüft die Zeile, fragt bei Bedarf nach und meldet sich selbst.",
-      },
-    ],
-    detailDemo: false,
-  },
-  {
-    id: "email-request",
-    teamStatus: "prüft den Entwurf",
-    assistantStatus: ["erkennt die Kundin …", "schreibt einen Entwurf …"],
-    toolStatus: "Vorgang angelegt",
-    channel: "email",
-    system: "crm",
-    tool: "plancraft",
-    label: "E-Mail: Wartungsanfrage",
-    headline: "Wartungsanfrage per E-Mail",
-    steps: [
-      {
-        chip: "Wartungsanfrage",
-        text: `${scenarios.partial.sender} fragt per E-Mail nach Wartung, Angebot und Termin.`,
-      },
-      {
-        chip: "Kundin gefunden",
-        text: "Der Assistent erkennt die Absenderin als Bestandskundin.",
-      },
-      {
-        chip: "Entwurf bereit",
-        text: "Antwortentwurf und Vorgang liegen bereit. Offene Punkte, etwa das Typenschildfoto, sind markiert.",
-      },
-      teamStep,
-    ],
-    detailDemo: true,
-  },
-  {
-    id: "email-fault",
-    teamStatus: "prüft das Projekt",
-    assistantStatus: ["ordnet den Kunden zu …", "bereitet das Projekt vor …"],
-    toolStatus: "Projekt angelegt",
-    channel: "email",
-    system: "crm",
-    tool: "HERO",
-    label: "E-Mail: Störungsmeldung",
-    headline: "Störungsmeldung per E-Mail",
-    steps: [
-      {
-        chip: "Störungsmeldung",
-        text: "Eine Bestandskundin schreibt, ihre Heizung zeige einen Fehler an, und hängt ein Foto an (Beispiel).",
-      },
-      {
-        chip: "Kunde zugeordnet",
-        text: "Der Assistent erkennt die Dringlichkeit und ordnet die Meldung dem passenden Kunden zu.",
-      },
-      {
-        chip: "Projekt vorbereitet",
-        text: "In HERO liegt ein Projekt zur Prüfung bereit. Fehlende Angaben, etwa die Gerätenummer, sind markiert.",
-      },
-      {
-        chip: "Team prüft",
-        text: "Dein Team prüft, plant den Termin und antwortet selbst. Nichts wird automatisch verschickt.",
-      },
-    ],
-    detailDemo: false,
-  },
-];
-
-// Telefonassistenz: Beispielanrufe ohne reale Personen oder Ergebnisse. Der
-// Assistent nimmt auf und bereitet vor; Entscheidung und Rückruf bleiben beim
-// Team.
-export const phoneCases: OverviewCase[] = [
-  {
-    id: "phone-appointment",
-    teamStatus: "prüft den Termin",
-    assistantStatus: ["nimmt das Anliegen auf …", "bereitet den Termin vor …"],
-    toolStatus: "Terminvorschlag angelegt",
-    channel: "phone",
-    system: "crm",
-    tool: "ToolTime",
-    label: "Anruf: Terminwunsch",
-    headline: "Terminwunsch am Telefon",
-    steps: [
-      {
-        chip: "Terminwunsch",
-        text: "Eine Bestandskundin ruft an und möchte einen Wartungstermin (Beispiel).",
-      },
-      {
-        chip: "Anliegen aufgenommen",
-        text: "Der Assistent nimmt das Gespräch an, fragt Anliegen und Wunschzeitraum ab und ordnet den Anruf der Kundin zu.",
-      },
-      {
-        chip: "Terminvorschlag bereit",
-        text: "In ToolTime liegt ein Terminvorschlag bereit. Offene Punkte sind markiert.",
-      },
-      {
-        chip: "Team prüft",
-        text: "Dein Team prüft den Vorschlag, bestätigt den Termin und meldet sich selbst.",
-      },
-    ],
-    detailDemo: false,
-  },
-  {
-    id: "phone-fault",
-    teamStatus: "ruft zurück",
-    assistantStatus: ["fragt das Fehlerbild ab …", "bereitet das Projekt vor …"],
-    toolStatus: "Projekt angelegt",
-    channel: "phone",
-    system: "crm",
-    tool: "HERO",
-    label: "Anruf: Störung",
-    headline: "Störungsmeldung am Telefon",
-    steps: [
-      {
-        chip: "Heizung ausgefallen",
-        text: "Eine Kundin meldet am Telefon, dass ihre Heizung ausgefallen ist (Beispiel).",
-      },
-      {
-        chip: "Dringlichkeit erkannt",
-        text: "Der Assistent fragt Adresse und Fehlerbild ab, erkennt die Dringlichkeit und ordnet den Anruf dem passenden Kunden zu.",
-      },
-      {
-        chip: "Projekt vorbereitet",
-        text: "In HERO liegt ein Projekt mit Gesprächsnotiz bereit. Fehlende Angaben, etwa die Gerätenummer, sind markiert.",
-      },
-      {
-        chip: "Team ruft zurück",
-        text: "Dein Team prüft die Meldung, ruft zurück und entscheidet selbst über den Einsatz.",
-      },
-    ],
-    detailDemo: false,
-  },
-  {
-    id: "phone-question",
-    teamStatus: "liest die Notiz",
-    assistantStatus: ["sucht im Betriebswissen …", "schreibt die Notiz …"],
-    toolStatus: "Notiz mit Quelle",
-    channel: "phone",
-    system: "knowledge",
-    label: "Anruf: Allgemeine Frage",
-    headline: "Allgemeine Frage am Telefon",
-    steps: [
-      {
-        chip: "Frage zur Wartung",
-        text: "Ein Interessent fragt am Telefon nach Ablauf und Dauer einer Wartung (Beispiel).",
-      },
-      {
-        chip: "Antwort gefunden",
-        text: "Der Assistent sucht im Betriebswissen und antwortet nur mit Inhalten, die dein Team dafür bereitgestellt hat.",
-      },
-      {
-        chip: "Notiz mit Quelle",
-        text: "Eine Gesprächsnotiz hält Frage und Antwort fest und verweist auf die Quelle.",
-      },
-      {
-        chip: "Team liest mit",
-        text: "Dein Team liest die Notiz, ergänzt Offenes und meldet sich bei Bedarf selbst.",
-      },
-    ],
-    detailDemo: false,
-  },
-  {
-    id: "phone-afterhours",
-    teamStatus: "ruft zurück",
-    assistantStatus: ["nimmt den Rückrufwunsch auf …", "trägt den Rückruf ein …"],
-    toolStatus: "Rückruf eingetragen",
-    channel: "phone",
-    system: "crm",
-    tool: "Excel",
-    label: "Anruf: Nach Feierabend",
-    headline: "Anruf außerhalb der Geschäftszeiten",
-    steps: [
-      {
-        chip: "Anruf nach Feierabend",
-        text: "Nach Feierabend ruft ein Kunde an und erreicht im Büro niemanden (Beispiel).",
-      },
-      {
-        chip: "Rückrufwunsch aufgenommen",
-        text: "Der Assistent nimmt Name, Anliegen und Rückrufnummer auf.",
-      },
-      {
-        chip: "Rückruf eingetragen",
-        text: "In der Rückrufliste (z. B. Excel) liegt ein neuer Eintrag bereit. Unklare Angaben sind markiert.",
-      },
-      {
-        chip: "Team ruft zurück",
-        text: "Dein Team sieht die Liste am nächsten Morgen und ruft selbst zurück.",
-      },
-    ],
-    detailDemo: false,
-  },
-];
 
 // Kopf über den Karten
 export const useCaseSection = {
@@ -329,9 +94,38 @@ export const overviewSets: OverviewSet[] = [
     title: "Feierabend im Büro. Der Assistent geht ran.",
     intro:
       "Er fragt das Wichtige ab, erkennt Notfälle und schickt dir eine kurze Zusammenfassung aufs Handy. Dein Team ruft zurück und entscheidet.",
-    channels: ["phone"],
-    cases: phoneCases,
-    showIntegrations: false,
+    tech: {
+      input: {
+        text: "Deine Nummer bleibt. Anrufe, die niemand annimmt oder die auf besetzt treffen, leitet sie an den Assistenten weiter.",
+        tools: [{ role: "Telefonie", name: "sipgate" }],
+      },
+      assistant: {
+        text: "Versteht die Anruferin, fragt Adresse und Fehlerbild ab und erkennt Notfälle nach deinen Regeln.",
+        tools: [
+          {
+            role: "Sprachassistent",
+            name: "ElevenLabs Agents oder Vapi mit Deepgram",
+          },
+          llm,
+        ],
+      },
+      connection: {
+        text: "Ein eigener Dienst legt den Vorgang in deiner Software an, du bekommst eine kurze Nachricht aufs Handy.",
+        tools: [
+          flow,
+          { role: "Eigene Anbindung", name: "Python (FastAPI)" },
+          {
+            role: "Nachricht aufs Handy",
+            name: "WhatsApp Business über 360dialog, alternativ SMS",
+          },
+        ],
+      },
+      operationsNotes: [
+        "Der Sprachassistent ist ein US-Anbieter; EU-Datenhaltung gibt es meist nur in höheren Tarifen.",
+        "Anrufer hören zu Beginn, dass ein digitaler Assistent spricht (EU AI Act). Aufgezeichnet wird nur mit Hinweis.",
+        "Die WhatsApp-Nachricht läuft über Meta und enthält deshalb nur eine kurze Zusammenfassung ohne sensible Details. Wer das nicht möchte, bekommt SMS oder E-Mail.",
+      ],
+    },
   },
   {
     id: "anfragen",
@@ -345,13 +139,28 @@ export const overviewSets: OverviewSet[] = [
     title: "Die Anfrage kommt rein. Die Antwort liegt bereit.",
     intro:
       "Der Assistent liest die Mail, findet Kunde und passende Unterlagen und schreibt einen Antwortentwurf. Dein Team prüft und sendet selbst.",
-    channels: ["email", "form"],
-    cases: overviewCases,
-    showIntegrations: true,
+    tech: {
+      input: {
+        text: "Dein Postfach und das Formular deiner Homepage.",
+        tools: [
+          {
+            role: "Postfach",
+            name: "Microsoft 365 über Graph API oder IMAP, z. B. IONOS",
+          },
+          { role: "Formular", name: "WordPress (Contact Form 7) per Webhook" },
+        ],
+      },
+      assistant: {
+        text: "Liest Mail und Anhänge, findet oder legt den Kunden an und schreibt einen Entwurf mit Quelle.",
+        tools: [llm, { role: "Anhänge & Kundenzuordnung", name: "Python" }],
+      },
+      connection: {
+        text: "Der Entwurf liegt im Postfach, der Vorgang in deiner Software.",
+        tools: [flow],
+      },
+    },
   },
   {
-    // Eigene Demo (QuoteStory) ohne technisches Diagramm: Der Eingang ist
-    // hier eine Notiz vom Termin, kein Kanal aus channelNames.
     id: "angebote",
     card: {
       title: "Angebote vorbereiten",
@@ -363,29 +172,77 @@ export const overviewSets: OverviewSet[] = [
     title: "Du warst beim Kunden. Das Angebot liegt bereit.",
     intro:
       "Der Assistent macht aus deiner Notiz einen Angebotsentwurf mit deinen Preisen, weist auf fehlende Positionen hin und erinnert an offene Angebote. Dein Team prüft und sendet selbst.",
-    channels: [],
-    cases: [],
-    showIntegrations: false,
+    tech: {
+      input: {
+        text: "Sprachnotiz oder Stichpunkte vom Handy, per WhatsApp.",
+        tools: [{ role: "Eingang", name: "WhatsApp" }],
+      },
+      assistant: {
+        text: "Wandelt die Sprachnotiz in Text um und gleicht die Positionen mit der Preisliste deines Großhändlers ab.",
+        tools: [
+          { role: "Spracherkennung", name: "Whisper über Azure (EU)" },
+          llm,
+          { role: "Preisabgleich", name: "Python mit DATANORM-Preisliste" },
+        ],
+      },
+      connection: {
+        text: "Angebotsentwurf in deiner Software.",
+        tools: [
+          flow,
+          { role: "Software", name: "z. B. Lexware Office über dessen API" },
+        ],
+      },
+      operationsNotes: [
+        "Die Sprachnotiz kommt per WhatsApp herein; umgewandelt wird sie über Azure in der EU.",
+      ],
+    },
   },
   {
-    // Eigene Demo (ScheduleStory), ebenfalls ohne technisches Diagramm.
     id: "termine",
     card: {
       title: "Termine & Einsätze planen",
-      teaser:
-        "Termine finden, Notfälle einschieben, Ausfälle auffangen.",
+      teaser: "Termine finden, Notfälle einschieben, Ausfälle auffangen.",
       icon: CalendarDays,
     },
     kicker: "ANWENDUNGSFALL · TERMINE & EINSÄTZE",
     title: "Der Plan ändert sich. Der Vorschlag liegt bereit.",
     intro:
       "Der Assistent schaut in den Kalender, prüft, wer es kann und wer in der Nähe ist, und bereitet Plan und Kundennachrichten vor. Dein Team entscheidet und sendet selbst.",
-    channels: [],
-    cases: [],
-    showIntegrations: false,
+    tech: {
+      input: {
+        text: "Nachrichten von Kunden und Monteuren.",
+        tools: [],
+      },
+      assistant: {
+        text: "Sucht freie Zeitfenster inklusive Fahrzeit und prüft, wer es kann und wer in der Nähe ist.",
+        tools: [
+          llm,
+          {
+            role: "Zeitfenster & Fahrzeit",
+            name: "Python mit Google Maps Routes API",
+          },
+          {
+            role: "Terminbestätigung",
+            name: "Python, als Entwurf zur Freigabe",
+          },
+        ],
+      },
+      connection: {
+        text: "Vorschlag im Kalender bzw. in der Plantafel deiner Software, dazu die Terminbestätigung als Entwurf. Dein Team gibt sie frei.",
+        tools: [
+          flow,
+          {
+            role: "Kalender",
+            name: "Outlook (Microsoft 365) oder Plantafel der Handwerkersoftware, je nach Schnittstelle",
+          },
+        ],
+      },
+      operationsNotes: [
+        "Für die Fahrzeit geht nur die Adresse an Google Maps, ohne Namen oder Anliegen.",
+      ],
+    },
   },
   {
-    // Eigene Demo (InvoiceStory), ebenfalls ohne technisches Diagramm.
     id: "rechnungen",
     card: {
       title: "Rechnungen & Erinnerungen",
@@ -397,8 +254,24 @@ export const overviewSets: OverviewSet[] = [
     title: "Der Auftrag ist fertig. Die Rechnung liegt bereit.",
     intro:
       "Der Assistent gleicht Angebot, Stunden und Zahlungseingänge ab, bereitet Rechnung oder Erinnerung vor und nennt den Grund dafür. Dein Team entscheidet und sendet selbst.",
-    channels: [],
-    cases: [],
-    showIntegrations: false,
+    tech: {
+      input: {
+        text: "Fertigmeldung, Hinweis aus der Software, Zahlungseingang vom Konto.",
+        tools: [
+          {
+            role: "Zahlungseingänge",
+            name: "Lexware Office über API oder CAMT.053-Kontoauszug",
+          },
+        ],
+      },
+      assistant: {
+        text: "Gleicht Betrag, Rechnungsnummer und Verwendungszweck ab, ordnet Unklares zu und formuliert die Erinnerung.",
+        tools: [llm, { role: "Abgleich", name: "Python" }],
+      },
+      connection: {
+        text: "Rechnungs- oder Erinnerungsentwurf in deiner Software.",
+        tools: [flow],
+      },
+    },
   },
 ];

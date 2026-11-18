@@ -88,7 +88,7 @@ Name, Rolle, Vorstellung, „Was ich baue“, Kennzahlen aus Kundenprojekten (An
 - Beim Abspielen scrollt die Seite sanft zum jeweils aktiven Fenster (Posteingang, Kundenverwaltung/Wissensbasis, Entwurf, Ergebnis). Bei reduzierter Bewegung ist das deaktiviert.
 - Nach dem fertigen Entwurf fasst `DemoResult` in drei bis vier Schritten zusammen, was erkannt, nachgeschlagen bzw. vorbereitet wurde und dass das Team prüft und selbst sendet. Es werden keine Einsparungen behauptet.
 - Orange Platzhalter im Entwurf werden mit „Orange = noch offen. Hier ergänzt dein Team.“ erklärt.
-- Schriftgröße: In Hero, Kopfzeile und Überblick-Animation sind Labels und Kicker mindestens 12 px, Beschriftungen 13 px. Die ausgeblendete Detaildemo nutzt weiterhin 11–12 px.
+- Schriftgröße: In Hero, Kopfzeile und Gesamtbild sind Labels und Kicker mindestens 12 px, Beschriftungen 13 px. Die ausgeblendete Detaildemo nutzt weiterhin 11–12 px.
 
 ## Handyansicht der E-Mail-Demo
 
@@ -96,7 +96,7 @@ Bis 760 px Breite (`MOBILE_QUERY` in `src/lib/useMediaQuery.ts`) zeigt `MobileEm
 
 ## Hero auf /handwerk
 
-Der Hero hat einen Einstiegs-Button „Beispiele ansehen“ (Sprung zu `#ueberblick`) und einen Textlink „Kennenlerngespräch anfragen“ zum Kontaktblock (`#kontakt`); eine Terminbuchung gibt es nicht. Darunter steht eine Zeile mit Foto, Name und Hintergrund (verlinkt auf `#kontakt`), danach zwei Kennzahlen „Aus Kundenprojekten“: alle Einträge in `contact.results` mit `teaser`, verlinkt auf die Rechnungen im Kontaktblock (`#zahlen`). Die Überblick-Animation ist der Einstieg. Die Detaildemo (Workflow-Tabs mit E-Mail-Demo, `#workflow`) ist vorerst ausgeblendet: Der Einbau in `src/App.tsx` und der Link „Vollständige Demo ansehen“ in `src/components/OverviewFlow.tsx` sind auskommentiert, der Code (`HandwerkWorkflows`, `EmailWorkflowDemo`, `MobileEmailFlow` usw.) bleibt erhalten. Zum Reaktivieren die Kommentare entfernen; die Abschnitte unten beschreiben die Detaildemo.
+Der Hero hat einen Einstiegs-Button „Beispiele ansehen“ (Sprung zu `#ueberblick`) und einen Textlink „Kennenlerngespräch anfragen“ zum Kontaktblock (`#kontakt`); eine Terminbuchung gibt es nicht. Darunter steht eine Zeile mit Foto, Name und Hintergrund (verlinkt auf `#kontakt`), danach zwei Kennzahlen „Aus Kundenprojekten“: alle Einträge in `contact.results` mit `teaser`, verlinkt auf die Rechnungen im Kontaktblock (`#zahlen`). Die Anwendungsfälle mit ihren Demos sind der Einstieg. Die Detaildemo (Workflow-Tabs mit E-Mail-Demo, `#workflow`) ist vorerst ausgeblendet: Der Einbau in `src/App.tsx` ist auskommentiert, der Code (`HandwerkWorkflows`, `EmailWorkflowDemo`, `MobileEmailFlow` usw.) bleibt erhalten. Zum Reaktivieren die Kommentare entfernen; die Abschnitte unten beschreiben die Detaildemo.
 
 Zwischen Anwendungsfällen und Kontaktblock steht „So läuft es ab“ (`src/components/ProcessFaq.tsx`, Anker `#ablauf`): drei Schritte der Zusammenarbeit und häufige Fragen. Die Antworten sind Zusagen an Interessenten; Preise stehen dort erst, wenn das Angebot festgelegt ist.
 
@@ -130,7 +130,7 @@ Bis 900 px Breite steht alles untereinander (Telefonat, Notiz, Handy); nach dem 
 - **Ton:** vorab erzeugte MP3s je Zeile in `public/assets/phone/line-01.mp3` … `line-08.mp3`, abgespielt über ein `<audio>`-Element, erst nach einem Klick. Auch die Längen der Aufnahmen (für „Zum Ergebnis“) werden erst nach „Assistent geht ran“ abgefragt; der Seitenaufruf lädt keine Audiodaten. Kann eine Datei nicht geladen oder abgespielt werden (fehlt, blockiert, startet nicht innerhalb von 6 s), läuft die Mitschrift im Lesetempo weiter und ein Hinweis „Ton konnte nicht abgespielt werden“ erscheint. Bei der Demo steht „Stimmen KI-generiert“.
 - **Audio erzeugen (einmalig):** `scripts/generate-phone-audio.mjs` ruft ElevenLabs auf (Modell `eleven_v4`, Sprache Deutsch, MP3 44,1 kHz/128 kbit/s) und speichert die MP3s. Jede Zeile bekommt die Nachbarzeilen als Kontext (`previous_text`/`next_text`), damit der Gesprächsfluss stimmt. Die Webseite spielt nur diese Dateien ab und ruft keine API auf. Benötigt `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ASSISTANT` und `ELEVENLABS_VOICE_CALLER` (Stimmen-IDs) in der Shell oder in einer lokalen `.env` (in `.gitignore`, nie einchecken). Stimmen-IDs aus dem eigenen Konto anzeigen: `npm run audio:phone -- --list-voices` (Stimmen aus der Voice Library vorher zu „My Voices“ hinzufügen). Dann `npm run audio:phone` (nutzt mit `--use-env-proxy` den Proxy aus `HTTPS_PROXY`, z. B. im Firmennetz). Vorhandene Dateien werden übersprungen; einzelne Zeilen neu: `npm run audio:phone -- --only=3,5`, alle neu: `npm run audio:phone -- --force`. Modell und Format über `ELEVENLABS_MODEL` und `ELEVENLABS_OUTPUT_FORMAT` änderbar (`mp3_44100_192` ab Creator-Tarif). Nach Textänderungen in `src/phoneLines.json` die betroffenen Zeilen neu erzeugen. Die MP3s werden eingecheckt. Für die Veröffentlichung braucht es einen ElevenLabs-Tarif mit kommerzieller Lizenz (ab Starter); Dateien aus dem Free-Tarif nur zum Testen.
 - **Inhalte:** Betrieb („Haustechnik Mustermann“), Anruferin und Angaben sind erfunden. Der Assistent stellt sich als digitaler Assistent vor.
-- **Technik:** Das bisherige Diagramm mit den Telefon-Beispielfällen steht aufklappbar unter „So hängt es technisch zusammen“ (`OverviewFlow` mit `embedded`) und wird erst beim Aufklappen gerendert.
+- **Technik:** Bausteine unter „So hängt es technisch zusammen“ (siehe „Technik je Anwendungsfall“).
 - **Klingeln:** Solange es klingelt, wackelt der Knopf „Assistent geht ran“ alle 2,4 Sekunden kurz wie ein klingelndes Telefon (pausiert bei Hover und Fokus). Sobald das Telefonat zu 60 % im Blick ist, spielt einmal je Seitenaufruf ein Klingelton (`src/lib/ringtone.ts`): im Browser erzeugt (Web Audio, keine Datei), zweimal „Brring-brring“, etwa 3 Sekunden, leise. Länger automatisch abgespielter Ton bräuchte nach WCAG 1.4.2 einen eigenen Stopp-Knopf. Browser erlauben Ton erst nach einem Klick oder Tastendruck auf der Seite; bis dahin wartet der Klingelton darauf. Ist dieser erste Klick „Assistent geht ran“, klingelt es nicht mehr. Weg scrollen, Tab wechseln oder Annehmen bricht den Ton sofort ab.
 - **Reduzierte Bewegung:** kein Klingel-Puls, kein Wackeln, keine Sprechwelle und keine Einblendungen; der Ablauf startet nur auf Klick. Der Klingelton bleibt.
 - **Offen:** eine echte Demo-Nummer zum Selbst-Anrufen (braucht Telefonie-Anbieter).
@@ -149,7 +149,7 @@ Der Anwendungsfall „Anfragen beantworten“ (`anfragen`) zeigt statt des Diagr
 - **Bedienung:** Startet einmal von selbst, sobald die Bühne gut im Blick ist (obere zwei Drittel des Fensters). „Pausieren/Fortsetzen“, „Ergebnis zeigen“, danach „Noch einmal“ und „Nächste Mail“. Ein Klick auf eine Mail im Posteingang startet diesen Fall.
 - **Schmale Bildschirme (bis 1100 px):** statt drei Spalten ein Umschalter „Anfrage / Assistent / Entwurf“, der dem Ablauf automatisch folgt und sich von Hand umschalten lässt.
 - **Reduzierte Bewegung:** kein Autostart, keine Einblendungen oder Markerstriche; jeder Fall erscheint direkt fertig, „Prüfen & senden“ funktioniert weiter.
-- **Technik:** Das Diagramm mit denselben drei Fällen steht aufklappbar unter „So hängt es technisch zusammen“. Gemeinsame Layout-Klassen mit der Telefon-Demo heißen `story-*`, eigene Klassen `mailbox-*`.
+- **Technik:** Bausteine unter „So hängt es technisch zusammen“ (siehe „Technik je Anwendungsfall“). Gemeinsame Layout-Klassen mit der Telefon-Demo heißen `story-*`, eigene Klassen `mailbox-*`.
 
 ## Angebots-Demo
 
@@ -163,7 +163,7 @@ Der Anwendungsfall „Angebote vorbereiten“ (`angebote`, Direktlink `/handwerk
 - **Preise:** erfundene Beispielpreise, in der Demo als solche gekennzeichnet. Summen werden aus Menge × Einzelpreis berechnet (`vatRate` in `src/quoteStory.ts`). Offene Preise und Vorschläge zählen erst nach „Prüfen & senden“ mit; bis dahin steht „ohne offene Position“ bzw. „ohne Vorschläge“ dabei.
 - **Abschluss:** „Prüfen & senden“ trägt den fehlenden Preis ein bzw. übernimmt die Vorschläge (grün) und setzt das Kennzeichen in der Liste auf „Gesendet“ oder „Nachgefasst“. Der Assistent sendet nie selbst.
 - **Bedienung, schmale Bildschirme, reduzierte Bewegung:** wie bei der Posteingang-Demo (Autostart einmal, Umschalter „Eingang / Assistent / Angebot“ bis 1100 px, bei reduzierter Bewegung direkt das fertige Ergebnis).
-- **Technik:** Kein Aufklapper „So hängt es technisch zusammen“, weil das Diagramm nur E-Mail, Formular und Telefon als Eingang kennt; `channels` und `cases` des Eintrags in `overviewSets` sind deshalb leer. `ColumnLabel` und `Marked` liegen für beide Demos in `src/components/storyParts.tsx`. Eigene Klassen heißen `quote-*`, der Rest nutzt `story-*` und `mailbox-*`.
+- **Technik:** Bausteine unter „So hängt es technisch zusammen“ (siehe „Technik je Anwendungsfall“). `ColumnLabel` und `Marked` liegen für beide Demos in `src/components/storyParts.tsx`. Eigene Klassen heißen `quote-*`, der Rest nutzt `story-*` und `mailbox-*`.
 
 ## Termin-Demo
 
@@ -176,7 +176,7 @@ Der Anwendungsfall „Termine & Einsätze planen“ (`termine`, Direktlink `/han
 - **Fälle:** „Termin finden“ (zwei Terminvorschläge für eine Wartung), „Notfall einschieben“ (Störung heute, eine Wartung rückt auf morgen), „Monteur fällt aus“ (Krankmeldung, zwei Termine neu verteilt, ein Tag bleibt als offene Entscheidung). Die Auswahl ist eine Annahme, keine erhobene Zahl. Betrieb, Monteure, Kunden und Termine sind erfunden.
 - **Abschluss:** „Prüfen & senden“ macht Vorschläge grün („vorgemerkt“ bzw. „eingeplant“), entfernt die durchgestrichenen alten Plätze und füllt die offene Stelle. Der Assistent sendet nie selbst.
 - **Handy (bis 760 px):** Der Plan wird zur Liste je Monteur; vor jedem Termin steht der Spaltenname.
-- **Technik:** Kein technisches Diagramm (wie bei Angeboten). Eigene Klassen heißen `schedule-*`. Den Ablauf (Takte, Pause, Autostart, Senden, reduzierte Bewegung) liefert `useStoryPlayback` in `src/lib/useStoryPlayback.ts`; die Angebots-Demo nutzt denselben Hook, die Posteingang-Demo hat ihre eigene, gleich aufgebaute Logik.
+- **Technik:** Bausteine unter „So hängt es technisch zusammen“. Eigene Klassen heißen `schedule-*`. Den Ablauf (Takte, Pause, Autostart, Senden, reduzierte Bewegung) liefert `useStoryPlayback` in `src/lib/useStoryPlayback.ts`; die Angebots-Demo nutzt denselben Hook, die Posteingang-Demo hat ihre eigene, gleich aufgebaute Logik.
 
 ## Rechnungs-Demo
 
@@ -189,20 +189,24 @@ Der Anwendungsfall „Rechnungen & Erinnerungen“ (`rechnungen`, Direktlink `/h
 - **Fälle:** „Rechnung nach Auftragsende“ (Badsanierung aus der Angebots-Demo, sechs Positionen wie im Angebot, zwei Stunden Mehraufwand als offene Entscheidung), „Zahlungserinnerung“ (Rechnung 14 Tage überfällig, erste freundliche Erinnerung), „Zahlung passt nicht“ (Skonto nach Fristende abgezogen, Restbetrag nachfordern oder ausbuchen). Die Auswahl ist eine Annahme, keine erhobene Zahl.
 - **Beträge:** erfundene Beispielbeträge. Die Rechnungssumme wird aus Menge × Einzelpreis berechnet (`vatRate` in `src/invoiceStory.ts`); der Mehraufwand zählt erst nach „Prüfen & senden“ mit. Die Beträge in den Texten des dritten Beispiels (3.141,60 € abzüglich 2 % = 3.078,77 €, Rest 62,83 €) sind von Hand eingetragen und bei Änderungen nachzurechnen.
 - **Abgrenzung:** vereinfachte Darstellung, keine Rechts- oder Steuerberatung. Gezeigt wird eine Zahlungserinnerung, keine förmliche Mahnung mit Verzugszinsen; die Rechnung enthält nicht alle Pflichtangaben. Die Beispielkunden sind Privatleute, die E-Rechnungspflicht zwischen Unternehmen kommt deshalb nicht vor.
-- **Technik:** Kein technisches Diagramm. Eigene Klassen heißen `invoice-*` (Offene Posten); Positionen und Summen nutzen `quote-*`, Begründung und Nachricht `schedule-*`. Ablauf über `useStoryPlayback`.
+- **Technik:** Bausteine unter „So hängt es technisch zusammen“. Eigene Klassen heißen `invoice-*` (Offene Posten); Positionen und Summen nutzen `quote-*`, Begründung und Nachricht `schedule-*`. Ablauf über `useStoryPlayback`.
 - **Karten der Anwendungsfälle:** Zwischen 761 und 1100 px stehen drei Karten je Reihe; zwei übrige Karten teilen sich die letzte Reihe. `upcomingUseCases` ist jetzt leer, die Zeile „Weitere Abläufe in Vorbereitung“ entfällt.
 
-## Überblick-Animation
+## Gesamtbild
 
-Auf der Bühne der Anwendungsfälle zeigt `OverviewFlow` (`src/components/OverviewFlow.tsx`) einen möglichen Ablauf in vier Spalten: Anliegen (E-Mail, Homepage-Formular), Assistent, Werkzeuge (Kundenverwaltung, Betriebswissen) und „Dein Team“. Bei Telefon und Anfragen steht es aufklappbar unter der jeweiligen Demo. Die Beispielfälle des gewählten Anwendungsfalls laufen in einer Schleife. Jeder Fall endet bei der menschlichen Prüfung; es wird nichts automatisch gesendet.
+`SystemOverview` (`src/components/SystemOverview.tsx`, Anker `#zusammenhang`) steht unter der Bühne der Anwendungsfälle und vor „So läuft es ab“. Es zeigt einmal für alle Workflows vier Spalten: Was reinkommt (nur Eingänge, die auch in den Demos vorkommen), Assistent, „Deine Software & dein Wissen“ und „Dein Team“. Es ist bewusst statisch: keine Beispielfälle, keine Animation.
 
-- **Inhalte:** `src/overviewFlows.ts`. Die Anfragen-Fälle sind dieselben drei wie in der Posteingang-Demo (Neue Anfrage per Formular, Wartung, Störung). Das Homepage-Formular ist ein erfundenes Beispiel; die Seite hat kein echtes Formular.
-- **Zielsysteme:** im Diagramm bewusst generische Begriffe (Kundenverwaltung, Betriebswissen). Darunter nennt eine Zeile „Anbindbar an Handwerkersoftware, z. B.“ die Programme aus `src/integrations.ts`, mit Logos aus `public/assets/integrations/`. Sie erscheint nur auf schmalen Bildschirmen und bei reduzierter Bewegung; in der Desktop-Animation stehen die Logos bereits im Diagramm. Bestätigt ist: Die Anbindung an Handwerkersoftware ist möglich und die Logos dürfen gezeigt werden. Es gibt nur Tools in der Liste, für die eine Anbindung oder ein Vertrag besteht; aktuell stehen plancraft und ToolTime als Platzhalter dort und sind vor dem Versenden zu bestätigen. Die Aussage lautet „anbindbar“, nicht „bereits angebunden“ oder „Partner“. Ein Marken- oder Simulationshinweis steht bewusst nicht dabei. Das ToolTime-Logo ist für dunklen Grund gedacht und liegt deshalb auf einer dunklen Kachel.
-- **Technik:** SVG-Linien mit Dash-Animation und ein Etikett, das entlang der Kurve läuft. Gesteuert wird alles über eine eigene `requestAnimationFrame`-Schleife (wie in den Demo-Overlays). Zeiten stehen in `src/lib/demoTiming.ts` (`OVERVIEW_STEP_MS`, `OVERVIEW_HOLD_MS`) und laufen in Echtzeit, ohne `DEMO_PLAYBACK_SPEED`. Ein Durchlauf aller drei Fälle dauert etwa 20 Sekunden.
-- **Bedienung:** „Pausieren/Fortsetzen“ und drei Fall-Buttons. Bei Pause zeigt ein Sprung direkt das fertige Ergebnis des Falls. Die Animation läuft nur, solange der Abschnitt sichtbar und der Browser-Tab aktiv ist.
-- **Schmale Bildschirme (bis 1100 px):** statt Linien eine nummerierte Schrittliste des gewählten Falls, die weiterläuft.
-- **Reduzierte Bewegung:** keine Schleife; stattdessen alle drei Fälle als statische Schrittlisten. Die Textfassung steht außerdem als `sr-only`-Alternative bereit, die Animation selbst ist für Screenreader ausgeblendet.
-- Die Idee eines Überblicks mit Kanälen links und Systemen rechts ist von einer ähnlichen Darstellung inspiriert; Begriffe, Gestaltung und Inhalte sind eigenständig.
+- **Software:** die Programme aus `src/integrations.ts` mit Logos aus `public/assets/integrations/`, dazu „Excel & andere“, Kalender sowie Betriebswissen & Preisliste. Bestätigt ist: Die Anbindung an Handwerkersoftware ist möglich und die Logos dürfen gezeigt werden. Es gibt nur Tools in der Liste, für die eine Anbindung oder ein Vertrag besteht; HERO, plancraft und ToolTime sind bestätigt.
+- **Linien:** statisches SVG, einmal und bei Größenänderung (`ResizeObserver`) vermessen. Bis 1100 px stehen die Spalten untereinander mit Pfeilen, ohne SVG. Die Spalten sind Listen mit Überschriften, das SVG ist `aria-hidden`.
+- Die frühere Überblick-Animation (`OverviewFlow` mit Beispielfällen) ist entfernt; der Stand liegt in Git.
+
+## Technik je Anwendungsfall
+
+Jede der fünf Demos endet mit dem Aufklapper „So hängt es technisch zusammen“ (`src/components/StoryTechnical.tsx`, natives `details`, keine Animation). Er zeigt vier Bausteine: Eingang, Assistent, Anbindung, Datenschutz & Betrieb. Jeder Baustein hat einen Satz in Alltagssprache, die Dienste mit Rolle („Womit“) und optional Hinweise. Inhalte stehen im Feld `tech` des jeweiligen Eintrags in `overviewSets` (`src/overviewFlows.ts`); Datenschutz & Betrieb kommt für alle aus `techOperations`, Abweichungen je Workflow stehen in `tech.operationsNotes`.
+
+- **Bestätigte Entscheidung:** Dienste werden als Text mit ihrer Rolle genannt, nicht als Logos, und nur, wenn sie tatsächlich im Einsatz sind (Angaben von Zekun Jiao). Eigene Anbindungen in Python werden ebenfalls so genannt.
+- **Stand der Dienste:** sipgate, ElevenLabs Agents bzw. Vapi mit Deepgram, GPT über Azure OpenAI (EU), Whisper über Azure, n8n selbst gehostet, Python (FastAPI) auf Hetzner, WhatsApp Business über 360dialog, Microsoft 365 / IMAP, WordPress (Contact Form 7), DATANORM, Lexware Office, Google Maps Routes API, CAMT.053.
+- **Datenschutz & Betrieb:** Server in der EU (Hetzner Deutschland, Azure OpenAI EU), Löschung nach 30 Tagen, Ablaufprotokolle 14 Tage, kein Training, AVV nach Art. 28 DSGVO, TLS und verschlüsselte Speicherung, Hosting beim Kunden möglich. Abweichungen sind offen benannt: US-Anbieter beim Telefonassistenten, WhatsApp über Meta, nur Adresse an Google Maps. Die FAQ „Wie ist es mit dem Datenschutz?“ fasst das zusammen.
 
 ## Bildquelle
 

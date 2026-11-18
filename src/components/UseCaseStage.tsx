@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
-import { OverviewFlow } from "./OverviewFlow";
 import { PhoneStory } from "./PhoneStory";
 import { InboxStory } from "./InboxStory";
 import { QuoteStory } from "./QuoteStory";
@@ -27,8 +26,8 @@ function readSelected(): { id: string; linked: boolean } {
   return { id: overviewSets[0].id, linked: false };
 }
 
-// Karten für alle Anwendungsfälle, darunter eine Bühne mit genau einer
-// Überblick-Animation für den gewählten Fall.
+// Karten für alle Anwendungsfälle, darunter eine Bühne mit der Demo des
+// gewählten Falls.
 export function UseCaseStage() {
   const reduced = !!useReducedMotion();
   const [selected, setSelected] = useState(() => readSelected().id);
@@ -128,10 +127,8 @@ export function UseCaseStage() {
           <QuoteStory key={set.id} set={set} />
         ) : set.id === "termine" ? (
           <ScheduleStory key={set.id} set={set} />
-        ) : set.id === "rechnungen" ? (
-          <InvoiceStory key={set.id} set={set} />
         ) : (
-          <OverviewFlow key={set.id} set={set} />
+          <InvoiceStory key={set.id} set={set} />
         )}
       </div>
     </section>

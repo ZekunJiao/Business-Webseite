@@ -18,7 +18,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { OverviewFlow } from "./OverviewFlow";
+import { StoryTechnical } from "./StoryTechnical";
 import { phoneStory } from "../phoneStory";
 import type { PhoneSpeaker } from "../phoneStory";
 import type { OverviewSet } from "../overviewFlows";
@@ -79,7 +79,6 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
   const [sound, setSound] = useState(true);
   const [audioFailed, setAudioFailed] = useState(false);
   const [seconds, setSeconds] = useState(0);
-  const [technicalOpen, setTechnicalOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const myPhoneRef = useRef<HTMLDivElement>(null);
   const callPanelRef = useRef<HTMLDivElement>(null);
@@ -496,14 +495,7 @@ export function PhoneStory({ set }: { set: OverviewSet }) {
         </ul>
       </div>
 
-      <details
-        className="story-technical"
-        onToggle={(event) => setTechnicalOpen(event.currentTarget.open)}
-      >
-        <summary>So hängt es technisch zusammen</summary>
-        {/* Erst beim Aufklappen rendern, damit die Linien richtig messen. */}
-        {technicalOpen ? <OverviewFlow set={set} embedded /> : null}
-      </details>
+      <StoryTechnical set={set} />
     </section>
   );
 }

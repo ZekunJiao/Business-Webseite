@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "./ui/button";
-import { OverviewFlow } from "./OverviewFlow";
+import { StoryTechnical } from "./StoryTechnical";
 import { FormWindowIcon } from "./FormWindowIcon";
 import { inboxStory } from "../inboxStory";
 import type { InboxCase, InboxOrigin, InboxStepKind } from "../inboxStory";
@@ -75,7 +75,6 @@ export function InboxStory({ set }: { set: OverviewSet }) {
   const [finished, setFinished] = useState<Set<string>>(() => new Set());
   const [sent, setSent] = useState<Set<string>>(() => new Set());
   const [manualView, setManualView] = useState<View | null>(null);
-  const [technicalOpen, setTechnicalOpen] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
   const autoStarted = useRef(false);
 
@@ -640,14 +639,7 @@ export function InboxStory({ set }: { set: OverviewSet }) {
         )}
       </div>
 
-      <details
-        className="story-technical"
-        onToggle={(event) => setTechnicalOpen(event.currentTarget.open)}
-      >
-        <summary>So hängt es technisch zusammen</summary>
-        {/* Erst beim Aufklappen rendern, damit die Linien richtig messen. */}
-        {technicalOpen ? <OverviewFlow set={set} embedded /> : null}
-      </details>
+      <StoryTechnical set={set} />
     </section>
   );
 }
