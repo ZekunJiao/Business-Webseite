@@ -1,4 +1,4 @@
-import { Inbox, PlugZap, ShieldCheck } from "lucide-react";
+import { ChevronDown, Cpu, Inbox, PlugZap, ShieldCheck } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { aiActivityIcons } from "./AiSymbol";
 import { techOperations } from "../overviewFlows";
@@ -38,7 +38,20 @@ export function StoryTechnical({ set }: { set: OverviewSet }) {
   ];
   return (
     <details className="story-technical">
-      <summary>So hängt es technisch zusammen</summary>
+      <summary>
+        <span className="story-technical-icon" aria-hidden="true">
+          <Cpu size={18} />
+        </span>
+        <span className="story-technical-label">
+          <strong>So hängt es technisch zusammen</strong>
+          <span>Eingesetzte Dienste, Anbindung, Datenschutz &amp; Betrieb</span>
+        </span>
+        <ChevronDown
+          className="story-technical-chevron"
+          size={18}
+          aria-hidden="true"
+        />
+      </summary>
       <ul className="tech-blocks">
         {rows.map(({ key, label, icon: Icon, block }) => (
           <li key={key} data-block={key}>

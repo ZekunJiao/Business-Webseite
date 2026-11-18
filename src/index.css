@@ -4046,11 +4046,64 @@ button.usecase-card:focus-visible {
   border-top: 1px solid var(--line);
 }
 .story-technical summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   padding: 16px 32px;
-  font-size: 14px;
-  font-weight: 650;
-  color: #2f6fae;
+  background: #f5f8fb;
   cursor: pointer;
+  list-style: none;
+  transition: background 0.15s;
+}
+.story-technical summary::-webkit-details-marker {
+  display: none;
+}
+.story-technical summary:hover {
+  background: #edf3f9;
+}
+.story-technical-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #c3dcf3;
+  border-radius: 50%;
+  background: #fff;
+  color: #2f6fae;
+}
+.story-technical-label {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.story-technical-label strong {
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--ink);
+}
+.story-technical-label span {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.story-technical-chevron {
+  flex: none;
+  margin-left: auto;
+  color: #2f6fae;
+  transition: transform 0.2s;
+}
+.story-technical[open] .story-technical-chevron {
+  transform: rotate(180deg);
+}
+.story-technical[open] summary {
+  margin-bottom: 16px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .story-technical summary,
+  .story-technical-chevron {
+    transition: none;
+  }
 }
 .story-technical summary:focus-visible {
   outline: 2px solid var(--accent);
