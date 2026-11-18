@@ -28,7 +28,7 @@ Gewählt: Cloudflare Workers (statische Dateien aus `dist/`), automatisch aus de
 - Non-production branch deploy command: `npx wrangler versions upload`
 - Node-Version: über `.node-version` (22)
 
-Entschieden: Nur `prod` ist live auf `zekun.de`. `main` ist der Arbeitsstand; jeder Push auf `main` (und auf andere Branches) erzeugt eine Vorschau unter einer eigenen `workers.dev`-Adresse (Branch-Vorschau, z. B. `main-business-webseite.xiaokun77.workers.dev`; Preview URLs müssen unter Settings → Domains & Routes aktiviert sein). Veröffentlichen: `main` nach `prod` übernehmen, z. B. `git push origin main:prod`.
+Entschieden: Nur `prod` ist live auf `zekun.de`. `main` ist der Arbeitsstand; jeder Push auf `main` (und auf andere Branches) erzeugt eine Vorschau unter einer eigenen `workers.dev`-Adresse (Branch-Vorschau, z. B. `main-business-webseite.xiaokun77.workers.dev`; Preview URLs müssen unter Settings → Domains & Routes aktiviert sein). Veröffentlichen: `main` nach `prod` übernehmen, z. B. `git push origin main:prod`. Der Copilot-Hook `.github/hooks/auto-push.ps1` committet und pusht nach jeder Agent-Antwort den aktuellen Branch, aber nie `prod`.
 
 `wrangler.jsonc` stellt `not_found_handling: single-page-application` ein. Deshalb funktionieren `/handwerk` und `/hausverwaltung` auch beim direkten Aufruf. Domain: `zekun.de` (registriert bei IONOS, DNS bei Cloudflare); daneben besteht noch `https://business-webseite.xiaokun77.workers.dev`. Die eigene Domain wird im Worker unter Settings → Domains & Routes → Custom Domain verbunden.
 
