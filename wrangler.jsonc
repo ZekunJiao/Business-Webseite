@@ -16,5 +16,16 @@
   "vars": {
     "KONTAKT_FROM": "formular@zekun.de",
     "KONTAKT_TO": "zekun@kmu-workflow.de"
+  },
+  // Vorschau für den Branch main (Testadresse auf workers.dev).
+  // Previews übernehmen nichts von oben, deshalb hier wiederholt.
+  "previews": {
+    "send_email": [
+      { "name": "KONTAKT_MAIL", "destination_address": "zekun@kmu-workflow.de" }
+    ],
+    "vars": {
+      "KONTAKT_FROM": "formular@zekun.de",
+      "KONTAKT_TO": "zekun@kmu-workflow.de"
+    }
   }
 }
