@@ -19,13 +19,18 @@ npm run preview
 
 ## Hosting
 
-Gewählt: Cloudflare Workers (statische Dateien aus `dist/`), automatisch aus dem GitHub-Repository `ZekunJiao/Business-Webseite` (Branch `main`). Das Projekt heißt `business-webseite`; Konfiguration in `wrangler.jsonc`. Einstellungen im Cloudflare-Dashboard unter Workers & Pages → Projekt → Settings → Build:
+Gewählt: Cloudflare Workers (statische Dateien aus `dist/`), automatisch aus dem GitHub-Repository `ZekunJiao/Business-Webseite`. Das Projekt heißt `business-webseite`; Konfiguration in `wrangler.jsonc`. Einstellungen im Cloudflare-Dashboard unter Workers & Pages → Projekt → Settings → Build:
 
+- Production branch: `prod`
+- Builds for non-production branches: aktiviert
 - Build command: `npm run build`
 - Deploy command: `npx wrangler deploy`
+- Non-production branch deploy command: `npx wrangler versions upload`
 - Node-Version: über `.node-version` (22)
 
-`wrangler.jsonc` stellt `not_found_handling: single-page-application` ein. Deshalb funktionieren `/handwerk` und `/hausverwaltung` auch beim direkten Aufruf. Jeder Push auf `main` veröffentlicht automatisch neu. Domain: `zekun.de` (registriert bei IONOS, DNS bei Cloudflare); daneben besteht noch `https://business-webseite.xiaokun77.workers.dev`. Die eigene Domain wird im Worker unter Settings → Domains & Routes → Custom Domain verbunden.
+Entschieden: Nur `prod` ist live auf `zekun.de`. `main` ist der Arbeitsstand; jeder Push auf `main` (und auf andere Branches) erzeugt eine Vorschau unter einer eigenen `workers.dev`-Adresse (Branch-Vorschau, z. B. `main-business-webseite.xiaokun77.workers.dev`; Preview URLs müssen unter Settings → Domains & Routes aktiviert sein). Veröffentlichen: `main` nach `prod` übernehmen, z. B. `git push origin main:prod`.
+
+`wrangler.jsonc` stellt `not_found_handling: single-page-application` ein. Deshalb funktionieren `/handwerk` und `/hausverwaltung` auch beim direkten Aufruf. Domain: `zekun.de` (registriert bei IONOS, DNS bei Cloudflare); daneben besteht noch `https://business-webseite.xiaokun77.workers.dev`. Die eigene Domain wird im Worker unter Settings → Domains & Routes → Custom Domain verbunden.
 
 Vor dem Versenden des Links offen: Kontaktdaten in `src/contact.ts` und Bestätigung der Werkzeuge in `src/integrations.ts`.
 
