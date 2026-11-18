@@ -97,7 +97,9 @@ export function AuthorBlock({ id }: { id?: string }) {
               </div>
             ))}
           </dl>
-          <p className="author-track">{contact.trackRecord}</p>
+          {contact.trackRecord?.trim() ? (
+            <p className="author-track">{contact.trackRecord}</p>
+          ) : null}
           <p className="author-note">{contact.resultsNote}</p>
         </div>
         <div>

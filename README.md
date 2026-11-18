@@ -76,7 +76,7 @@ Auf schmalen Bildschirmen sind die Map-Knoten untereinander angeordnet; Tastatur
 
 ## Absender und Kontakt
 
-Name, Rolle, Vorstellung, „Was ich baue“, Kennzahlen aus Kundenprojekten (Angaben von Zekun Jiao), Umfang der bisherigen Kundenarbeit und die Punkte „Was du von mir bekommst“ stehen zusammen mit den Kontaktdaten in `src/contact.ts`. Bestätigt sind E-Mail (`zekun@zekun.de`, Weiterleitung über Cloudflare an das Google-Workspace-Postfach), LinkedIn und Anschrift; `phone` ist leer. Leere Felder werden nicht angezeigt. Der Block „Kontakt“ (`AuthorBlock`, Anker `#kontakt`) steht unter den Demos, die Kopfzeile verlinkt dorthin.
+Name, Rolle, Vorstellung, „Was ich baue“, Kennzahlen aus Kundenprojekten (Angaben von Zekun Jiao), Umfang der bisherigen Kundenarbeit (`trackRecord`, derzeit ausgeblendet) und die Punkte „Was du von mir bekommst“ stehen zusammen mit den Kontaktdaten in `src/contact.ts`. Bestätigt sind E-Mail (`zekun@zekun.de`, Weiterleitung über Cloudflare an das Google-Workspace-Postfach), LinkedIn und Anschrift; `phone` ist leer. Leere Felder werden nicht angezeigt. Der Block „Kontakt“ (`AuthorBlock`, Anker `#kontakt`) steht unter den Demos, die Kopfzeile verlinkt dorthin.
 
 ## Impressum und Datenschutz
 

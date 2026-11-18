@@ -31,6 +31,7 @@ type Contact = {
    * stammt; breakdown klappt die Rechnung bzw. Aufteilung auf.
    */
   results: Result[];
+  // Leer = Zeile wird nicht angezeigt.
   trackRecord: string;
   resultsNote: string;
   /** Was die Zusammenarbeit ausmacht. */
@@ -211,8 +212,9 @@ export const contact: Contact = {
       },
     },
   ],
-  trackRecord:
-    "Seit Februar 2026 habe ich sechs bezahlte Projekte für vier Kunden umgesetzt.",
+  // Vorübergehend ausgeblendet. Zum Einblenden wieder eintragen:
+  // "Seit Februar 2026 habe ich sechs bezahlte Projekte für vier Kunden umgesetzt."
+  trackRecord: "",
   resultsNote:
     "Werte aus bisherigen Kundenprojekten. Was bei dir möglich ist, hängt von deinem Betrieb ab.",
   strengths: [
