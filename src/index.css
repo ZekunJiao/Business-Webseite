@@ -4268,7 +4268,13 @@ button.usecase-card:focus-visible {
 }
 .system-wire {
   fill: none;
-  stroke: #c9d5df;
+  stroke: #c3d0dc;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.system-wire-dot {
+  fill: #fff;
+  stroke: #9fb3c6;
   stroke-width: 1.5;
 }
 .system-col {

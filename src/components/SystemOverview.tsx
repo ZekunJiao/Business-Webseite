@@ -59,29 +59,65 @@ export function SystemOverview() {
     const [team] = rect("[data-wire='team']");
     if (!assistant || !systems || !team) return;
     const midY = (r: DOMRect) => r.top + r.height / 2 - box.top;
+    const x = (value: number) => value - box.left;
     const curve = (sx: number, sy: number, tx: number, ty: number) => {
-      const bend = Math.max(20, (tx - sx) * 0.5);
-      return `M ${sx} ${sy} C ${sx + bend} ${sy}, ${tx - bend} ${ty}, ${tx} ${ty}`;
+      const bend = (tx - sx) * 0.55;
+      return `C ${sx + bend} ${sy}, ${tx - bend} ${ty}, ${tx} ${ty}`;
+    };
+    // Kreis des Assistenten: Linien enden geordnet auf seinem Rand, statt
+    // alle in einem Punkt. Gleiche Reihenfolge oben/unten, damit sich keine
+    // Linien kreuzen.
+    const cx = x(assistant.left + assistant.width / 2);
+    const cy = midY(assistant);
+    const radius = assistant.width / 2 + 6;
+    const onCircle = (index: number, count: number, side: -1 | 1) => {
+      const spread = Math.min(1.1, 0.22 * (count - 1)); // Bogen in Radiant
+      const angle =
+        count > 1 ? -spread / 2 + (spread * index) / (count - 1) : 0;
+      return {
+        px: cx + side * radius * Math.cos(angle),
+        py: cy + radius * Math.sin(angle),
+      };
     };
     const paths: string[] = [];
-    const ax = assistant.left - box.left - 8;
-    const ay = midY(assistant);
-    for (const r of rect("[data-wire='input']"))
-      paths.push(curve(r.right - box.left + 6, midY(r), ax, ay));
-    const bx = assistant.right - box.left + 8;
-    for (const r of rect("[data-wire='system']"))
-      paths.push(curve(bx, ay, systems.left - box.left - 2, midY(r)));
+    const dots: [number, number][] = [];
+
+    // Links: kurzes gerades Stück bis zu einer gemeinsamen Kante, dann Kurve.
+    const inputs = rect("[data-wire='input']");
+    const edge = Math.max(...inputs.map((r) => x(r.right))) + 16;
+    inputs.forEach((r, i) => {
+      const sx = x(r.right) + 4;
+      const sy = midY(r);
+      const { px, py } = onCircle(i, inputs.length, -1);
+      paths.push(`M ${sx} ${sy} L ${edge} ${sy} ${curve(edge, sy, px, py)}`);
+      dots.push([sx, sy]);
+    });
+
+    // Rechts: vom Kreis zur linken Kante des Software-Kastens.
+    const items = rect("[data-wire='system']");
+    const tx = x(systems.left);
+    items.forEach((r, i) => {
+      const { px, py } = onCircle(i, items.length, 1);
+      paths.push(`M ${px} ${py} ${curve(px, py, tx, midY(r))}`);
+      dots.push([tx, midY(r)]);
+    });
+
+    // Vom Kasten zum Team.
+    const sx = x(systems.right);
+    const ty = midY(team);
     paths.push(
-      curve(
-        systems.right - box.left + 6,
-        midY(systems),
-        team.left - box.left - 8,
-        midY(team),
-      ),
+      `M ${sx} ${midY(systems)} ${curve(sx, midY(systems), x(team.left) - 8, ty)}`,
     );
-    svg.innerHTML = paths
-      .map((d) => `<path class="system-wire" d="${d}" />`)
-      .join("");
+    dots.push([sx, midY(systems)]);
+
+    svg.innerHTML =
+      paths.map((d) => `<path class="system-wire" d="${d}" />`).join("") +
+      dots
+        .map(
+          ([cx, cy]) =>
+            `<circle class="system-wire-dot" cx="${cx}" cy="${cy}" r="3" />`,
+        )
+        .join("");
   }, []);
 
   useLayoutEffect(() => {
