@@ -1233,9 +1233,9 @@ export default function App() {
         <SystemOverview />
         <ProcessFaq />
         <section className="closing-cta" aria-labelledby="erstgespraech-title">
-          <div>
+          <div className="closing-cta-text">
             <span className="closing-cta-kicker">
-              KOSTENLOSE PROZESSANALYSE · 45 MINUTEN
+              KOSTENLOS · 45 MINUTEN · IN MÜNCHEN ODER ONLINE
             </span>
             <h2 id="erstgespraech-title">Reden wir über deine Prozesse.</h2>
             <p>
@@ -1243,13 +1243,22 @@ export default function App() {
               Gespräch darüber, wo du Zeit verlierst, und ob ich helfen kann.
             </p>
             <p>
-              Vor Ort in München oder online. Du gehst mit zwei, drei konkreten
-              Ansatzpunkten raus, auch wenn wir danach nicht zusammenarbeiten.
+              Du gehst mit zwei, drei konkreten Ansatzpunkten raus, auch wenn
+              wir danach nicht zusammenarbeiten.
             </p>
           </div>
-          <a href="#schreib-mir" onClick={focusContactForm}>
-            Prozessanalyse anfragen
-          </a>
+          <div className="closing-cta-person">
+            {contact.photo ? (
+              <img src={contact.photo} alt="" width="72" height="72" />
+            ) : null}
+            <span className="closing-cta-name">
+              <strong>{contact.name}</strong>
+              <span>Dein Ansprechpartner</span>
+            </span>
+            <a href="#schreib-mir" onClick={focusContactForm}>
+              Prozessanalyse anfragen
+            </a>
+          </div>
         </section>
         {/* Detaildemo vorerst ausgeblendet:
         <HandwerkWorkflows>
