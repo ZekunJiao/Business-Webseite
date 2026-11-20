@@ -86,6 +86,11 @@
 * {
   box-sizing: border-box;
 }
+/* Ankerlinks scrollen sanft; bei reduzierter Bewegung springt die Seite
+   (siehe prefers-reduced-motion weiter unten). */
+html {
+  scroll-behavior: smooth;
+}
 body {
   margin: 0;
   background: var(--bg);
