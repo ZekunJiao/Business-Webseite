@@ -1248,9 +1248,6 @@ export default function App() {
             </p>
           </div>
           <div className="closing-cta-person">
-            {contact.photo ? (
-              <img src={contact.photo} alt="" width="72" height="72" />
-            ) : null}
             <span className="closing-cta-name">
               <strong>{contact.name}</strong>
               <span>Dein Ansprechpartner</span>
