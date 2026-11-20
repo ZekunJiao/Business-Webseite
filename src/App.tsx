@@ -1197,7 +1197,7 @@ export default function App() {
               href="#schreib-mir"
               onClick={focusContactForm}
             >
-              Kostenloses Erstgespräch (45 Min.)
+              Kostenlose Prozessanalyse (45 Min.)
             </a>
           </div>
           <a className="hero-person" href="#kontakt">
@@ -1235,19 +1235,20 @@ export default function App() {
         <section className="closing-cta" aria-labelledby="erstgespraech-title">
           <div>
             <span className="closing-cta-kicker">
-              KOSTENLOSES ERSTGESPRÄCH
+              KOSTENLOSE PROZESSANALYSE · 45 MINUTEN
             </span>
-            <h2 id="erstgespraech-title">
-              Wo verliert dein Büro die meiste Zeit?
-            </h2>
+            <h2 id="erstgespraech-title">Reden wir über deine Prozesse.</h2>
             <p>
-              In 45 Minuten schauen wir gemeinsam auf eure Abläufe, vor Ort
-              oder online. Du gehst mit zwei, drei konkreten Ansatzpunkten
-              raus, auch wenn wir danach nicht zusammenarbeiten.
+              Kein Verkaufsgespräch. Kein Pitch-Deck. Nur ein ehrliches
+              Gespräch darüber, wo du Zeit verlierst, und ob ich helfen kann.
+            </p>
+            <p>
+              Vor Ort oder online. Du gehst mit zwei, drei konkreten
+              Ansatzpunkten raus, auch wenn wir danach nicht zusammenarbeiten.
             </p>
           </div>
           <a href="#schreib-mir" onClick={focusContactForm}>
-            Erstgespräch anfragen
+            Prozessanalyse anfragen
           </a>
         </section>
         {/* Detaildemo vorerst ausgeblendet:

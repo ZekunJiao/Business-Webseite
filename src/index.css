@@ -3207,6 +3207,9 @@ footer {
   line-height: 1.6;
   color: #c4d0dc;
 }
+.closing-cta p + p {
+  margin-top: 10px;
+}
 .closing-cta a {
   display: inline-flex;
   flex: none;
