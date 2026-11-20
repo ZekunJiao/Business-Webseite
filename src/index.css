@@ -6168,6 +6168,9 @@ footer .legal-links a {
   resize: vertical;
   min-height: 120px;
 }
+.contact-form textarea::placeholder {
+  color: var(--muted-light);
+}
 .contact-form input:focus-visible,
 .contact-form textarea:focus-visible,
 .contact-form button:focus-visible {

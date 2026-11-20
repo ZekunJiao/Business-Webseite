@@ -118,12 +118,16 @@ export function AuthorBlock({ id }: { id?: string }) {
         </div>
       </div>
       <div id="schreib-mir" className="author-contact">
-        <h3>Schreib mir</h3>
+        <h3>Prozessanalyse anfragen</h3>
         <p>
-          Kurz beschreiben, worum es geht. Ich melde mich in der Regel
-          innerhalb eines Werktags.
+          Schreib kurz, wo es bei euch hakt. Ich melde mich in der Regel
+          innerhalb eines Werktags mit Terminvorschlägen.
         </p>
-        <ContactForm />
+        <ContactForm
+          submitLabel="Anfrage senden"
+          messagePlaceholder="z. B. „Nach Feierabend verpassen wir viele Anrufe“ oder „Angebote schreiben dauert zu lange“"
+          doneText="Ich melde mich in der Regel innerhalb eines Werktags mit Terminvorschlägen."
+        />
       </div>
     </section>
   );

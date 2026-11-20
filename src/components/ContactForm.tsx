@@ -9,7 +9,17 @@ import { contact } from "../contact";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
-export function ContactForm({ id }: { id?: string }) {
+export function ContactForm({
+  id,
+  submitLabel = "Nachricht senden",
+  messagePlaceholder,
+  doneText = "Ich melde mich in der Regel innerhalb eines Werktags.",
+}: {
+  id?: string;
+  submitLabel?: string;
+  messagePlaceholder?: string;
+  doneText?: string;
+}) {
   const [status, setStatus] = useState<Status>("idle");
   const email = contact.email?.trim();
 
@@ -36,7 +46,7 @@ export function ContactForm({ id }: { id?: string }) {
     return (
       <div className="contact-form contact-form-done" id={id} role="status">
         <strong>Danke, deine Nachricht ist angekommen.</strong>
-        <p>Ich melde mich in der Regel innerhalb eines Werktags.</p>
+        <p>{doneText}</p>
       </div>
     );
 
@@ -64,7 +74,13 @@ export function ContactForm({ id }: { id?: string }) {
       </label>
       <label>
         Nachricht
-        <textarea name="message" required rows={5} maxLength={5000} />
+        <textarea
+          name="message"
+          required
+          rows={5}
+          maxLength={5000}
+          placeholder={messagePlaceholder}
+        />
       </label>
       {/* Für Menschen unsichtbar; Spam-Bots füllen es aus. */}
       <label className="contact-form-trap" aria-hidden="true">
@@ -74,7 +90,7 @@ export function ContactForm({ id }: { id?: string }) {
       <div className="contact-form-actions">
         <button type="submit" disabled={status === "sending"}>
           <Send size={16} aria-hidden="true" />
-          {status === "sending" ? "Wird gesendet …" : "Nachricht senden"}
+          {status === "sending" ? "Wird gesendet …" : submitLabel}
         </button>
         <p className="contact-form-note">
           Deine Angaben nutze ich nur, um deine Anfrage zu beantworten.
