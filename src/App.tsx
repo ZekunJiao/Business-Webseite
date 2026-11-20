@@ -1197,7 +1197,7 @@ export default function App() {
               href="#schreib-mir"
               onClick={focusContactForm}
             >
-              Kostenlose Prozessanalyse (45 Min.)
+              Kostenlose Prozessanalyse
             </a>
           </div>
           <a className="hero-person" href="#kontakt">
