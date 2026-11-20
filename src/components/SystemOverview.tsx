@@ -1,5 +1,6 @@
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import type { ReactNode } from "react";
+import { useReducedMotion } from "motion/react";
 import {
   ArrowDown,
   CalendarDays,
@@ -17,8 +18,9 @@ import { integrations } from "../integrations";
 import { useMediaQuery } from "../lib/useMediaQuery";
 
 // Gesamtbild für alle Anwendungsfälle: was reinkommt, der Assistent, deine
-// Software und dein Team. Bewusst statisch: keine Beispielfälle, keine
-// Animation. Die Linien werden einmal und bei Größenänderung vermessen.
+// Software und dein Team. Keine Beispielfälle; nur ein leiser Datenpunkt
+// läuft ab und zu von einem Eingang über den Assistenten und ein Programm
+// zum Team. Die Linien werden einmal und bei Größenänderung vermessen.
 
 // Nur Eingänge, die auch in den Demos vorkommen.
 const inputs: { name: string; icon: ReactNode }[] = [
@@ -40,8 +42,22 @@ const AssistantIcon = aiActivityIcons.idle;
 // Darunter stehen die Spalten untereinander, ohne Linien.
 const STACKED_QUERY = "(max-width: 1100px)";
 
+// Ablauf eines Datenpunkts in ms: Eingang → Assistent, kurz halten,
+// Assistent → Programm, Programm → Team, Pause bis zum nächsten.
+const PACKET = { in: 1500, hold: 600, out: 1200, team: 1000, gap: 1400 };
+const PACKET_MS =
+  PACKET.in + PACKET.hold + PACKET.out + PACKET.team + PACKET.gap;
+const easeInOut = (t: number) =>
+  t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+const pick = (count: number, not: number) => {
+  if (count < 2) return 0;
+  const next = Math.floor(Math.random() * (count - 1));
+  return next >= not ? next + 1 : next;
+};
+
 export function SystemOverview() {
   const stacked = useMediaQuery(STACKED_QUERY);
+  const reduced = !!useReducedMotion();
   const canvasRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -79,7 +95,7 @@ export function SystemOverview() {
         py: cy + radius * Math.sin(angle),
       };
     };
-    const paths: string[] = [];
+    const paths: { d: string; seg: string }[] = [];
     const dots: [number, number][] = [];
 
     // Links: kurzes gerades Stück bis zu einer gemeinsamen Kante, dann Kurve.
@@ -89,7 +105,10 @@ export function SystemOverview() {
       const sx = x(r.right) + 4;
       const sy = midY(r);
       const { px, py } = onCircle(i, inputs.length, -1);
-      paths.push(`M ${sx} ${sy} L ${edge} ${sy} ${curve(edge, sy, px, py)}`);
+      paths.push({
+        d: `M ${sx} ${sy} L ${edge} ${sy} ${curve(edge, sy, px, py)}`,
+        seg: "in",
+      });
       dots.push([sx, sy]);
     });
 
@@ -98,26 +117,33 @@ export function SystemOverview() {
     const tx = x(systems.left);
     items.forEach((r, i) => {
       const { px, py } = onCircle(i, items.length, 1);
-      paths.push(`M ${px} ${py} ${curve(px, py, tx, midY(r))}`);
+      paths.push({ d: `M ${px} ${py} ${curve(px, py, tx, midY(r))}`, seg: "out" });
       dots.push([tx, midY(r)]);
     });
 
     // Vom Kasten zum Team.
     const sx = x(systems.right);
     const ty = midY(team);
-    paths.push(
-      `M ${sx} ${midY(systems)} ${curve(sx, midY(systems), x(team.left) - 8, ty)}`,
-    );
+    paths.push({
+      d: `M ${sx} ${midY(systems)} ${curve(sx, midY(systems), x(team.left) - 8, ty)}`,
+      seg: "team",
+    });
     dots.push([sx, midY(systems)]);
 
     svg.innerHTML =
-      paths.map((d) => `<path class="system-wire" d="${d}" />`).join("") +
+      paths
+        .map(
+          ({ d, seg }) =>
+            `<path class="system-wire" data-seg="${seg}" d="${d}" />`,
+        )
+        .join("") +
       dots
         .map(
           ([cx, cy]) =>
             `<circle class="system-wire-dot" cx="${cx}" cy="${cy}" r="3" />`,
         )
-        .join("");
+        .join("") +
+      `<circle class="system-packet" r="4" />`;
   }, []);
 
   useLayoutEffect(() => {
@@ -129,6 +155,108 @@ export function SystemOverview() {
     observer.observe(canvas);
     return () => observer.disconnect();
   }, [stacked, measure]);
+
+  // Datenpunkt: läuft nur, solange das Bild sichtbar und der Tab aktiv ist.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (stacked || reduced || !canvas) return;
+    let raf = 0;
+    let running = false;
+    let visible = false;
+    let last = 0;
+    let elapsed = 0;
+    let cycle = -1;
+    let from = -1;
+    let to = -1;
+    let active: Element | null = null;
+
+    const frame = (now: number) => {
+      elapsed += Math.min(now - last, 100);
+      last = now;
+      const svg = svgRef.current;
+      const packet = svg?.querySelector<SVGCircleElement>(".system-packet");
+      const ins = svg?.querySelectorAll<SVGPathElement>("[data-seg='in']");
+      const outs = svg?.querySelectorAll<SVGPathElement>("[data-seg='out']");
+      const team = svg?.querySelector<SVGPathElement>("[data-seg='team']");
+      if (packet && ins?.length && outs?.length && team) {
+        const current = Math.floor(elapsed / PACKET_MS);
+        if (current !== cycle) {
+          cycle = current;
+          from = pick(ins.length, from);
+          to = pick(outs.length, to);
+        }
+        let t = elapsed % PACKET_MS;
+        let path: SVGPathElement | null = null;
+        let progress = 0;
+        const steps: [number, SVGPathElement | null][] = [
+          [PACKET.in, ins[from]],
+          [PACKET.hold, null],
+          [PACKET.out, outs[to]],
+          [PACKET.team, team],
+        ];
+        let holdAt: SVGPathElement | null = ins[from];
+        for (const [duration, segment] of steps) {
+          if (t < duration) {
+            path = segment;
+            progress = t / duration;
+            break;
+          }
+          t -= duration;
+          if (segment) holdAt = segment;
+        }
+        const inGap = elapsed % PACKET_MS >= PACKET_MS - PACKET.gap;
+        const shown = path ?? (inGap ? null : holdAt);
+        if (active !== shown) {
+          active?.classList.remove("is-active");
+          shown?.classList.add("is-active");
+          active = shown;
+        }
+        if (shown) {
+          const length = shown.getTotalLength();
+          const point = shown.getPointAtLength(
+            path ? easeInOut(progress) * length : length,
+          );
+          packet.setAttribute("cx", String(point.x));
+          packet.setAttribute("cy", String(point.y));
+          // Am Anfang einblenden, nach dem Team ausblenden
+          const fade =
+            path === ins[from]
+              ? Math.min(1, progress * 6)
+              : path === team
+                ? Math.min(1, (1 - progress) * 4)
+                : 1;
+          packet.style.opacity = String(fade);
+        } else {
+          packet.style.opacity = "0";
+        }
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    const update = () => {
+      const run = visible && !document.hidden;
+      if (run === running) return;
+      running = run;
+      if (run) {
+        last = performance.now();
+        raf = requestAnimationFrame(frame);
+      } else cancelAnimationFrame(raf);
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        update();
+      },
+      { threshold: 0.2 },
+    );
+    observer.observe(canvas);
+    document.addEventListener("visibilitychange", update);
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", update);
+      active?.classList.remove("is-active");
+    };
+  }, [stacked, reduced]);
 
   const arrow = stacked ? (
     <span className="system-arrow" aria-hidden="true">

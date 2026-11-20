@@ -4379,6 +4379,17 @@ button.usecase-card:focus-visible {
   stroke: #c3d0dc;
   stroke-width: 1.5;
   stroke-linecap: round;
+  transition: stroke 0.4s;
+}
+/* Linie, auf der gerade ein Datenpunkt läuft */
+.system-wire.is-active {
+  stroke: #e9b48a;
+}
+.system-packet {
+  fill: var(--accent);
+  stroke: #e0752d40;
+  stroke-width: 6;
+  opacity: 0;
 }
 .system-wire-dot {
   fill: #fff;

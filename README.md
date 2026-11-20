@@ -198,10 +198,11 @@ Der Anwendungsfall „Rechnungen & Erinnerungen“ (`rechnungen`, Direktlink `/h
 
 ## Gesamtbild
 
-`SystemOverview` (`src/components/SystemOverview.tsx`, Anker `#zusammenhang`) steht unter der Bühne der Anwendungsfälle und vor „So läuft es ab“. Es zeigt einmal für alle Workflows vier Spalten: Was reinkommt (nur Eingänge, die auch in den Demos vorkommen), Assistent, „Deine Software & dein Wissen“ und „Dein Team“. Es ist bewusst statisch: keine Beispielfälle, keine Animation.
+`SystemOverview` (`src/components/SystemOverview.tsx`, Anker `#zusammenhang`) steht unter der Bühne der Anwendungsfälle und vor „So läuft es ab“. Es zeigt einmal für alle Workflows vier Spalten: Was reinkommt (nur Eingänge, die auch in den Demos vorkommen), Assistent, „Deine Software & dein Wissen“ und „Dein Team“. Keine Beispielfälle; die einzige Bewegung ist ein leiser Datenpunkt (siehe unten).
 
 - **Software:** die Programme aus `src/integrations.ts` mit Logos aus `public/assets/integrations/`, dazu „Excel & andere“, Kalender sowie Betriebswissen & Preisliste. Bestätigt ist: Die Anbindung an Handwerkersoftware ist möglich und die Logos dürfen gezeigt werden. Es gibt nur Tools in der Liste, für die eine Anbindung oder ein Vertrag besteht; HERO, plancraft und ToolTime sind bestätigt.
-- **Linien:** statisches SVG, einmal und bei Größenänderung (`ResizeObserver`) vermessen. Bis 1100 px stehen die Spalten untereinander mit Pfeilen, ohne SVG. Die Spalten sind Listen mit Überschriften, das SVG ist `aria-hidden`.
+- **Linien:** SVG, einmal und bei Größenänderung (`ResizeObserver`) vermessen; jede Linie trägt `data-seg` (`in`, `out`, `team`). Bis 1100 px stehen die Spalten untereinander mit Pfeilen, ohne SVG. Die Spalten sind Listen mit Überschriften, das SVG ist `aria-hidden`.
+- **Datenpunkt:** Ein orangefarbener Punkt (`.system-packet`) läuft nacheinander von einem zufälligen Eingang zum Assistenten, hält kurz, läuft zu einem zufälligen Programm und weiter zum Team; danach eine Pause. Eingang und Programm wechseln jedes Mal. Die Linie, auf der er läuft, färbt sich hell orange (`.is-active`). Zeiten in `PACKET` in `SystemOverview.tsx` (ein Durchlauf etwa 5,7 Sekunden). Läuft per `requestAnimationFrame` nur, solange das Bild sichtbar und der Tab aktiv ist; bei reduzierter Bewegung und in der gestapelten Ansicht gibt es keinen Punkt.
 - Die frühere Überblick-Animation (`OverviewFlow` mit Beispielfällen) ist entfernt; der Stand liegt in Git.
 
 ## Technik je Anwendungsfall
