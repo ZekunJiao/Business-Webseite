@@ -40,7 +40,7 @@ const inputs: { name: string; icon: ReactNode }[] = [
 
 const AssistantIcon = aiActivityIcons.idle;
 // Darunter stehen die Spalten untereinander, ohne Linien.
-const STACKED_QUERY = "(max-width: 1100px)";
+const STACKED_QUERY = "(max-width: 1180px)";
 
 // Ein Datenpunkt fährt ohne Halt: Eingang → (hinter dem Assistenten durch)
 // → Programm → (hinter dem Kasten durch) → Team, danach eine Pause.
@@ -51,6 +51,7 @@ const easeInOut = (t: number) =>
   t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
 const pick = (count: number, not: number) => {
   if (count < 2) return 0;
+  if (not < 0 || not >= count) return Math.floor(Math.random() * count);
   const next = Math.floor(Math.random() * (count - 1));
   return next >= not ? next + 1 : next;
 };
@@ -175,7 +176,8 @@ export function SystemOverview() {
     };
 
     const frame = (now: number) => {
-      elapsed += Math.min(now - last, 100);
+      // Der Frame-Zeitstempel kann kurz vor performance.now() liegen.
+      elapsed += Math.max(0, Math.min(now - last, 100));
       last = now;
       const svg = svgRef.current;
       const packet = svg?.querySelector<SVGCircleElement>(".system-packet");
@@ -184,7 +186,7 @@ export function SystemOverview() {
       const team = svg?.querySelector<SVGPathElement>("[data-seg='team']");
       if (packet && ins?.length && outs?.length && team) {
         const current = Math.floor(elapsed / PACKET_MS);
-        if (current !== cycle) {
+        if (current !== cycle || !ins[from] || !outs[to]) {
           cycle = current;
           from = pick(ins.length, from);
           to = pick(outs.length, to);

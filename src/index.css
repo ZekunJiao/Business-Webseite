@@ -4359,8 +4359,10 @@ button.usecase-card:focus-visible {
 .system-canvas {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.8fr) minmax(0, 1.1fr) minmax(0, 0.7fr);
-  column-gap: 72px;
+  /* Spalten so breit wie ihr Inhalt, gleich große Abstände dazwischen */
+  grid-template-columns: repeat(4, auto);
+  justify-content: space-between;
+  column-gap: 48px;
   padding: 28px 32px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -4431,6 +4433,7 @@ button.usecase-card:focus-visible {
   min-height: 40px;
   font-size: 14px;
   font-weight: 550;
+  white-space: nowrap;
   color: var(--ink);
 }
 .system-inputs li {
@@ -4525,7 +4528,7 @@ button.usecase-card:focus-visible {
   color: var(--muted-light);
 }
 /* Schmal: Spalten untereinander, Pfeile statt Linien */
-@media (max-width: 1100px) {
+@media (max-width: 1180px) {
   .system-canvas {
     grid-template-columns: 1fr;
     padding: 24px;
@@ -4540,6 +4543,10 @@ button.usecase-card:focus-visible {
   .system-col-center {
     justify-items: center;
     padding-top: 0;
+  }
+  .system-inputs li,
+  .system-systems li {
+    white-space: normal;
   }
   .system-systems {
     justify-self: stretch;
