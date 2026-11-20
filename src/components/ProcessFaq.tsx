@@ -4,7 +4,7 @@
 const steps = [
   {
     title: "Kostenlose Prozessanalyse",
-    text: "45 Minuten, vor Ort oder online. Du erzählst, wo im Büro Zeit verloren geht: Anrufe, Anfragen, Angebote oder Rechnungen. Gemeinsam suchen wir den Ablauf mit dem größten Nutzen.",
+    text: "45 Minuten, vor Ort in München oder online. Du erzählst, wo im Büro Zeit verloren geht: Anrufe, Anfragen, Angebote oder Rechnungen. Gemeinsam suchen wir den Ablauf mit dem größten Nutzen.",
   },
   {
     title: "Beispiel mit euren Abläufen",

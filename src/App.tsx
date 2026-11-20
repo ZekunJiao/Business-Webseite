@@ -1243,7 +1243,7 @@ export default function App() {
               Gespräch darüber, wo du Zeit verlierst, und ob ich helfen kann.
             </p>
             <p>
-              Vor Ort oder online. Du gehst mit zwei, drei konkreten
+              Vor Ort in München oder online. Du gehst mit zwei, drei konkreten
               Ansatzpunkten raus, auch wenn wir danach nicht zusammenarbeiten.
             </p>
           </div>
