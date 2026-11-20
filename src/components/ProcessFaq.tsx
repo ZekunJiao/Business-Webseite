@@ -35,7 +35,7 @@ const faqs = [
   {
     question: "Wie ist es mit dem Datenschutz?",
     answer:
-      "Server und Daten bleiben in der EU, Ablaufsteuerung und Anbindungen laufen in Deutschland. Mit euren Daten wird kein KI-Modell trainiert. Wo ein Dienst außerhalb der EU nötig ist, etwa beim Telefonassistenten, sage ich das vorher. Für die Verarbeitung schließen wir einen Vertrag zur Auftragsverarbeitung nach DSGVO.",
+      "Server, Ablaufsteuerung und Anbindungen laufen in Deutschland, das Sprachmodell in der EU, ohne Training mit euren Daten. Beim Telefonassistenten kommen Anbieter aus den USA dazu; was dort gilt, steht je Dienst unter „So hängt es technisch zusammen“. Für die Verarbeitung schließen wir einen Vertrag zur Auftragsverarbeitung nach DSGVO.",
   },
   {
     question: "Was kostet das?",

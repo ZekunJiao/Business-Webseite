@@ -5444,6 +5444,95 @@ button.usecase-card:focus-visible {
 .quote-positions li[data-kind="settled"] .quote-position-flag {
   color: #1d5e3a;
 }
+/* Prüfschritt: Preisfeld, Auswahl der Vorschläge, eigener Satz */
+.quote-positions li[data-kind="declined"],
+.quote-positions li[data-off] {
+  color: var(--muted);
+}
+.quote-positions li[data-kind="declined"] {
+  margin: 4px 0;
+  padding: 9px 10px;
+  border: 1px solid #e3e8ee;
+  border-radius: 8px;
+  background: #f7f9fb;
+}
+.quote-positions li[data-kind="declined"] :is(strong, .quote-position-total),
+.quote-positions li[data-off] :is(strong, .quote-position-total) {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.quote-review-field {
+  display: grid;
+  gap: 4px;
+  margin-top: 6px;
+}
+.quote-review-field label,
+.quote-review-text label {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--ink);
+}
+.quote-review-field input,
+.quote-review-text textarea {
+  width: 100%;
+  max-width: 200px;
+  padding: 7px 10px;
+  border: 1px solid #c9d3de;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.quote-review-text textarea {
+  max-width: none;
+  margin-top: 4px;
+  resize: vertical;
+  line-height: 1.45;
+}
+.quote-review-field input:focus-visible,
+.quote-review-text textarea:focus-visible,
+.quote-review-check input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.quote-review-field input[aria-invalid] {
+  border-color: #c2410c;
+}
+.quote-review-field small,
+.quote-review-text small {
+  display: block;
+  font-size: 12px;
+  color: var(--accent-strong);
+}
+.quote-review-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+.quote-review-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: #2f9e62;
+}
+.quote-review-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mailbox-send:disabled {
+  background: #9fb7aa;
+  box-shadow: none;
+  animation: none;
+  cursor: not-allowed;
+}
 .quote-sums {
   display: grid;
   gap: 4px;
@@ -5923,6 +6012,7 @@ footer .legal-links a {
   margin-top: 28px;
   padding-top: 28px;
   border-top: 1px solid #e6ebf0;
+  scroll-margin-top: 24px;
 }
 .author-contact h3 {
   margin: 0 0 6px;

@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Check,
   CheckCheck,
+  ClipboardCheck,
   ClipboardList,
   FileCheck2,
   FileClock,
@@ -89,6 +90,20 @@ const euro = new Intl.NumberFormat("de-DE", {
 });
 const amount = new Intl.NumberFormat("de-DE");
 
+// Preis aus dem Prüffeld: "740", "740,50", "1.250" oder "1.250,50".
+// Liefert nur Beträge über 0 €, sonst undefined.
+const parsePrice = (value: string): number | undefined => {
+  const text = value.replace(/[\s€]/g, "");
+  const grouped = /^\d{1,3}(\.\d{3})+(,\d{1,2})?$/.test(text);
+  if (!grouped && !/^\d+([.,]\d{1,2})?$/.test(text)) return undefined;
+  const number = Number(
+    grouped || text.includes(",")
+      ? text.replace(/\./g, "").replace(",", ".")
+      : text,
+  );
+  return number > 0 && number < 1_000_000 ? number : undefined;
+};
+
 // Angebots-Demo in Leserichtung: Eingang, Assistent, Ergebnis für das Team.
 export function QuoteStory({ set }: { set: OverviewSet }) {
   const tabbed = useMediaQuery(TABBED_QUERY);
@@ -130,6 +145,34 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
     },
   );
 
+  // Prüfschritt des Teams: offene Stellen klären, dann freigeben. Eingaben
+  // gelten für das aktuelle Beispiel und werden bei jedem Neustart verworfen.
+  const [reviewing, setReviewing] = useState(false);
+  const [prices, setPrices] = useState<Record<string, string>>({});
+  const [accepted, setAccepted] = useState<Record<string, boolean>>({});
+  const [texts, setTexts] = useState<Record<string, string>>({});
+  const draftRef = useRef<HTMLDivElement>(null);
+  const resetReview = () => {
+    setReviewing(false);
+    setPrices({});
+    setAccepted({});
+    setTexts({});
+  };
+  const playCase = (next: number) => {
+    resetReview();
+    play(next);
+  };
+  const onPrimary = () => {
+    if (complete) resetReview();
+    primary();
+  };
+  useEffect(() => {
+    if (!reviewing) return;
+    draftRef.current
+      ?.querySelector<HTMLElement>("[data-review-field]")
+      ?.focus();
+  }, [reviewing]);
+
   const item = cases[index];
   const positions = item.positions;
   const paragraphs = item.mail?.paragraphs ?? [];
@@ -162,28 +205,65 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
           : "Noch einmal";
   const marked = status !== "idle";
 
-  // Summen: offene Preise und Vorschläge zählen erst nach der Prüfung mit.
+  // Summen: offene Preise und Vorschläge zählen erst ab der Prüfung mit, und
+  // zwar mit den Werten, die das Team einträgt bzw. auswählt.
+  const decided = reviewing || isSent;
+  const priceText = (position: QuotePosition) =>
+    prices[position.text] ??
+    (position.teamPrice !== undefined ? amount.format(position.teamPrice) : "");
+  const takes = (position: QuotePosition) => accepted[position.text] ?? true;
   const priceOf = (position: QuotePosition) =>
-    position.price ?? (isSent ? position.teamPrice : undefined);
+    position.price ??
+    (decided && position.kind === "open"
+      ? parsePrice(priceText(position))
+      : undefined);
   const counts = (position: QuotePosition) =>
-    isSent || position.kind !== "suggestion";
+    position.kind !== "suggestion" || (decided && takes(position));
   const net = (positions ?? []).reduce((sum, position) => {
     const price = priceOf(position);
     return counts(position) && price !== undefined
       ? sum + position.quantity * price
       : sum;
   }, 0);
-  const hasOpen = !!positions?.some((position) => position.kind === "open");
-  const hasSuggestions = !!positions?.some(
-    (position) => position.kind === "suggestion",
-  );
-  const netLabel = isSent
-    ? "Netto"
-    : hasOpen
-      ? "Netto ohne offene Position"
-      : hasSuggestions
-        ? "Netto ohne Vorschläge"
-        : "Netto";
+  const openPosition = positions?.find((position) => position.kind === "open");
+  const suggestions =
+    positions?.filter((position) => position.kind === "suggestion") ?? [];
+  const takenCount = suggestions.filter(takes).length;
+  const openMissing = !!openPosition && priceOf(openPosition) === undefined;
+  const pendingSuggestions = !decided && suggestions.length > 0;
+  const netLabel = openMissing
+    ? "Netto ohne offene Position"
+    : pendingSuggestions
+      ? "Netto ohne Vorschläge"
+      : "Netto";
+  const openParagraph = paragraphs.find((paragraph) => paragraph.team);
+  const teamTextOf = (paragraph: { text: string; team?: string }) =>
+    texts[paragraph.text] ?? paragraph.team ?? "";
+  const canRelease = !openMissing;
+  const release = () => {
+    if (!canRelease) return;
+    setReviewing(false);
+    send();
+  };
+  // Ergebnis der Prüfung in Worten, für Abschluss und Software-Eintrag
+  const reviewResult = openPosition
+    ? `${openPosition.text} zu ${euro.format(priceOf(openPosition) ?? 0)}`
+    : suggestions.length
+      ? `${takenCount} von ${suggestions.length} Vorschlägen übernommen`
+      : openParagraph && teamTextOf(openParagraph).trim()
+        ? "Rückrufangebot ergänzt"
+        : "ohne Rückrufangebot";
+  const sentValueOf = (field: { sent?: string }) => {
+    if (openPosition)
+      return `Preis ${openPosition.text}: ${euro.format(priceOf(openPosition) ?? 0)} · von dir geprüft`;
+    if (suggestions.length) return reviewResult;
+    if (openParagraph) {
+      const text = teamTextOf(openParagraph).trim();
+      if (!text) return "keine Wiedervorlage";
+      return text === openParagraph.team ? field.sent : "wie in deiner Nachricht";
+    }
+    return field.sent;
+  };
 
   const InputIcon = inputIcons[item.input.kind];
   const usedOrigins = [...new Set(item.fields.map((field) => field.origin))];
@@ -210,7 +290,7 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
                   type="button"
                   className="mailbox-row"
                   aria-pressed={active}
-                  onClick={() => (active ? undefined : play(position))}
+                  onClick={() => (active ? undefined : playCase(position))}
                 >
                   <span
                     className="mailbox-avatar quote-row-icon"
@@ -374,6 +454,7 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
       <ColumnLabel number={3}>Für dein Team vorbereitet</ColumnLabel>
       <div
         className="mailbox-draft"
+        ref={draftRef}
         data-state={isSent ? "sent" : complete ? "ready" : undefined}
         aria-label={resultName}
       >
@@ -384,12 +465,14 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
             data-tone={isSent ? "sent" : complete ? "ready" : undefined}
           >
             {isSent
-              ? "Gesendet von deinem Team"
-              : complete
-                ? "Wartet auf deine Prüfung"
-                : working && progress >= writeAt
-                  ? "wird geschrieben …"
-                  : "noch leer"}
+              ? "Von deinem Team freigegeben"
+              : reviewing
+                ? "Du prüfst gerade"
+                : complete
+                  ? "Wartet auf deine Prüfung"
+                  : working && progress >= writeAt
+                    ? "wird geschrieben …"
+                    : "noch leer"}
           </span>
         </div>
         <dl className="mailbox-draft-meta">
@@ -419,11 +502,23 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
             <ol className="quote-positions">
               {positions.slice(0, shownRows).map((position, number) => {
                 const price = priceOf(position);
-                const settled = isSent && !!position.kind;
+                const open = position.kind === "open";
+                const declined =
+                  isSent && position.kind === "suggestion" && !takes(position);
+                const settled = isSent && !!position.kind && !declined;
+                const editing = reviewing && !!position.kind;
+                const off =
+                  editing &&
+                  position.kind === "suggestion" &&
+                  !takes(position);
+                const fieldId = `quote-review-${item.id}-${number}`;
                 return (
                   <li
                     key={position.text}
-                    data-kind={settled ? "settled" : position.kind}
+                    data-kind={
+                      declined ? "declined" : settled ? "settled" : position.kind
+                    }
+                    data-off={off || undefined}
                   >
                     <span className="quote-position-number" aria-hidden="true">
                       {number + 1}
@@ -431,13 +526,15 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
                     <span className="quote-position-text">
                       {position.kind ? (
                         <span className="quote-position-flag">
-                          {settled
-                            ? position.kind === "open"
-                              ? "Von dir ergänzt"
-                              : "Von dir übernommen"
-                            : position.kind === "open"
-                              ? "Preis prüfen"
-                              : "Vorschlag"}
+                          {declined
+                            ? "Nicht übernommen"
+                            : settled
+                              ? open
+                                ? "Von dir geprüft"
+                                : "Von dir übernommen"
+                              : open
+                                ? "Preis prüfen"
+                                : "Vorschlag"}
                         </span>
                       ) : null}
                       <strong>{position.text}</strong>
@@ -447,10 +544,57 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
                           : position.unit === "pauschal"
                             ? "pauschal"
                             : `${amount.format(position.quantity)} ${position.unit} × ${euro.format(price)}`}
-                        {position.kind === "suggestion" && !settled
+                        {position.kind === "suggestion" && !isSent
                           ? " · in ähnlichen Angeboten enthalten"
                           : null}
                       </span>
+                      {editing && open ? (
+                        <span className="quote-review-field">
+                          <label htmlFor={fieldId}>Einzelpreis in €</label>
+                          <input
+                            id={fieldId}
+                            data-review-field
+                            type="text"
+                            inputMode="decimal"
+                            autoComplete="off"
+                            value={priceText(position)}
+                            aria-invalid={price === undefined || undefined}
+                            aria-describedby={`${fieldId}-hint`}
+                            onChange={(event) => {
+                              const value = event.target.value;
+                              setPrices((previous) => ({
+                                ...previous,
+                                [position.text]: value,
+                              }));
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") release();
+                            }}
+                          />
+                          <small id={`${fieldId}-hint`}>
+                            {price === undefined
+                              ? "Bitte einen Preis über 0 € eintragen, z. B. 740 oder 740,50."
+                              : "Beispielpreis vorausgefüllt. Ändere ihn, wenn er nicht passt."}
+                          </small>
+                        </span>
+                      ) : null}
+                      {editing && position.kind === "suggestion" ? (
+                        <label className="quote-review-check">
+                          <input
+                            type="checkbox"
+                            data-review-field
+                            checked={takes(position)}
+                            onChange={(event) => {
+                              const value = event.target.checked;
+                              setAccepted((previous) => ({
+                                ...previous,
+                                [position.text]: value,
+                              }));
+                            }}
+                          />
+                          ins Angebot übernehmen
+                        </label>
+                      ) : null}
                     </span>
                     <span className="quote-position-total">
                       {price === undefined
@@ -482,39 +626,99 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
         ) : (
           <div className="mailbox-draft-body">
             <p>{item.mail?.salutation}</p>
-            {paragraphs.slice(0, shownRows).map((paragraph) =>
-              paragraph.team ? (
-                isSent ? (
+            {paragraphs.slice(0, shownRows).map((paragraph, number) => {
+              if (!paragraph.team)
+                return <p key={paragraph.text}>{paragraph.text}</p>;
+              const teamText = teamTextOf(paragraph);
+              const fieldId = `quote-review-${item.id}-text-${number}`;
+              if (isSent)
+                return teamText.trim() ? (
                   <p key={paragraph.text} className="mailbox-draft-filled">
                     <span>Von dir ergänzt</span>
-                    {paragraph.team}
+                    {teamText}
                   </p>
-                ) : (
-                  <p key={paragraph.text} className="mailbox-draft-open">
-                    <span>Ergänzt dein Team</span>[{paragraph.text}]
-                  </p>
-                )
-              ) : (
-                <p key={paragraph.text}>{paragraph.text}</p>
-              ),
-            )}
+                ) : null;
+              if (reviewing)
+                return (
+                  <div
+                    key={paragraph.text}
+                    className="mailbox-draft-open quote-review-text"
+                  >
+                    <label htmlFor={fieldId}>Dein Satz: {paragraph.text}</label>
+                    <textarea
+                      id={fieldId}
+                      data-review-field
+                      rows={3}
+                      value={teamText}
+                      aria-describedby={`${fieldId}-hint`}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        setTexts((previous) => ({
+                          ...previous,
+                          [paragraph.text]: value,
+                        }));
+                      }}
+                    />
+                    <small id={`${fieldId}-hint`}>
+                      Beispielsatz vorausgefüllt. Ändere ihn oder lass das Feld
+                      leer, dann entfällt der Absatz.
+                    </small>
+                  </div>
+                );
+              return (
+                <p key={paragraph.text} className="mailbox-draft-open">
+                  <span>Ergänzt dein Team</span>[{paragraph.text}]
+                </p>
+              );
+            })}
             {complete ? (
               <p className="mailbox-draft-closing">{quoteStory.closing}</p>
             ) : null}
           </div>
         )}
-        {status === "done" ? (
+        {status === "done" && !reviewing ? (
           <div className="mailbox-draft-actions">
-            <span>Prüfen, Orange klären, absenden:</span>
-            <button type="button" className="mailbox-send" onClick={send}>
-              <Send size={16} aria-hidden="true" />
-              Prüfen &amp; senden
+            <span>Erst prüfst du die orange Stelle, dann gibst du frei.</span>
+            <button
+              type="button"
+              className="mailbox-send"
+              onClick={() => setReviewing(true)}
+            >
+              <ClipboardCheck size={16} aria-hidden="true" />
+              {openPosition ? "Offenen Preis prüfen" : "Offene Punkte prüfen"}
             </button>
+          </div>
+        ) : reviewing ? (
+          <div className="mailbox-draft-actions quote-review-actions">
+            <span>
+              {canRelease
+                ? "Alles geprüft? Erst mit deiner Freigabe wird gesendet."
+                : "Bitte zuerst den Preis eintragen."}
+            </span>
+            <span className="quote-review-buttons">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetReview}
+              >
+                Abbrechen
+              </Button>
+              <button
+                type="button"
+                className="mailbox-send"
+                disabled={!canRelease}
+                onClick={release}
+              >
+                <Send size={16} aria-hidden="true" />
+                {positions ? "Angebot freigeben" : "Nachfrage freigeben"}
+              </button>
+            </span>
           </div>
         ) : isSent ? (
           <p className="mailbox-draft-sent" role="status">
             <CheckCheck size={18} aria-hidden="true" />
-            Von deinem Team geprüft, ergänzt und gesendet.
+            Von dir geprüft: {reviewResult}.{" "}
+            {positions ? "Angebot" : "Nachfrage"} gesendet.
           </p>
         ) : null}
       </div>
@@ -527,7 +731,7 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
             {isSent
               ? "gespeichert, z. B. in HERO, ToolTime oder Excel"
               : complete
-                ? "vorbereitet · wird mit dem Senden gespeichert"
+                ? "vorbereitet · wird mit der Freigabe gespeichert"
                 : status === "idle"
                   ? "wird beim Bearbeiten ausgefüllt"
                   : "wird ausgefüllt …"}
@@ -545,7 +749,7 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
                 data-open={(visible && field.open && !filled) || undefined}
                 data-filled={filled || undefined}
               >
-                <dt>{field.label}</dt>
+                <dt>{filled ? (field.sentLabel ?? field.label) : field.label}</dt>
                 <dd key={filled ? "filled" : "value"}>
                   {visible ? (
                     <>
@@ -562,7 +766,7 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
                           aria-label={originNames[field.origin]}
                         />
                       )}
-                      {filled ? field.sent : field.value}
+                      {filled ? sentValueOf(field) : field.value}
                     </>
                   ) : (
                     "…"
@@ -577,13 +781,11 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
               <dd>
                 {complete
                   ? `${euro.format(net * (1 + vatRate))} brutto${
-                      isSent
-                        ? ""
-                        : hasOpen
-                          ? " · ohne offene Position"
-                          : hasSuggestions
-                            ? " · ohne Vorschläge"
-                            : ""
+                      openMissing
+                        ? " · ohne offene Position"
+                        : pendingSuggestions
+                          ? " · ohne Vorschläge"
+                          : ""
                     }`
                   : "…"}
               </dd>
@@ -651,7 +853,7 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
           <span>Anderes Angebot in der Liste anklicken.</span>
         </span>
         <div className="story-control-buttons">
-          <Button type="button" className="story-primary" onClick={primary}>
+          <Button type="button" className="story-primary" onClick={onPrimary}>
             <PrimaryIcon size={16} aria-hidden="true" />
             {primaryLabel}
           </Button>
@@ -659,7 +861,7 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
             <Button
               type="button"
               variant="outline"
-              onClick={() => play((index + 1) % cases.length)}
+              onClick={() => playCase((index + 1) % cases.length)}
             >
               <SkipForward size={16} aria-hidden="true" />
               Nächstes Beispiel

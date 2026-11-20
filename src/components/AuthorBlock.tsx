@@ -117,7 +117,7 @@ export function AuthorBlock({ id }: { id?: string }) {
           </ul>
         </div>
       </div>
-      <div className="author-contact">
+      <div id="schreib-mir" className="author-contact">
         <h3>Schreib mir</h3>
         <p>
           Kurz beschreiben, worum es geht. Ich melde mich in der Regel

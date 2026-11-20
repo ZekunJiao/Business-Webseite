@@ -31,9 +31,10 @@ const flow: TechTool = {
   name: "n8n, selbst gehostet",
 };
 
-// Datenschutz & Betrieb: gilt für alle Anwendungsfälle.
+// Datenschutz & Betrieb: gilt für alle Anwendungsfälle. Zusagen je Dienst nur
+// so, wie sie bestätigt sind; Abweichungen stehen in operationsNotes.
 export const techOperations: TechBlock = {
-  text: "Server und Daten in der EU. Nichts wird automatisch gesendet: Antworten, Angebote und Erinnerungen entstehen als Entwurf.",
+  text: "Server und Ablaufsteuerung in Deutschland, das Sprachmodell in der EU. Was bei einzelnen Diensten abweicht, steht darunter. Nichts wird automatisch gesendet: Antworten, Angebote und Erinnerungen entstehen als Entwurf.",
   tools: [
     { role: "Server", name: "Hetzner in Deutschland" },
     { role: "Sprachmodell", name: "Azure OpenAI, EU-Rechenzentrum" },
@@ -41,7 +42,8 @@ export const techOperations: TechBlock = {
   notes: [
     "Aufnahmen, Transkripte und Zwischenergebnisse werden nach 30 Tagen automatisch gelöscht, Ablaufprotokolle nach 14 Tagen.",
     "Das Ergebnis liegt in eurer Software, nicht bei mir.",
-    "Kein Training mit euren Daten: bei Azure OpenAI vertraglich ausgeschlossen, bei anderen Diensten, wo möglich, abgeschaltet.",
+    "Azure OpenAI, auch die Spracherkennung Whisper: Training mit euren Daten vertraglich ausgeschlossen, Verarbeitung in der EU.",
+    "Hetzner, n8n und sipgate: Server, Ablaufsteuerung und Telefonie, ohne KI-Training mit euren Daten.",
     "Auftragsverarbeitungsvertrag nach Art. 28 DSGVO, verschlüsselte Übertragung und Speicherung.",
     "Auf Wunsch laufen Ablaufsteuerung und Anbindungen auf eurem eigenen Server.",
   ],
@@ -84,7 +86,7 @@ export const overviewSets: OverviewSet[] = [
   {
     id: "telefon",
     card: {
-      title: "Kein Anruf geht verloren",
+      title: "Anrufe auffangen, wenn niemand rangeht",
       teaser:
         "Der Assistent geht ran, wenn du nicht kannst, und schickt dir eine kurze Notiz aufs Handy.",
       icon: Phone,
@@ -121,9 +123,10 @@ export const overviewSets: OverviewSet[] = [
         ],
       },
       operationsNotes: [
-        "Der Sprachassistent ist ein US-Anbieter; EU-Datenhaltung gibt es meist nur in höheren Tarifen.",
+        "ElevenLabs: Training mit euren Gesprächen per Einstellung abgeschaltet, die Daten liegen in den USA.",
+        "Vapi und Deepgram: Training und Speicherort klären wir vor dem Start und halten sie im Auftragsverarbeitungsvertrag fest.",
         "Anrufer hören zu Beginn, dass ein digitaler Assistent spricht (EU AI Act). Aufgezeichnet wird nur mit Hinweis.",
-        "Die WhatsApp-Nachricht läuft über Meta und enthält deshalb nur eine kurze Zusammenfassung ohne sensible Details. Wer das nicht möchte, bekommt SMS oder E-Mail.",
+        "Die WhatsApp-Nachricht läuft über 360dialog und Meta und enthält deshalb nur eine kurze Zusammenfassung ohne sensible Details. Was dort gespeichert wird, klären wir vor dem Start. Wer das nicht möchte, bekommt SMS oder E-Mail.",
       ],
     },
   },
@@ -193,7 +196,7 @@ export const overviewSets: OverviewSet[] = [
         ],
       },
       operationsNotes: [
-        "Die Sprachnotiz kommt per WhatsApp herein; umgewandelt wird sie über Azure in der EU.",
+        "Die Sprachnotiz kommt per WhatsApp herein; umgewandelt wird sie über Azure in der EU. Was WhatsApp dabei speichert, klären wir vor dem Start.",
       ],
     },
   },

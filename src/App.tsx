@@ -53,6 +53,14 @@ import { MobileEmailFlow } from "./components/MobileEmailFlow";
 import { MOBILE_QUERY, useMediaQuery } from "./lib/useMediaQuery";
 import { contact } from "./contact";
 import LegalPage, { LegalLinks } from "./pages/LegalPage";
+
+// Nach dem Sprung zu "Schreib mir" gleich ins erste Feld, nur bei Klick.
+const focusContactForm = () =>
+  requestAnimationFrame(() =>
+    document
+      .querySelector<HTMLInputElement>("#schreib-mir input")
+      ?.focus({ preventScroll: true }),
+  );
 function crmCopy(text: string, fragments: string[][]) {
   const parts: ReactNode[] = [];
   let offset = 0;
@@ -1160,7 +1168,9 @@ export default function App() {
         </a>
         <span className="header-author">
           <span>von {contact.name}</span>
-          <a href="#kontakt">Kontakt</a>
+          <a href="#schreib-mir" onClick={focusContactForm}>
+            Kontakt
+          </a>
         </span>
       </header>
       <main>
@@ -1182,7 +1192,11 @@ export default function App() {
                 <ArrowDown aria-hidden="true" />
               </a>
             </Button>
-            <a className="hero-cta-link" href="#kontakt">
+            <a
+              className="hero-cta-link"
+              href="#schreib-mir"
+              onClick={focusContactForm}
+            >
               Kennenlerngespräch anfragen
             </a>
           </div>

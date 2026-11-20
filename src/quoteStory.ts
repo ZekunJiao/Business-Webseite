@@ -36,6 +36,8 @@ export type QuoteField = {
   open?: boolean;
   // Wert nach dem Senden, wenn das Team die Stelle geklärt hat
   sent?: string;
+  // Beschriftung nach dem Senden, falls sich die Bedeutung ändert ("Offen")
+  sentLabel?: string;
 };
 
 export type QuoteCase = {
@@ -133,6 +135,7 @@ export const quoteStory = {
           step: 2,
           open: true,
           sent: "Preis Glasabtrennung eingetragen",
+          sentLabel: "Geprüft",
         },
       ],
     },
