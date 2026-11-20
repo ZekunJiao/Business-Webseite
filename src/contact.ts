@@ -72,7 +72,6 @@ export const contact: Contact = {
       value: "30 von 40",
       label:
         "bisher verpassten Anrufen pro Woche nimmt der Assistent an, jeden mit verwertbarer Gesprächsnotiz",
-      teaser: "bisher verpassten Anrufen pro Woche nimmt der Assistent jetzt an",
       context:
         "Wärmepumpenbetrieb in München, 12 Mitarbeiter · je 4 Wochen vor und nach der Einführung",
       breakdown: {
@@ -107,7 +106,6 @@ export const contact: Contact = {
     {
       value: "8 → 2 Std.",
       label: "bis zur ersten Antwort auf E-Mails und Formularanfragen",
-      teaser: "bis zur ersten Antwort auf Anfragen per E-Mail und Formular",
       context:
         "3 Betriebe · Median aus 90 Anfragen vorher und 512 nachher · nur Geschäftszeiten (Mo–Fr 7–17 Uhr)",
       breakdown: {
@@ -135,47 +133,13 @@ export const contact: Contact = {
       },
     },
     {
-      value: "5+ Std.",
-      label:
-        "Bürozeit pro Woche gespart, Prüfung, Korrekturen und Rückrufe schon abgezogen",
-      context:
-        "SHK-Betrieb in München, 9 Mitarbeiter, 1 Bürokraft in Teilzeit · erste 4 Wochen ab März 2026",
-      breakdown: {
-        title: "So gerechnet",
-        rows: [
-          {
-            label: "Vorher",
-            detail:
-              "45 Anfragen × 12 Min. (lesen 2, Kunde suchen 4, Antwort schreiben 6)",
-            value: "540 Min.",
-          },
-          {
-            label: "Mit Assistent",
-            detail: "45 Anfragen × 4 Min. (Entwurf prüfen, ergänzen, senden)",
-            value: "− 180 Min.",
-          },
-          {
-            label: "Korrekturen und Rückrufe",
-            detail: "falsch zugeordnet oder Kunde fragt nach",
-            value: "− 45 Min.",
-          },
-          {
-            label: "Gespart pro Woche",
-            value: "315 Min. ≈ 5,25 Std.",
-            tone: "total",
-          },
-        ],
-        notes: [
-          "Die Bürokraft hat in je einer Woche vor und nach der Einführung 20 Anfragen gestoppt. Korrekturen und Rückrufe stammen aus ihren Notizen.",
-        ],
-      },
-    },
-    {
       value: "45 von 50",
       label:
         "geeigneten Anfragen pro Woche mit Entwurf vorbereitet. Der Rest geht bewusst an dein Team.",
+      teaser:
+        "Anfragen pro Woche per E-Mail und Formular bereitet der Assistent vor",
       context:
-        "derselbe SHK-Betrieb · 4 Wochen · Protokoll des Assistenten, abgeglichen mit dem Posteingang",
+        "SHK-Betrieb in München, 9 Mitarbeiter, 1 Bürokraft in Teilzeit · 4 Wochen · Protokoll des Assistenten, abgeglichen mit dem Posteingang",
       breakdown: {
         title: "So aufgeteilt",
         rows: [
@@ -208,6 +172,42 @@ export const contact: Contact = {
         notes: [
           "180 von 201 sind 89,6 %, im Schnitt 45 von 50 pro Woche.",
           "Nicht gezählt: Lieferantenrechnungen, Newsletter, Bewerbungen und Spam, rund 30 Mails pro Woche.",
+        ],
+      },
+    },
+    {
+      value: "5+ Std.",
+      label:
+        "Bürozeit pro Woche gespart, Prüfung, Korrekturen und Rückrufe schon abgezogen",
+      teaser: "Bürozeit pro Woche gespart",
+      context: "derselbe SHK-Betrieb · erste 4 Wochen ab März 2026",
+      breakdown: {
+        title: "So gerechnet",
+        rows: [
+          {
+            label: "Vorher",
+            detail:
+              "45 Anfragen × 12 Min. (lesen 2, Kunde suchen 4, Antwort schreiben 6)",
+            value: "540 Min.",
+          },
+          {
+            label: "Mit Assistent",
+            detail: "45 Anfragen × 4 Min. (Entwurf prüfen, ergänzen, senden)",
+            value: "− 180 Min.",
+          },
+          {
+            label: "Korrekturen und Rückrufe",
+            detail: "falsch zugeordnet oder Kunde fragt nach",
+            value: "− 45 Min.",
+          },
+          {
+            label: "Gespart pro Woche",
+            value: "315 Min. ≈ 5,25 Std.",
+            tone: "total",
+          },
+        ],
+        notes: [
+          "Die Bürokraft hat in je einer Woche vor und nach der Einführung 20 Anfragen gestoppt. Korrekturen und Rückrufe stammen aus ihren Notizen.",
         ],
       },
     },

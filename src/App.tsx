@@ -1213,7 +1213,7 @@ export default function App() {
             </span>
           </a>
           <div className="hero-proof">
-            <span className="hero-proof-label">Aus Kundenprojekten</span>
+            <span className="hero-proof-label">Aus einem Kundenprojekt</span>
             <dl>
               {contact.results
                 .filter((result) => result.teaser)
