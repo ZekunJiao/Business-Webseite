@@ -324,8 +324,14 @@ main {
   padding-top: 22px;
   border-top: 1px solid var(--line);
 }
-.hero-proof-label {
+.hero-proof-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
   width: 100%;
+}
+.hero-proof-label {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.13em;
@@ -3288,11 +3294,35 @@ footer {
   border-bottom: 1px solid var(--line);
 }
 .process-faq summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   padding: 13px 0;
   font-size: 15px;
   font-weight: 600;
   color: var(--ink);
   cursor: pointer;
+  list-style: none;
+}
+.process-faq summary::-webkit-details-marker {
+  display: none;
+}
+.process-faq summary:hover {
+  color: #2f6fae;
+}
+.process-faq-chevron {
+  flex: none;
+  margin-left: auto;
+  color: #2f6fae;
+  transition: transform 0.2s;
+}
+.process-faq details[open] .process-faq-chevron {
+  transform: rotate(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .process-faq-chevron {
+    transition: none;
+  }
 }
 .process-faq summary:focus-visible {
   outline: 2px solid var(--accent);
@@ -4658,6 +4688,37 @@ button.usecase-card:focus-visible {
   }
   .phone-story .phone-stage {
     grid-template-columns: 1fr;
+  }
+}
+/* Schmale Bildschirme: kürzeres Handy, damit „Und danach?“ schneller folgt */
+@media (max-width: 760px) {
+  .phone-story .my-phone-column {
+    max-width: 220px;
+  }
+  .phone-story .phone-device {
+    border-radius: 32px;
+  }
+  .phone-story .phone-device::before {
+    top: 14px;
+    width: 54px;
+    height: 16px;
+  }
+  .phone-story .phone-screen {
+    aspect-ratio: 9 / 16;
+    border-radius: 25px;
+  }
+  .phone-story .lock-screen {
+    padding-top: 38px;
+  }
+  .phone-story .lock-clock {
+    font-size: 42px;
+  }
+  .phone-story .phone-push {
+    top: 100px;
+  }
+  /* Die Benachrichtigung liegt auf dem kleineren Bildschirm über der Notiz */
+  .phone-story .phone-screen:has(.phone-push) .lock-note {
+    visibility: hidden;
   }
 }
 @media (max-width: 760px) {

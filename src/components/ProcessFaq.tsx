@@ -1,6 +1,8 @@
 // Ablauf der Zusammenarbeit und häufige Fragen für die Handwerk-Seite.
 // Aussagen hier sind Zusagen: Preise erst eintragen, wenn das Angebot steht.
 
+import { ChevronDown } from "lucide-react";
+
 const steps = [
   {
     title: "Kostenlose Prozessanalyse",
@@ -69,7 +71,14 @@ export function ProcessFaq() {
         <h3>Häufige Fragen</h3>
         {faqs.map((faq) => (
           <details key={faq.question}>
-            <summary>{faq.question}</summary>
+            <summary>
+              {faq.question}
+              <ChevronDown
+                className="process-faq-chevron"
+                size={18}
+                aria-hidden="true"
+              />
+            </summary>
             <p>{faq.answer}</p>
           </details>
         ))}

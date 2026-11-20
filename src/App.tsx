@@ -1213,7 +1213,12 @@ export default function App() {
             </span>
           </a>
           <div className="hero-proof">
-            <span className="hero-proof-label">Aus einem Kundenprojekt</span>
+            <div className="hero-proof-head">
+              <span className="hero-proof-label">Aus einem Kundenprojekt</span>
+              <a href="#zahlen">
+                Wie gemessen <ArrowDown size={14} aria-hidden="true" />
+              </a>
+            </div>
             <dl>
               {contact.results
                 .filter((result) => result.teaser)
@@ -1224,9 +1229,6 @@ export default function App() {
                   </div>
                 ))}
             </dl>
-            <a href="#zahlen">
-              Wie gemessen <ArrowDown size={14} aria-hidden="true" />
-            </a>
           </div>
         </div>
         <UseCaseStage />
