@@ -3171,6 +3171,70 @@ footer {
 .process-faq {
   max-width: 760px;
 }
+/* Abschluss vor dem Kontaktblock: ein Angebot, ein Button */
+.closing-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px 40px;
+  margin: 0 0 48px;
+  padding: 40px 44px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: #fff;
+}
+.closing-cta > div {
+  flex: 1 1 420px;
+  max-width: 620px;
+}
+.closing-cta-kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #a9b8c8;
+}
+.closing-cta h2 {
+  margin: 10px 0 12px;
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.closing-cta p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #c4d0dc;
+}
+.closing-cta a {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 6px;
+  background: var(--accent);
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--ink);
+  text-decoration: none;
+}
+.closing-cta a:hover {
+  background: #f08a40;
+}
+.closing-cta a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+@media (max-width: 760px) {
+  .closing-cta {
+    padding: 28px 22px;
+  }
+  .closing-cta > div {
+    flex-basis: 100%;
+  }
+}
 .process-faq h3 {
   margin: 0 0 8px;
   font-size: 16px;

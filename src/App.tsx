@@ -1197,7 +1197,7 @@ export default function App() {
               href="#schreib-mir"
               onClick={focusContactForm}
             >
-              Kennenlerngespräch anfragen
+              Kostenloses Erstgespräch (45 Min.)
             </a>
           </div>
           <a className="hero-person" href="#kontakt">
@@ -1232,6 +1232,24 @@ export default function App() {
         <UseCaseStage />
         <SystemOverview />
         <ProcessFaq />
+        <section className="closing-cta" aria-labelledby="erstgespraech-title">
+          <div>
+            <span className="closing-cta-kicker">
+              KOSTENLOSES ERSTGESPRÄCH
+            </span>
+            <h2 id="erstgespraech-title">
+              Wo verliert dein Büro die meiste Zeit?
+            </h2>
+            <p>
+              In 45 Minuten schauen wir gemeinsam auf eure Abläufe, vor Ort
+              oder online. Du gehst mit zwei, drei konkreten Ansatzpunkten
+              raus, auch wenn wir danach nicht zusammenarbeiten.
+            </p>
+          </div>
+          <a href="#schreib-mir" onClick={focusContactForm}>
+            Erstgespräch anfragen
+          </a>
+        </section>
         {/* Detaildemo vorerst ausgeblendet:
         <HandwerkWorkflows>
           {(active) => <EmailWorkflowDemo active={active} />}

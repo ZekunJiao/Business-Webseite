@@ -3,8 +3,8 @@
 
 const steps = [
   {
-    title: "Kurzes Gespräch",
-    text: "Du erzählst, wo im Büro Zeit verloren geht: Anrufe, Anfragen, Angebote oder Rechnungen. Gemeinsam suchen wir den Ablauf mit dem größten Nutzen.",
+    title: "Kostenloses Erstgespräch",
+    text: "45 Minuten, vor Ort oder online. Du erzählst, wo im Büro Zeit verloren geht: Anrufe, Anfragen, Angebote oder Rechnungen. Gemeinsam suchen wir den Ablauf mit dem größten Nutzen.",
   },
   {
     title: "Beispiel mit euren Abläufen",
