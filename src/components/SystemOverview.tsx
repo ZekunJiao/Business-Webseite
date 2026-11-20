@@ -344,7 +344,7 @@ export function SystemOverview() {
         </div>
         {arrow}
         <div className="system-col system-col-center">
-          <h3 className="sr-only">Assistent</h3>
+          <h3 className="sr-only">Digitaler Assistent</h3>
           <div className="system-assistant">
             <span
               className="system-assistant-icon"
@@ -353,7 +353,7 @@ export function SystemOverview() {
             >
               <AssistantIcon size={40} strokeWidth={1.8} />
             </span>
-            <strong>Assistent</strong>
+            <strong>Digitaler Assistent</strong>
             <span>liest, ordnet zu, bereitet vor</span>
           </div>
         </div>

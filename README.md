@@ -198,7 +198,7 @@ Der Anwendungsfall „Rechnungen & Erinnerungen“ (`rechnungen`, Direktlink `/h
 
 ## Gesamtbild
 
-`SystemOverview` (`src/components/SystemOverview.tsx`, Anker `#zusammenhang`) steht unter der Bühne der Anwendungsfälle und vor „So läuft es ab“. Es zeigt einmal für alle Workflows vier Spalten: Was reinkommt (nur Eingänge, die auch in den Demos vorkommen), Assistent, „Deine Software & dein Wissen“ und „Dein Team“. Keine Beispielfälle; die einzige Bewegung ist ein leiser Datenpunkt (siehe unten).
+`SystemOverview` (`src/components/SystemOverview.tsx`, Anker `#zusammenhang`) steht unter der Bühne der Anwendungsfälle und vor „So läuft es ab“. Es zeigt einmal für alle Workflows vier Spalten: Was reinkommt (nur Eingänge, die auch in den Demos vorkommen), „Digitaler Assistent“ (bewusst nicht nur „Assistent“, damit niemand an eine Bürokraft denkt), „Deine Software & dein Wissen“ und „Dein Team“. Keine Beispielfälle; die einzige Bewegung ist ein leiser Datenpunkt (siehe unten).
 
 - **Software:** die Programme aus `src/integrations.ts` mit Logos aus `public/assets/integrations/`, dazu „Excel & andere“, Kalender sowie Betriebswissen & Preisliste. Bestätigt ist: Die Anbindung an Handwerkersoftware ist möglich und die Logos dürfen gezeigt werden. Es gibt nur Tools in der Liste, für die eine Anbindung oder ein Vertrag besteht; HERO, plancraft und ToolTime sind bestätigt.
 - **Linien:** SVG, einmal und bei Größenänderung (`ResizeObserver`) vermessen; jede Linie trägt `data-seg` (`in`, `out`, `team`). Bis 1180 px stehen die Spalten untereinander mit Pfeilen, ohne SVG (eigene Grenze, weil die vier Spalten darunter zu eng würden). Die Spalten sind Listen mit Überschriften, das SVG ist `aria-hidden`.
