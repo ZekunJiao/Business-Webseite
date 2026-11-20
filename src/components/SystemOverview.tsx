@@ -42,11 +42,11 @@ const AssistantIcon = aiActivityIcons.idle;
 // Darunter stehen die Spalten untereinander, ohne Linien.
 const STACKED_QUERY = "(max-width: 1100px)";
 
-// Ablauf eines Datenpunkts in ms: Eingang → Assistent, kurz halten,
-// Assistent → Programm, Programm → Team, Pause bis zum nächsten.
-const PACKET = { in: 1500, hold: 600, out: 1200, team: 1000, gap: 1400 };
-const PACKET_MS =
-  PACKET.in + PACKET.hold + PACKET.out + PACKET.team + PACKET.gap;
+// Ein Datenpunkt fährt ohne Halt: Eingang → (hinter dem Assistenten durch)
+// → Programm → (hinter dem Kasten durch) → Team, danach eine Pause.
+const TRAVEL_MS = 3600;
+const GAP_MS = 1400;
+const PACKET_MS = TRAVEL_MS + GAP_MS;
 const easeInOut = (t: number) =>
   t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
 const pick = (count: number, not: number) => {
@@ -168,7 +168,11 @@ export function SystemOverview() {
     let cycle = -1;
     let from = -1;
     let to = -1;
-    let active: Element | null = null;
+    const lit = new Set<Element>();
+    const clear = () => {
+      lit.forEach((path) => path.classList.remove("is-active"));
+      lit.clear();
+    };
 
     const frame = (now: number) => {
       elapsed += Math.min(now - last, 100);
@@ -184,50 +188,57 @@ export function SystemOverview() {
           cycle = current;
           from = pick(ins.length, from);
           to = pick(outs.length, to);
+          clear();
         }
-        let t = elapsed % PACKET_MS;
-        let path: SVGPathElement | null = null;
-        let progress = 0;
-        const steps: [number, SVGPathElement | null][] = [
-          [PACKET.in, ins[from]],
-          [PACKET.hold, null],
-          [PACKET.out, outs[to]],
-          [PACKET.team, team],
-        ];
-        let holdAt: SVGPathElement | null = ins[from];
-        for (const [duration, segment] of steps) {
-          if (t < duration) {
-            path = segment;
-            progress = t / duration;
-            break;
-          }
-          t -= duration;
-          if (segment) holdAt = segment;
-        }
-        const inGap = elapsed % PACKET_MS >= PACKET_MS - PACKET.gap;
-        const shown = path ?? (inGap ? null : holdAt);
-        if (active !== shown) {
-          active?.classList.remove("is-active");
-          shown?.classList.add("is-active");
-          active = shown;
-        }
-        if (shown) {
-          const length = shown.getTotalLength();
-          const point = shown.getPointAtLength(
-            path ? easeInOut(progress) * length : length,
+        const t = elapsed % PACKET_MS;
+        if (t >= TRAVEL_MS) {
+          packet.style.opacity = "0";
+          clear();
+        } else {
+          // Strecke aus drei Linien und zwei geraden Stücken, die hinter
+          // Assistent und Kasten liegen. Gleichmäßiges Tempo über alles.
+          const route = [ins[from], outs[to], team];
+          const lengths = route.map((path) => path.getTotalLength());
+          const ends = route.map((path, i) => [
+            path.getPointAtLength(0),
+            path.getPointAtLength(lengths[i]),
+          ]);
+          const gapA = Math.hypot(
+            ends[1][0].x - ends[0][1].x,
+            ends[1][0].y - ends[0][1].y,
           );
+          const gapB = Math.hypot(
+            ends[2][0].x - ends[1][1].x,
+            ends[2][0].y - ends[1][1].y,
+          );
+          const parts = [lengths[0], gapA, lengths[1], gapB, lengths[2]];
+          let distance =
+            easeInOut(t / TRAVEL_MS) * parts.reduce((a, b) => a + b, 0);
+          let index = 0;
+          while (index < parts.length - 1 && distance > parts[index]) {
+            distance -= parts[index];
+            index += 1;
+          }
+          let point: { x: number; y: number };
+          if (index % 2 === 0) {
+            const path = route[index / 2];
+            point = path.getPointAtLength(distance);
+            if (!lit.has(path)) {
+              path.classList.add("is-active");
+              lit.add(path);
+            }
+          } else {
+            const a = ends[(index - 1) / 2][1];
+            const b = ends[(index + 1) / 2][0];
+            const share = parts[index] ? distance / parts[index] : 1;
+            point = { x: a.x + (b.x - a.x) * share, y: a.y + (b.y - a.y) * share };
+          }
           packet.setAttribute("cx", String(point.x));
           packet.setAttribute("cy", String(point.y));
-          // Am Anfang einblenden, nach dem Team ausblenden
-          const fade =
-            path === ins[from]
-              ? Math.min(1, progress * 6)
-              : path === team
-                ? Math.min(1, (1 - progress) * 4)
-                : 1;
-          packet.style.opacity = String(fade);
-        } else {
-          packet.style.opacity = "0";
+          const share = t / TRAVEL_MS;
+          packet.style.opacity = String(
+            Math.min(1, share * 12, (1 - share) * 12),
+          );
         }
       }
       raf = requestAnimationFrame(frame);
@@ -254,7 +265,7 @@ export function SystemOverview() {
       cancelAnimationFrame(raf);
       observer.disconnect();
       document.removeEventListener("visibilitychange", update);
-      active?.classList.remove("is-active");
+      clear();
     };
   }, [stacked, reduced]);
 
