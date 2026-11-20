@@ -44,9 +44,13 @@ const STACKED_QUERY = "(max-width: 1180px)";
 
 // Ein Datenpunkt fährt ohne Halt: Eingang → (hinter dem Assistenten durch)
 // → Programm → (hinter dem Kasten durch) → Team, danach eine Pause.
-const TRAVEL_MS = 3600;
-const GAP_MS = 1400;
+// Solange er beim Assistenten ist und zum Programm fährt, dreht sich das
+// Zahnrad; kommt er beim Team an, blinkt der Haken kurz auf.
+const TRAVEL_MS = 5400;
+const GAP_MS = 1600;
 const PACKET_MS = TRAVEL_MS + GAP_MS;
+// Drehtempo des Zahnrads in Grad pro Millisekunde
+const COG_SPEED = 0.22;
 const easeInOut = (t: number) =>
   t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
 const pick = (count: number, not: number) => {
@@ -174,11 +178,25 @@ export function SystemOverview() {
       lit.forEach((path) => path.classList.remove("is-active"));
       lit.clear();
     };
+    const assistantIcon = canvas.querySelector<HTMLElement>(
+      "[data-wire='assistant']",
+    );
+    const teamIcon = canvas.querySelector<HTMLElement>("[data-wire='team']");
+    let cog = 0;
+    let spin = 0;
+    let checked = false;
+    const setChecked = (value: boolean) => {
+      if (!teamIcon || value === checked) return;
+      checked = value;
+      teamIcon.toggleAttribute("data-checked", value);
+    };
 
     const frame = (now: number) => {
       // Der Frame-Zeitstempel kann kurz vor performance.now() liegen.
-      elapsed += Math.max(0, Math.min(now - last, 100));
+      const step = Math.max(0, Math.min(now - last, 100));
+      elapsed += step;
       last = now;
+      let working = false;
       const svg = svgRef.current;
       const packet = svg?.querySelector<SVGCircleElement>(".system-packet");
       const ins = svg?.querySelectorAll<SVGPathElement>("[data-seg='in']");
@@ -191,11 +209,13 @@ export function SystemOverview() {
           from = pick(ins.length, from);
           to = pick(outs.length, to);
           clear();
+          setChecked(false);
         }
         const t = elapsed % PACKET_MS;
         if (t >= TRAVEL_MS) {
           packet.style.opacity = "0";
           clear();
+          setChecked(true);
         } else {
           // Strecke aus drei Linien und zwei geraden Stücken, die hinter
           // Assistent und Kasten liegen. Gleichmäßiges Tempo über alles.
@@ -221,6 +241,12 @@ export function SystemOverview() {
             distance -= parts[index];
             index += 1;
           }
+          // Beim Assistenten (letztes Stück der Eingangslinie) bis zum
+          // Programm arbeitet er.
+          working =
+            index === 1 ||
+            index === 2 ||
+            (index === 0 && distance > parts[0] * 0.8);
           let point: { x: number; y: number };
           if (index % 2 === 0) {
             const path = route[index / 2];
@@ -243,6 +269,10 @@ export function SystemOverview() {
           );
         }
       }
+      // Zahnrad läuft weich an und aus, ohne zurückzuspringen.
+      spin += ((working ? COG_SPEED : 0) - spin) * Math.min(1, step / 250);
+      cog = (cog + spin * step) % 360;
+      assistantIcon?.style.setProperty("--cog", `${cog}deg`);
       raf = requestAnimationFrame(frame);
     };
     const update = () => {
@@ -268,6 +298,8 @@ export function SystemOverview() {
       observer.disconnect();
       document.removeEventListener("visibilitychange", update);
       clear();
+      setChecked(false);
+      assistantIcon?.style.removeProperty("--cog");
     };
   }, [stacked, reduced]);
 
