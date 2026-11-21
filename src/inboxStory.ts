@@ -47,11 +47,48 @@ export type InboxCase = {
   draft: { salutation: string; paragraphs: DraftParagraph[] };
 };
 
+// Feste Beschriftungen der Demo, je nach Anrede und Software der Branche
+export type InboxLabels = {
+  // Quelle einer Angabe aus der Kundenverwaltung (Symbol, für Screenreader)
+  crmOrigin: string;
+  // dieselbe Quelle in der Legende
+  crmLegend: string;
+  // Eingangsweg Formular, z. B. "über dein Kontaktformular"
+  formChannel: string;
+  resultColumn: string;
+  sentChip: string;
+  readyChip: string;
+  // Offene Stelle im Entwurf: vor bzw. nach dem Senden
+  openForTeam: string;
+  filledByTeam: string;
+  // vor dem Dokumentnamen unter einem Absatz
+  sourcePrefix: string;
+  sentNote: string;
+  softwareTitle: string;
+  softwareSaved: string;
+  byTeam: string;
+};
+
 export const inboxStory = {
   without:
     "Mails sammeln sich. Abends suchst du Kundendaten und Unterlagen zusammen und schreibst jede Antwort von Hand.",
   with: "Zu jeder Mail liegen Kunde, Anliegen und ein Antwortentwurf bereit. Offenes ist markiert.",
   closing: "Viele Grüße\nIhr Team von Haustechnik Mustermann",
+  labels: {
+    crmOrigin: "aus deiner Kundenverwaltung",
+    crmLegend: "aus der Kundenverwaltung",
+    formChannel: "über dein Kontaktformular",
+    resultColumn: "Für dein Team vorbereitet",
+    sentChip: "Gesendet von deinem Team",
+    readyChip: "Wartet auf deine Prüfung",
+    openForTeam: "Ergänzt dein Team",
+    filledByTeam: "Von dir ergänzt",
+    sourcePrefix: "aus deinen Unterlagen:",
+    sentNote: "Von deinem Team geprüft, ergänzt und gesendet.",
+    softwareTitle: "Eintrag in deiner Software",
+    softwareSaved: "gespeichert, z. B. in HERO, ToolTime oder Excel",
+    byTeam: "von deinem Team",
+  } as InboxLabels,
   cases: [
     {
       id: "neu",
@@ -257,3 +294,5 @@ export const inboxStory = {
     },
   ] as InboxCase[],
 };
+
+export type InboxStoryData = typeof inboxStory;

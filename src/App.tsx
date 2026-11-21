@@ -11,7 +11,6 @@ import {
   BookOpen,
   CircleHelp,
   ArrowUpRight,
-  ArrowDown,
   LibraryBig,
   Inbox,
   Folder,
@@ -40,27 +39,17 @@ import {
   INITIAL_STAGE_MS,
   NEXT_STAGE_MS,
 } from "./lib/demoTiming";
-import HausverwaltungPage from "./pages/HausverwaltungPage";
-// Detaildemo vorerst ausgeblendet (siehe README). Zum Reaktivieren Import und
-// den auskommentierten Block unter <UseCaseStage /> wieder einschalten.
-// import { HandwerkWorkflows } from "./components/HandwerkWorkflows";
-import { AuthorBlock } from "./components/AuthorBlock";
-import { ProcessFaq } from "./components/ProcessFaq";
-import { UseCaseStage } from "./components/UseCaseStage";
-import { SystemOverview } from "./components/SystemOverview";
+import { BranchPage } from "./pages/BranchPage";
+import { handwerk } from "./branches/handwerk";
+import { hausverwaltung } from "./branches/hausverwaltung";
+import { steuerkanzlei } from "./branches/steuerkanzlei";
 import { DemoResult } from "./components/DemoResult";
 import { MobileEmailFlow } from "./components/MobileEmailFlow";
 import { MOBILE_QUERY, useMediaQuery } from "./lib/useMediaQuery";
-import { contact } from "./contact";
 import LegalPage, { LegalLinks } from "./pages/LegalPage";
 
-// Nach dem Sprung zu "Schreib mir" gleich ins erste Feld, nur bei Klick.
-const focusContactForm = () =>
-  requestAnimationFrame(() =>
-    document
-      .querySelector<HTMLInputElement>("#schreib-mir input")
-      ?.focus({ preventScroll: true }),
-  );
+// Branchenseiten mit gemeinsamem Aufbau (src/pages/BranchPage.tsx)
+const branches = [handwerk, hausverwaltung, steuerkanzlei];
 function crmCopy(text: string, fragments: string[][]) {
   const parts: ReactNode[] = [];
   let offset = 0;
@@ -1058,9 +1047,8 @@ export function EmailWorkflowDemo({
 }
 export default function App() {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
-  const isHausverwaltung = path === "/hausverwaltung";
   const isHome = path === "/";
-  const isHandwerk = ["/workflow", "/handwerk"].includes(path);
+  const branch = branches.find((entry) => entry.paths.includes(path));
   const legalKind =
     path === "/impressum"
       ? "impressum"
@@ -1070,11 +1058,12 @@ export default function App() {
           ? "kontakt"
           : null;
   useEffect(() => {
-    if (path === "/workflow") {
+    // Weitere Adressen einer Branche (z. B. /workflow) auf die erste umstellen
+    if (branch && path !== branch.paths[0]) {
       window.history.replaceState(
         null,
         "",
-        `/handwerk${window.location.search}${window.location.hash}`,
+        `${branch.paths[0]}${window.location.search}${window.location.hash}`,
       );
     }
     document.title = isHome
@@ -1085,11 +1074,9 @@ export default function App() {
           ? "Datenschutz · Zekun Jiao"
           : legalKind === "kontakt"
             ? "Kontakt · Zekun Jiao"
-          : isHausverwaltung
-        ? "Hausverwaltung · Vorlagenseite"
-        : isHandwerk
-          ? "Digitale Abläufe fürs Handwerk · Zekun Jiao"
-          : "Seite nicht gefunden";
+            : branch
+              ? branch.meta.title
+              : "Seite nicht gefunden";
     const description = document.querySelector<HTMLMetaElement>(
       'meta[name="description"]',
     );
@@ -1098,12 +1085,10 @@ export default function App() {
         ? "Software, KI und Automatisierung für verständliche Geschäftsprozesse."
         : legalKind
           ? "Kontakt, Impressum und Datenschutzerklärung von Zekun Jiao."
-          : isHausverwaltung
-          ? "Eigenständige Vorlagenseite für Hausverwaltungen. Inhalte und Demonstrationen sind in Vorbereitung."
-          : isHandwerk
-            ? "Interaktive Beispiele für den Büroalltag im Handwerk: Anrufe, Anfragen, Angebote, Termine und Rechnungen. Von Zekun Jiao."
+          : branch
+            ? branch.meta.description
             : "Die angefragte Seite wurde nicht gefunden.";
-  }, [path, isHome, isHausverwaltung, isHandwerk, legalKind]);
+  }, [path, isHome, branch, legalKind]);
   if (isHome)
     return (
       <main>
@@ -1139,8 +1124,7 @@ export default function App() {
       </main>
     );
   if (legalKind) return <LegalPage kind={legalKind} />;
-  if (isHausverwaltung) return <HausverwaltungPage />;
-  if (!isHandwerk)
+  if (!branch)
     return (
       <main>
         <div className="hero">
@@ -1153,128 +1137,5 @@ export default function App() {
         </footer>
       </main>
     );
-  return (
-    <>
-      <header className="site-header">
-        <a href="/handwerk" className="wordmark">
-          <span className="brand-mark">
-            <Mail size={19} />
-          </span>
-          Digitale Abläufe
-          <span className="header-tag">FÜRS HANDWERK</span>
-        </a>
-        <a className="header-link" href="/handwerk#ueberblick">
-          Abläufe entdecken <ArrowUpRight size={16} />
-        </a>
-        <span className="header-author">
-          <span>von {contact.name}</span>
-          <a href="#schreib-mir" onClick={focusContactForm}>
-            Kontakt
-          </a>
-        </span>
-      </header>
-      <main>
-        <div className="hero hero-dark">
-          <div className="eyebrow hero-eyebrow">
-            BEISPIELE FÜR HANDWERKSBETRIEBE
-          </div>
-          <h1>Dein Büro läuft weiter, während du auf der Baustelle bist.</h1>
-          <p>
-            Entdecke an Beispielen, wie digitale Abläufe deinen Büroalltag
-            unterstützen können.
-            <br className="desktop-break" /> Dein Team bleibt am Steuer: Es
-            prüft und entscheidet selbst.
-          </p>
-          <div className="hero-cta">
-            <Button asChild className="hero-cta-button">
-              <a href="#ueberblick">
-                Beispiele ansehen
-                <ArrowDown aria-hidden="true" />
-              </a>
-            </Button>
-            <a
-              className="hero-cta-link"
-              href="#schreib-mir"
-              onClick={focusContactForm}
-            >
-              Kostenlose Prozessanalyse
-            </a>
-          </div>
-          <a className="hero-person" href="#kontakt">
-            {contact.photo && (
-              <img src={contact.photo} alt="" width="44" height="44" />
-            )}
-            <span>
-              <strong>{contact.name}</strong>
-              <span>
-                Informatiker (TU München) · AI Transformation Lead bei der BMW
-                Group
-              </span>
-            </span>
-          </a>
-          <div className="hero-proof">
-            <div className="hero-proof-head">
-              <span className="hero-proof-label">Aus einem Kundenprojekt</span>
-              <a href="#zahlen">
-                Wie gemessen <ArrowDown size={14} aria-hidden="true" />
-              </a>
-            </div>
-            <dl>
-              {contact.results
-                .filter((result) => result.teaser)
-                .map((result) => (
-                  <div key={result.value}>
-                    <dt>{result.value}</dt>
-                    <dd>{result.teaser}</dd>
-                  </div>
-                ))}
-            </dl>
-          </div>
-        </div>
-        <UseCaseStage />
-        <SystemOverview />
-        <ProcessFaq />
-        <section className="closing-cta" aria-labelledby="erstgespraech-title">
-          <div className="closing-cta-text">
-            <span className="closing-cta-kicker">
-              KOSTENLOS · 45 MINUTEN · IN MÜNCHEN ODER ONLINE
-            </span>
-            <h2 id="erstgespraech-title">Reden wir über deine Prozesse.</h2>
-            <p>
-              Kein Verkaufsgespräch. Kein Pitch-Deck. Nur ein ehrliches
-              Gespräch darüber, wo du Zeit verlierst, und ob ich helfen kann.
-            </p>
-            <p>
-              Du gehst mit zwei, drei konkreten Ansatzpunkten raus, auch wenn
-              wir danach nicht zusammenarbeiten.
-            </p>
-          </div>
-          <div className="closing-cta-person">
-            <span className="closing-cta-name">
-              <strong>{contact.name}</strong>
-              <span>Dein Ansprechpartner</span>
-            </span>
-            <a href="#schreib-mir" onClick={focusContactForm}>
-              Prozessanalyse anfragen
-            </a>
-          </div>
-        </section>
-        {/* Detaildemo vorerst ausgeblendet:
-        <HandwerkWorkflows>
-          {(active) => <EmailWorkflowDemo active={active} />}
-        </HandwerkWorkflows>
-        */}
-        <AuthorBlock id="kontakt" />
-        <footer>
-          <span>
-            Mögliche Abläufe für den Büroalltag im Handwerk ·{" "}
-            <a href="/">{contact.name}</a>
-          </span>
-          <span>
-            <LegalLinks />
-          </span>
-        </footer>
-      </main>
-    </>
-  );
+  return <BranchPage branch={branch} />;
 }

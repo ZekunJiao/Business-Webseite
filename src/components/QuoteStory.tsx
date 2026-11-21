@@ -26,7 +26,6 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { ColumnLabel, Marked } from "./storyParts";
-import { quoteStory } from "../quoteStory";
 import type {
   QuoteInputKind,
   QuoteOrigin,
@@ -34,13 +33,13 @@ import type {
   QuoteStepKind,
 } from "../quoteStory";
 import type { OverviewSet } from "../overviewFlows";
+import type { QuoteStoryData } from "../quoteStory";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { useStoryPlayback } from "../lib/useStoryPlayback";
 import { StoryTechnical } from "./StoryTechnical";
 
 type View = "input" | "assistant" | "result";
 
-const { cases, vatRate } = quoteStory;
 
 // Ab hier zeigt die Bühne eine Spalte mit Umschalter statt drei Spalten.
 const TABBED_QUERY = "(max-width: 1100px)";
@@ -105,7 +104,14 @@ const parsePrice = (value: string): number | undefined => {
 };
 
 // Angebots-Demo in Leserichtung: Eingang, Assistent, Ergebnis für das Team.
-export function QuoteStory({ set }: { set: OverviewSet }) {
+export function QuoteStory({
+  set,
+  story,
+}: {
+  set: OverviewSet;
+  story: QuoteStoryData;
+}) {
+  const { cases, vatRate } = story;
   const tabbed = useMediaQuery(TABBED_QUERY);
   const [manualView, setManualView] = useState<View | null>(null);
   // Fortschritt: erst die Schritte des Assistenten, dann Positionen/Absätze.
@@ -672,7 +678,7 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
               );
             })}
             {complete ? (
-              <p className="mailbox-draft-closing">{quoteStory.closing}</p>
+              <p className="mailbox-draft-closing">{story.closing}</p>
             ) : null}
           </div>
         )}
@@ -833,14 +839,14 @@ export function QuoteStory({ set }: { set: OverviewSet }) {
           <FileClock size={20} aria-hidden="true" />
           <div>
             <strong>Ohne Assistent</strong>
-            <p>{quoteStory.without}</p>
+            <p>{story.without}</p>
           </div>
         </div>
         <div className="story-compare-item" data-tone="with">
           <FileCheck2 size={20} aria-hidden="true" />
           <div>
             <strong>Mit Assistent</strong>
-            <p>{quoteStory.with}</p>
+            <p>{story.with}</p>
           </div>
         </div>
       </div>

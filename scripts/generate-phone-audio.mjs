@@ -1,14 +1,16 @@
-// Erzeugt die Sprachaufnahmen für die Telefon-Demo einmalig mit ElevenLabs
-// und speichert sie als MP3 in public/assets/phone/.
+// Erzeugt die Sprachaufnahmen für die Telefon-Demos einmalig mit ElevenLabs
+// und speichert sie als MP3 in public/assets/phone/ (Handwerk) bzw.
+// public/assets/phone/<story>/ (weitere Branchen).
 // Die Webseite spielt nur diese Dateien ab und ruft keine API auf.
 //
-// Aufruf: `npm run audio:phone`
+// Aufruf: `npm run audio:phone` (Handwerk)
+//         `npm run audio:phone -- --story=hausverwaltung`
 // Zugang über Umgebungsvariablen oder eine lokale Datei `.env` (nicht im
 // Repository, siehe .gitignore):
 //   ELEVENLABS_API_KEY            API-Schlüssel
 // Stimmen-IDs stehen unten im Skript; überschreibbar mit
 //   ELEVENLABS_VOICE_ASSISTANT    Stimmen-ID für den Assistenten
-//   ELEVENLABS_VOICE_CALLER       Stimmen-ID für die Anruferin
+//   ELEVENLABS_VOICE_CALLER       Stimmen-ID für die anrufende Person
 // Optional:
 //   ELEVENLABS_MODEL              Standard eleven_v4
 //   ELEVENLABS_OUTPUT_FORMAT      Standard mp3_44100_128
@@ -24,7 +26,33 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const outDir = join(root, "public", "assets", "phone");
+
+// Gespräche je Branche: Zeilen, Zielordner und Stimme der anrufenden Person.
+// Stimmen-IDs sind nicht geheim und stehen deshalb hier.
+const stories = {
+  handwerk: {
+    lines: join(root, "src", "phoneLines.json"),
+    outDir: join(root, "public", "assets", "phone"),
+    // Takita (ruhig und sanft)
+    caller: "QMVHfJewXqa3ev3LPWSj",
+  },
+  hausverwaltung: {
+    lines: join(root, "src", "branches", "hausverwaltung", "phoneLines.json"),
+    outDir: join(root, "public", "assets", "phone", "hausverwaltung"),
+    // Chris (Standardstimme von ElevenLabs, locker, männlich)
+    caller: "iP95p4xoKVk53GoZ742B",
+  },
+};
+const storyArg = process.argv.find((arg) => arg.startsWith("--story="));
+const storyName = storyArg ? storyArg.slice("--story=".length) : "handwerk";
+const story = stories[storyName];
+if (!story) {
+  console.error(
+    `Unbekannte Story "${storyName}". Möglich: ${Object.keys(stories).join(", ")}`,
+  );
+  process.exit(1);
+}
+const outDir = story.outDir;
 const api = "https://api.elevenlabs.io";
 
 const apiKey = process.env.ELEVENLABS_API_KEY;
@@ -53,12 +81,10 @@ if (process.argv.includes("--list-voices")) {
 
 const model = process.env.ELEVENLABS_MODEL ?? "eleven_v4";
 const outputFormat = process.env.ELEVENLABS_OUTPUT_FORMAT ?? "mp3_44100_128";
-// Stimmen-IDs sind nicht geheim und stehen deshalb hier.
 const voices = {
-  // Sebastian - Calm & Natural
+  // Sebastian - Calm & Natural, in allen Branchen
   assistant: process.env.ELEVENLABS_VOICE_ASSISTANT ?? "gzvDGHWqBQM6eoYO11Kp",
-  // Takita (ruhig und sanft)
-  caller: process.env.ELEVENLABS_VOICE_CALLER ?? "QMVHfJewXqa3ev3LPWSj",
+  caller: process.env.ELEVENLABS_VOICE_CALLER ?? story.caller,
 };
 if (!voices.assistant || !voices.caller) {
   console.error(
@@ -84,9 +110,7 @@ const exists = (file) =>
     () => false,
   );
 
-const lines = JSON.parse(
-  await readFile(join(root, "src", "phoneLines.json"), "utf8"),
-);
+const lines = JSON.parse(await readFile(story.lines, "utf8"));
 await mkdir(outDir, { recursive: true });
 
 const todo = [];

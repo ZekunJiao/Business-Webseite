@@ -27,16 +27,15 @@ import type { LucideIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { StoryTechnical } from "./StoryTechnical";
 import { FormWindowIcon } from "./FormWindowIcon";
-import { inboxStory } from "../inboxStory";
 import type { InboxCase, InboxOrigin, InboxStepKind } from "../inboxStory";
 import type { OverviewSet } from "../overviewFlows";
+import type { InboxStoryData } from "../inboxStory";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { ColumnLabel, Marked } from "./storyParts";
 
 type Status = "idle" | "playing" | "paused" | "done" | "sent";
 type View = "mail" | "assistant" | "result";
 
-const { cases } = inboxStory;
 
 // Ab hier zeigt die Bühne eine Spalte mit Umschalter statt drei Spalten.
 const TABBED_QUERY = "(max-width: 1100px)";
@@ -54,10 +53,6 @@ const originIcons: Record<InboxOrigin, LucideIcon> = {
   mail: Mail,
   crm: UserRoundSearch,
 };
-const originNames: Record<InboxOrigin, string> = {
-  mail: "aus der Anfrage",
-  crm: "aus deiner Kundenverwaltung",
-};
 const views: { id: View; label: string }[] = [
   { id: "mail", label: "Anfrage" },
   { id: "assistant", label: "Assistent" },
@@ -65,7 +60,18 @@ const views: { id: View; label: string }[] = [
 ];
 
 // Posteingang-Demo in Leserichtung: Mail, Assistent, Ergebnis für das Team.
-export function InboxStory({ set }: { set: OverviewSet }) {
+export function InboxStory({
+  set,
+  story,
+}: {
+  set: OverviewSet;
+  story: InboxStoryData;
+}) {
+  const { cases, labels } = story;
+  const originNames: Record<InboxOrigin, string> = {
+    mail: "aus der Anfrage",
+    crm: labels.crmOrigin,
+  };
   const reduced = !!useReducedMotion();
   const tabbed = useMediaQuery(TABBED_QUERY);
   const [index, setIndex] = useState(0);
@@ -269,9 +275,7 @@ export function InboxStory({ set }: { set: OverviewSet }) {
             <h4>{item.subject}</h4>
             <span>
               Von: <strong>{item.from}</strong>
-              {item.form
-                ? " über dein Kontaktformular"
-                : " per E-Mail"}{" "}
+              {item.form ? ` ${labels.formChannel}` : " per E-Mail"}{" "}
               · heute {item.time}
             </span>
           </header>
@@ -375,7 +379,7 @@ export function InboxStory({ set }: { set: OverviewSet }) {
 
   const resultColumn = (
     <div className="mailbox-column" data-view="result">
-      <ColumnLabel number={3}>Für dein Team vorbereitet</ColumnLabel>
+      <ColumnLabel number={3}>{labels.resultColumn}</ColumnLabel>
       <div
         className="mailbox-draft"
         data-state={status === "sent" ? "sent" : complete ? "ready" : undefined}
@@ -395,9 +399,9 @@ export function InboxStory({ set }: { set: OverviewSet }) {
             }
           >
             {status === "sent"
-              ? "Gesendet von deinem Team"
+              ? labels.sentChip
               : complete
-                ? "Wartet auf deine Prüfung"
+                ? labels.readyChip
                 : working && progress >= writeAt
                   ? "wird geschrieben …"
                   : "noch leer"}
@@ -426,12 +430,12 @@ export function InboxStory({ set }: { set: OverviewSet }) {
               paragraph.team ? (
                 status === "sent" ? (
                   <p key={paragraph.text} className="mailbox-draft-filled">
-                    <span>Von dir ergänzt</span>
+                    <span>{labels.filledByTeam}</span>
                     {paragraph.team}
                   </p>
                 ) : (
                   <p key={paragraph.text} className="mailbox-draft-open">
-                    <span>Ergänzt dein Team</span>[{paragraph.text}]
+                    <span>{labels.openForTeam}</span>[{paragraph.text}]
                   </p>
                 )
               ) : (
@@ -440,14 +444,14 @@ export function InboxStory({ set }: { set: OverviewSet }) {
                   {paragraph.source ? (
                     <span className="mailbox-source">
                       <FileText size={12} aria-hidden="true" />
-                      aus deinen Unterlagen: {paragraph.source}
+                      {labels.sourcePrefix} {paragraph.source}
                     </span>
                   ) : null}
                 </p>
               ),
             )}
             {complete ? (
-              <p className="mailbox-draft-closing">{inboxStory.closing}</p>
+              <p className="mailbox-draft-closing">{story.closing}</p>
             ) : null}
           </div>
         )}
@@ -462,18 +466,18 @@ export function InboxStory({ set }: { set: OverviewSet }) {
         ) : status === "sent" ? (
           <p className="mailbox-draft-sent" role="status">
             <CheckCheck size={18} aria-hidden="true" />
-            Von deinem Team geprüft, ergänzt und gesendet.
+            {labels.sentNote}
           </p>
         ) : null}
       </div>
 
-      <div className="story-note" aria-label="Eintrag in deiner Software">
+      <div className="story-note" aria-label={labels.softwareTitle}>
         <div className="story-note-head">
           <ClipboardList size={18} aria-hidden="true" />
-          <strong>Eintrag in deiner Software</strong>
+          <strong>{labels.softwareTitle}</strong>
           <span>
             {status === "sent"
-              ? "gespeichert, z. B. in HERO, ToolTime oder Excel"
+              ? labels.softwareSaved
               : complete
                 ? "vorbereitet · wird mit dem Senden gespeichert"
                 : status === "idle"
@@ -502,7 +506,7 @@ export function InboxStory({ set }: { set: OverviewSet }) {
                         <UserRoundCheck
                           size={13}
                           className="mailbox-origin"
-                          aria-label="von deinem Team"
+                          aria-label={labels.byTeam}
                         />
                       ) : (
                         <Origin
@@ -526,15 +530,15 @@ export function InboxStory({ set }: { set: OverviewSet }) {
             <Mail size={13} aria-hidden="true" /> aus der Anfrage
           </span>
           <span>
-            <UserRoundSearch size={13} aria-hidden="true" /> aus der
-            Kundenverwaltung
+            <UserRoundSearch size={13} aria-hidden="true" />{" "}
+            {labels.crmLegend}
           </span>
           <span>
             <i aria-hidden="true" /> noch offen
           </span>
           {status === "sent" ? (
             <span className="mailbox-legend-team">
-              <UserRoundCheck size={13} aria-hidden="true" /> von deinem Team
+              <UserRoundCheck size={13} aria-hidden="true" /> {labels.byTeam}
             </span>
           ) : null}
         </p>
@@ -561,14 +565,14 @@ export function InboxStory({ set }: { set: OverviewSet }) {
           <MailWarning size={20} aria-hidden="true" />
           <div>
             <strong>Ohne Assistent</strong>
-            <p>{inboxStory.without}</p>
+            <p>{story.without}</p>
           </div>
         </div>
         <div className="story-compare-item" data-tone="with">
           <MailOpen size={20} aria-hidden="true" />
           <div>
             <strong>Mit Assistent</strong>
-            <p>{inboxStory.with}</p>
+            <p>{story.with}</p>
           </div>
         </div>
       </div>

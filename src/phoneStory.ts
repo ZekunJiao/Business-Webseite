@@ -3,6 +3,8 @@
 // Die Gesprächszeilen stehen in phoneLines.json, damit auch das Audio-Skript
 // (scripts/generate-phone-audio.mjs) sie lesen kann.
 
+import { Camera, Phone } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import phoneLines from "./phoneLines.json";
 
 export type PhoneSpeaker = "assistant" | "caller";
@@ -23,9 +25,45 @@ export type PhoneLine = {
   notes?: string[];
 };
 
-export const phoneStory = {
+export type PhoneStoryData = {
+  business: string;
+  // Anrufer: Name in der Mitschrift und Rolle unter dem Symbol
+  caller: { title: string; subtitle: string };
+  // Satz vor dem Start
+  intro: string;
+  callTime: string;
+  // Sperrbildschirm "Dein Handy"
+  clock: string;
+  day: string;
+  headline: string;
+  lines: PhoneLine[];
+  // Vorab erzeugte Sprachaufnahme je Zeile
+  audio: string[];
+  notes: PhoneNoteField[];
+  // Hinweis im Startzustand, ohne Zahlen
+  without: string;
+  // Stand der Gesprächsnotiz nach dem Anruf
+  noteDone: string;
+  // Satz nach "Orange = noch offen."
+  openHint: string;
+  // Eigenes Handy: Überschrift und Satz auf dem Sperrbildschirm (vor/nach
+  // dem Anruf)
+  phone: { label: string; note: string; noteDone: string };
+  // Benachrichtigung nach dem Anruf
+  push: {
+    title: string;
+    details: string;
+    // Offene Angabe, orange
+    open: string;
+    actions: { label: string; icon: LucideIcon }[];
+  };
+  afterwards: [string, string];
+};
+
+export const phoneStory: PhoneStoryData = {
   business: "Haustechnik Mustermann",
-  caller: "Sabine Krüger",
+  caller: { title: "Anruferin", subtitle: "Kundin · Mobilnummer" },
+  intro: "Eine Kundin ruft an. Es ist Feierabend, im Büro geht niemand mehr ran.",
   callTime: "Di · 18:47",
   // Sperrbildschirm "Dein Handy"
   clock: "18:47",
@@ -54,9 +92,25 @@ export const phoneStory = {
       label: "Rückruf",
       value: "Bereitschaft informiert · ruft unter der Anrufernummer zurück",
     },
-  ] satisfies PhoneNoteField[],
+  ],
   // Hinweis im Startzustand, ohne Zahlen
   without: "Ohne Assistent springt jetzt die Mailbox an.",
+  noteDone: "fertig · an die Bereitschaft geschickt",
+  openHint: "Hier fragt dein Team nach.",
+  phone: {
+    label: "Dein Handy",
+    note: "Feierabend. Im Büro ist niemand mehr.",
+    noteDone: "Feierabend.",
+  },
+  push: {
+    title: "Notfall: Heizung ausgefallen",
+    details: "Sabine Krüger · Lindenstraße 12, Freising · Fehler F 28",
+    open: "Gerät unbekannt · Typenschildfoto anfragen",
+    actions: [
+      { label: "Zurückrufen", icon: Phone },
+      { label: "Foto anfragen", icon: Camera },
+    ],
+  },
   afterwards: [
     "Die Gesprächsnotiz liegt in deiner Software, z. B. HERO, ToolTime oder Excel.",
     "Dein Team ruft zurück und entscheidet über den Einsatz. Zugesagt wird nichts ohne euch.",

@@ -1,0 +1,51 @@
+[
+  {
+    "speaker": "assistant",
+    "text": "Guten Tag, hier ist der digitale Assistent der Steuerkanzlei Mustermann. Gerade sind alle Leitungen besetzt. Worum geht es?"
+  },
+  {
+    "speaker": "caller",
+    "text": "Keller hier, Stefan Keller. Ich hab heute meinen Steuerbescheid für 2025 bekommen und soll zweitausendeinhundertvierzig Euro nachzahlen. Wir hatten eigentlich mit einer Erstattung gerechnet.",
+    "notes": [
+      "name",
+      "issue"
+    ]
+  },
+  {
+    "speaker": "assistant",
+    "text": "Danke, Herr Keller. Ob der Bescheid stimmt, prüft Ihre Sachbearbeiterin, Frau Berger. Weil für einen Einspruch eine Frist läuft: Welches Datum steht oben auf dem Bescheid?",
+    "notes": [
+      "urgency"
+    ]
+  },
+  {
+    "speaker": "caller",
+    "text": "Der ist vom zwölften November.",
+    "notes": [
+      "date"
+    ]
+  },
+  {
+    "speaker": "assistant",
+    "text": "Können Sie den Bescheid heute noch im Mandantenportal hochladen? Dann hat Frau Berger ihn vor dem Rückruf vorliegen."
+  },
+  {
+    "speaker": "caller",
+    "text": "Mach ich nachher. Was genau anders ist als in der Erklärung, hab ich ehrlich gesagt nicht verstanden. Ab drei bin ich gut erreichbar.",
+    "notes": [
+      "upload",
+      "reason"
+    ]
+  },
+  {
+    "speaker": "assistant",
+    "text": "Kein Problem, das schaut sich Frau Berger an. Sie ruft Sie heute ab fünfzehn Uhr unter dieser Nummer zurück.",
+    "notes": [
+      "callback"
+    ]
+  },
+  {
+    "speaker": "caller",
+    "text": "Gut, danke Ihnen!"
+  }
+]

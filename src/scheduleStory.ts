@@ -1,7 +1,28 @@
 // Beispielfälle für die Termin-Demo. Betrieb, Monteure, Kunden, Adressen und
 // Termine sind erfunden.
 
-export type ScheduleStepKind = "read" | "calendar" | "skill" | "route" | "write";
+export type ScheduleStepKind =
+  | "read"
+  | "calendar"
+  | "skill"
+  | "route"
+  // Regeln prüfen, z. B. Zuständigkeit oder Freigabegrenze
+  | "rules"
+  | "write";
+
+// Feste Beschriftungen der Demo, je nach Anrede und Branche
+export type ScheduleLabels = {
+  resultColumn: string;
+  planTitle: string;
+  // Kopf der ersten Spalte (nur für Screenreader), z. B. "Monteur"
+  rowHeader: string;
+  sentChip: string;
+  readyChip: string;
+  confirmedLegend: string;
+  openForTeam: string;
+  filledByTeam: string;
+  sentNote: string;
+};
 
 // Bestehender Termin im Plan
 export type ScheduleSlot = {
@@ -66,6 +87,17 @@ export const scheduleStory = {
     "Termine klären kostet Anrufe. Ein Notfall oder eine Krankmeldung wirft den Tag um, und du telefonierst allen hinterher.",
   with: "Der Assistent schlägt vor, wer wann fährt, nennt den Grund dafür und schreibt die Nachrichten an die betroffenen Kunden.",
   closing: "Viele Grüße\nIhr Team von Haustechnik Mustermann",
+  labels: {
+    resultColumn: "Für dein Team vorbereitet",
+    planTitle: "Einsatzplan",
+    rowHeader: "Monteur",
+    sentChip: "Von deinem Team bestätigt",
+    readyChip: "Wartet auf deine Entscheidung",
+    confirmedLegend: "von dir bestätigt",
+    openForTeam: "Ergänzt dein Team",
+    filledByTeam: "Von dir ergänzt",
+    sentNote: "Von deinem Team geprüft, entschieden und gesendet.",
+  } as ScheduleLabels,
   cases: [
     {
       id: "termin",
@@ -325,3 +357,5 @@ export const scheduleStory = {
     },
   ] as ScheduleCase[],
 };
+
+export type ScheduleStoryData = typeof scheduleStory;

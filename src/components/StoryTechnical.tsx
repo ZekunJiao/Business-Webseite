@@ -9,6 +9,7 @@ type Row = { key: string; label: string; icon: LucideIcon; block: TechBlock };
 // "So hängt es technisch zusammen": vier Bausteine je Anwendungsfall, ohne
 // Animation. Aufklappbar über das native details-Element (Tastatur inklusive).
 export function StoryTechnical({ set }: { set: OverviewSet }) {
+  const operations = set.tech.operations ?? techOperations;
   const rows: Row[] = [
     { key: "input", label: "Eingang", icon: Inbox, block: set.tech.input },
     {
@@ -28,9 +29,9 @@ export function StoryTechnical({ set }: { set: OverviewSet }) {
       label: "Datenschutz & Betrieb",
       icon: ShieldCheck,
       block: {
-        ...techOperations,
+        ...operations,
         notes: [
-          ...(techOperations.notes ?? []),
+          ...(operations.notes ?? []),
           ...(set.tech.operationsNotes ?? []),
         ],
       },

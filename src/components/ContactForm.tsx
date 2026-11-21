@@ -14,11 +14,19 @@ export function ContactForm({
   submitLabel = "Nachricht senden",
   messagePlaceholder,
   doneText = "Ich melde mich in der Regel innerhalb eines Werktags.",
+  thanks = "Danke, deine Nachricht ist angekommen.",
+  privacyNote = "Deine Angaben nutze ich nur, um deine Anfrage zu beantworten.",
+  errorFallback = "Bitte schreib mir direkt an",
 }: {
   id?: string;
   submitLabel?: string;
   messagePlaceholder?: string;
   doneText?: string;
+  // Texte in der Anrede der Seite (du/Sie)
+  thanks?: string;
+  privacyNote?: string;
+  // Satzanfang vor der E-Mail-Adresse, wenn das Senden fehlschlägt
+  errorFallback?: string;
 }) {
   const [status, setStatus] = useState<Status>("idle");
   const email = contact.email?.trim();
@@ -45,7 +53,7 @@ export function ContactForm({
   if (status === "sent")
     return (
       <div className="contact-form contact-form-done" id={id} role="status">
-        <strong>Danke, deine Nachricht ist angekommen.</strong>
+        <strong>{thanks}</strong>
         <p>{doneText}</p>
       </div>
     );
@@ -93,8 +101,7 @@ export function ContactForm({
           {status === "sending" ? "Wird gesendet …" : submitLabel}
         </button>
         <p className="contact-form-note">
-          Deine Angaben nutze ich nur, um deine Anfrage zu beantworten.
-          Mehr dazu in der <a href="/datenschutz">Datenschutzerklärung</a>.
+          {privacyNote} Mehr dazu in der <a href="/datenschutz">Datenschutzerklärung</a>.
         </p>
       </div>
       {status === "error" ? (
@@ -103,7 +110,7 @@ export function ContactForm({
           {email ? (
             <>
               {" "}
-              Bitte schreib mir direkt an <a href={`mailto:${email}`}>{email}</a>.
+              {errorFallback} <a href={`mailto:${email}`}>{email}</a>.
             </>
           ) : null}
         </p>

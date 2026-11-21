@@ -7,10 +7,13 @@
 //    das hinterlegte Postfach. Nachrichten werden nicht gespeichert.
 // 3. Vorerst leitet die Startseite "/" vorübergehend (302) auf /handwerk um.
 //    Zum Abschalten HOME_REDIRECT_FROM auf null setzen.
+// 4. Branchenseiten mit eigener Linkvorschau bekommen Titel, Beschreibung
+//    und Vorschaubild im HTML ausgetauscht (worker/previews.ts).
 // Lokal (npm run dev / preview) läuft dieser Worker nicht; `npx wrangler dev`
 // nach `npm run build` startet ihn mit simuliertem Mailversand.
 
 import { EmailMessage } from "cloudflare:email";
+import { withPreview } from "./previews";
 
 const HOME_REDIRECT_FROM: string | null = "/";
 
@@ -127,7 +130,7 @@ export default {
         ? request.method === "POST"
           ? await handleContact(request, env)
           : new Response(null, { status: 405, headers: { Allow: "POST" } })
-        : await env.ASSETS.fetch(request);
+        : withPreview(request, await env.ASSETS.fetch(request));
     const headed = new Response(response.body, response);
     headed.headers.set("X-Robots-Tag", "noindex, nofollow");
     return headed;

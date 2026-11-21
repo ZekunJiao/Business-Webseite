@@ -5,16 +5,19 @@ import { InboxStory } from "./InboxStory";
 import { QuoteStory } from "./QuoteStory";
 import { ScheduleStory } from "./ScheduleStory";
 import { InvoiceStory } from "./InvoiceStory";
-import {
-  overviewSets,
-  upcomingUseCases,
-  useCaseSection,
-} from "../overviewFlows";
+import { CostStory } from "./CostStory";
+import { MeetingStory } from "./MeetingStory";
+import { NoticeStory } from "./NoticeStory";
+import type { OverviewSet } from "../overviewFlows";
+import type { Branch } from "../branches/types";
 
 const PARAM = "anwendungsfall";
 
 // Auswahl aus ?anwendungsfall=…, sonst aus einem alten Anker wie #telefon.
-function readSelected(): { id: string; linked: boolean } {
+function readSelected(overviewSets: OverviewSet[]): {
+  id: string;
+  linked: boolean;
+} {
   const known = (id: string | null | undefined) =>
     overviewSets.find((set) => set.id === id)?.id;
   const fromParam = known(
@@ -28,9 +31,16 @@ function readSelected(): { id: string; linked: boolean } {
 
 // Karten für alle Anwendungsfälle, darunter eine Bühne mit der Demo des
 // gewählten Falls.
-export function UseCaseStage() {
+export function UseCaseStage({ useCases }: { useCases: Branch["useCases"] }) {
+  const {
+    sets: overviewSets,
+    upcoming: upcomingUseCases,
+    ...useCaseSection
+  } = useCases;
   const reduced = !!useReducedMotion();
-  const [selected, setSelected] = useState(() => readSelected().id);
+  const [selected, setSelected] = useState(
+    () => readSelected(overviewSets).id,
+  );
   const stageRef = useRef<HTMLDivElement>(null);
   const set = overviewSets.find((entry) => entry.id === selected)!;
 
@@ -48,8 +58,8 @@ export function UseCaseStage() {
 
   // Direktlink: nach dem Laden zur Bühne springen.
   useEffect(() => {
-    if (readSelected().linked) showStage(true);
-    const restore = () => setSelected(readSelected().id);
+    if (readSelected(overviewSets).linked) showStage(true);
+    const restore = () => setSelected(readSelected(overviewSets).id);
     window.addEventListener("popstate", restore);
     return () => window.removeEventListener("popstate", restore);
   }, []);
@@ -119,18 +129,31 @@ export function UseCaseStage() {
         id="anwendungsfall-buehne"
         className="usecase-stage"
       >
-        {set.id === "telefon" ? (
-          <PhoneStory key={set.id} set={set} />
-        ) : set.id === "anfragen" ? (
-          <InboxStory key={set.id} set={set} />
-        ) : set.id === "angebote" ? (
-          <QuoteStory key={set.id} set={set} />
-        ) : set.id === "termine" ? (
-          <ScheduleStory key={set.id} set={set} />
-        ) : (
-          <InvoiceStory key={set.id} set={set} />
-        )}
+        <Story key={set.id} set={set} />
       </div>
     </section>
   );
+}
+
+// Demo passend zur Art des Anwendungsfalls
+function Story({ set }: { set: OverviewSet }) {
+  const { story } = set;
+  switch (story.kind) {
+    case "phone":
+      return <PhoneStory set={set} story={story.data} />;
+    case "inbox":
+      return <InboxStory set={set} story={story.data} />;
+    case "quote":
+      return <QuoteStory set={set} story={story.data} />;
+    case "schedule":
+      return <ScheduleStory set={set} story={story.data} />;
+    case "invoice":
+      return <InvoiceStory set={set} story={story.data} />;
+    case "costs":
+      return <CostStory set={set} story={story.data} />;
+    case "meeting":
+      return <MeetingStory set={set} story={story.data} />;
+    case "notice":
+      return <NoticeStory set={set} story={story.data} />;
+  }
 }

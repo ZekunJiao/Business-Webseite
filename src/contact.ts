@@ -10,7 +10,7 @@ type BreakdownRow = {
   tone?: "total" | "team";
 };
 
-type Result = {
+export type Result = {
   value: string;
   label: string;
   /** Kurzfassung für den Einstieg der Branchenseite. Ohne teaser: nur unten. */

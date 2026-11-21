@@ -13,6 +13,7 @@ import {
   PenLine,
   Play,
   RotateCcw,
+  Scale,
   ScanText,
   Send,
   SkipForward,
@@ -22,9 +23,9 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { ColumnLabel, Marked } from "./storyParts";
-import { scheduleStory } from "../scheduleStory";
 import type { ScheduleCase, ScheduleStepKind } from "../scheduleStory";
 import type { OverviewSet } from "../overviewFlows";
+import type { ScheduleStoryData } from "../scheduleStory";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { useStoryPlayback } from "../lib/useStoryPlayback";
 import { StoryTechnical } from "./StoryTechnical";
@@ -39,7 +40,6 @@ type PlanItem = {
   note?: string;
 };
 
-const { cases } = scheduleStory;
 
 // Ab hier zeigt die Bühne eine Spalte mit Umschalter statt drei Spalten.
 const TABBED_QUERY = "(max-width: 1100px)";
@@ -52,6 +52,7 @@ const stepIcons: Record<ScheduleStepKind, LucideIcon> = {
   calendar: CalendarDays,
   skill: Wrench,
   route: MapPin,
+  rules: Scale,
   write: PenLine,
 };
 const views: { id: View; label: string }[] = [
@@ -64,7 +65,14 @@ const rowsOf = (entry: ScheduleCase) =>
   entry.changes.length + entry.messages.length;
 
 // Termin-Demo in Leserichtung: Eingang, Assistent, Plan und Nachrichten.
-export function ScheduleStory({ set }: { set: OverviewSet }) {
+export function ScheduleStory({
+  set,
+  story,
+}: {
+  set: OverviewSet;
+  story: ScheduleStoryData;
+}) {
+  const { cases, labels } = story;
   const tabbed = useMediaQuery(TABBED_QUERY);
   const [manualView, setManualView] = useState<View | null>(null);
   // Fortschritt: erst die Schritte des Assistenten, dann die Änderungen im
@@ -317,22 +325,22 @@ export function ScheduleStory({ set }: { set: OverviewSet }) {
 
   const resultColumn = (
     <div className="mailbox-column" data-view="result">
-      <ColumnLabel number={3}>Für dein Team vorbereitet</ColumnLabel>
+      <ColumnLabel number={3}>{labels.resultColumn}</ColumnLabel>
       <div
         className="mailbox-draft"
         data-state={isSent ? "sent" : complete ? "ready" : undefined}
-        aria-label="Einsatzplan und Nachrichten"
+        aria-label={`${labels.planTitle} und Nachrichten`}
       >
         <div className="mailbox-draft-head">
-          <strong>Einsatzplan</strong>
+          <strong>{labels.planTitle}</strong>
           <span
             className="mailbox-draft-chip"
             data-tone={isSent ? "sent" : complete ? "ready" : undefined}
           >
             {isSent
-              ? "Von deinem Team bestätigt"
+              ? labels.sentChip
               : complete
-                ? "Wartet auf deine Entscheidung"
+                ? labels.readyChip
                 : working && progress >= writeAt
                   ? "wird vorbereitet …"
                   : "Stand jetzt"}
@@ -343,7 +351,7 @@ export function ScheduleStory({ set }: { set: OverviewSet }) {
           <thead>
             <tr>
               <th scope="col">
-                <span className="sr-only">Monteur</span>
+                <span className="sr-only">{labels.rowHeader}</span>
               </th>
               {item.columns.map((col) => (
                 <th key={col} scope="col">
@@ -388,7 +396,7 @@ export function ScheduleStory({ set }: { set: OverviewSet }) {
         <p className="schedule-legend">
           <span data-state="proposed">Vorschlag</span>
           <span data-state="ghost">alter Platz</span>
-          <span data-state="confirmed">von dir bestätigt</span>
+          <span data-state="confirmed">{labels.confirmedLegend}</span>
         </p>
 
         {shownChanges.length ? (
@@ -424,19 +432,19 @@ export function ScheduleStory({ set }: { set: OverviewSet }) {
                 paragraph.team ? (
                   isSent ? (
                     <p key={paragraph.text} className="mailbox-draft-filled">
-                      <span>Von dir ergänzt</span>
+                      <span>{labels.filledByTeam}</span>
                       {paragraph.team}
                     </p>
                   ) : (
                     <p key={paragraph.text} className="mailbox-draft-open">
-                      <span>Ergänzt dein Team</span>[{paragraph.text}]
+                      <span>{labels.openForTeam}</span>[{paragraph.text}]
                     </p>
                   )
                 ) : (
                   <p key={paragraph.text}>{paragraph.text}</p>
                 ),
               )}
-              <p className="mailbox-draft-closing">{scheduleStory.closing}</p>
+              <p className="mailbox-draft-closing">{story.closing}</p>
             </div>
           </div>
         ))}
@@ -452,7 +460,7 @@ export function ScheduleStory({ set }: { set: OverviewSet }) {
         ) : isSent ? (
           <p className="mailbox-draft-sent" role="status">
             <CheckCheck size={18} aria-hidden="true" />
-            Von deinem Team geprüft, entschieden und gesendet.
+            {labels.sentNote}
           </p>
         ) : null}
       </div>
@@ -478,14 +486,14 @@ export function ScheduleStory({ set }: { set: OverviewSet }) {
           <CalendarX2 size={20} aria-hidden="true" />
           <div>
             <strong>Ohne Assistent</strong>
-            <p>{scheduleStory.without}</p>
+            <p>{story.without}</p>
           </div>
         </div>
         <div className="story-compare-item" data-tone="with">
           <CalendarClock size={20} aria-hidden="true" />
           <div>
             <strong>Mit Assistent</strong>
-            <p>{scheduleStory.with}</p>
+            <p>{story.with}</p>
           </div>
         </div>
       </div>

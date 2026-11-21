@@ -1,42 +1,15 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { useReducedMotion } from "motion/react";
-import {
-  ArrowDown,
-  CalendarDays,
-  Landmark,
-  LibraryBig,
-  Mail,
-  MessageSquare,
-  Mic,
-  Phone,
-  UserRoundCheck,
-} from "lucide-react";
+import { ArrowDown, UserRoundCheck } from "lucide-react";
 import { aiActivityIcons } from "./AiSymbol";
-import { FormWindowIcon } from "./FormWindowIcon";
-import { integrations } from "../integrations";
 import { useMediaQuery } from "../lib/useMediaQuery";
+import type { Branch } from "../branches/types";
 
 // Gesamtbild für alle Anwendungsfälle: was reinkommt, der Assistent, deine
 // Software und dein Team. Keine Beispielfälle; nur ein leiser Datenpunkt
 // läuft ab und zu von einem Eingang über den Assistenten und ein Programm
 // zum Team. Die Linien werden einmal und bei Größenänderung vermessen.
-
-// Nur Eingänge, die auch in den Demos vorkommen.
-const inputs: { name: string; icon: ReactNode }[] = [
-  { name: "Telefon", icon: <Phone size={18} /> },
-  { name: "E-Mail", icon: <Mail size={18} /> },
-  {
-    name: "Homepage-Formular",
-    icon: <FormWindowIcon size={18} strokeWidth={1.8} />,
-  },
-  { name: "Sprachnotiz vom Termin", icon: <Mic size={18} /> },
-  {
-    name: "Nachrichten von Kunden und Team",
-    icon: <MessageSquare size={18} />,
-  },
-  { name: "Zahlungseingänge", icon: <Landmark size={18} /> },
-];
 
 const AssistantIcon = aiActivityIcons.idle;
 // Darunter stehen die Spalten untereinander, ohne Linien.
@@ -60,7 +33,12 @@ const pick = (count: number, not: number) => {
   return next >= not ? next + 1 : next;
 };
 
-export function SystemOverview() {
+export function SystemOverview({
+  overview,
+}: {
+  overview: Branch["overview"];
+}) {
+  const { inputs, integrations, extras } = overview;
   const stacked = useMediaQuery(STACKED_QUERY);
   const reduced = !!useReducedMotion();
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -317,27 +295,22 @@ export function SystemOverview() {
     >
       <div className="usecases-head">
         <span className="overview-kicker">SO HÄNGT ALLES ZUSAMMEN</span>
-        <h2 id="zusammenhang-title">
-          Ein Assistent, angebunden an deine Software
-        </h2>
-        <p>
-          Egal ob Anruf, Mail oder Notiz vom Termin: Der Assistent bereitet vor,
-          trägt in eure Programme ein, und dein Team entscheidet.
-        </p>
+        <h2 id="zusammenhang-title">{overview.title}</h2>
+        <p>{overview.intro}</p>
       </div>
       <div className="system-canvas" ref={canvasRef}>
         {stacked ? null : (
           <svg className="system-wires" ref={svgRef} aria-hidden="true" />
         )}
         <div className="system-col">
-          <h3>Was reinkommt, z.&nbsp;B.</h3>
+          <h3>{overview.inputsTitle}</h3>
           <ul className="system-inputs">
-            {inputs.map((input) => (
-              <li key={input.name} data-wire="input">
+            {inputs.map(({ name, icon: Icon, strokeWidth }) => (
+              <li key={name} data-wire="input">
                 <span className="system-icon" aria-hidden="true">
-                  {input.icon}
+                  <Icon size={18} strokeWidth={strokeWidth} />
                 </span>
-                {input.name}
+                {name}
               </li>
             ))}
           </ul>
@@ -354,12 +327,12 @@ export function SystemOverview() {
               <AssistantIcon size={40} strokeWidth={1.8} />
             </span>
             <strong>Digitaler Assistent</strong>
-            <span>liest, ordnet zu, bereitet vor</span>
+            <span>{overview.assistantText}</span>
           </div>
         </div>
         {arrow}
         <div className="system-col">
-          <h3>Deine Software &amp; dein Wissen</h3>
+          <h3>{overview.softwareTitle}</h3>
           <ul className="system-systems" data-wire="systems">
             {integrations.map((entry) => (
               <li key={entry.name} data-wire="system">
@@ -378,31 +351,23 @@ export function SystemOverview() {
                 )}
               </li>
             ))}
-            <li data-wire="system">
-              <img
-                className="system-excel"
-                src="/assets/integrations/excel.svg"
-                alt=""
-              />
-              Excel &amp; andere
-            </li>
-            <li data-wire="system">
-              <span className="system-icon" aria-hidden="true">
-                <CalendarDays size={18} />
-              </span>
-              Kalender
-            </li>
-            <li data-wire="system">
-              <span className="system-icon" aria-hidden="true">
-                <LibraryBig size={18} />
-              </span>
-              Betriebswissen &amp; Preisliste
-            </li>
+            {extras.map(({ name, icon: Icon, image }) => (
+              <li key={name} data-wire="system">
+                {image ? (
+                  <img className="system-excel" src={image} alt="" />
+                ) : Icon ? (
+                  <span className="system-icon" aria-hidden="true">
+                    <Icon size={18} />
+                  </span>
+                ) : null}
+                {name}
+              </li>
+            ))}
           </ul>
         </div>
         {arrow}
         <div className="system-col system-col-center">
-          <h3 className="sr-only">Dein Team</h3>
+          <h3 className="sr-only">{overview.teamTitle}</h3>
           <div className="system-team">
             <span
               className="system-team-icon"
@@ -411,8 +376,8 @@ export function SystemOverview() {
             >
               <UserRoundCheck size={36} strokeWidth={1.9} />
             </span>
-            <strong>Dein Team</strong>
-            <span>prüft und sendet selbst</span>
+            <strong>{overview.teamTitle}</strong>
+            <span>{overview.teamText}</span>
           </div>
         </div>
       </div>

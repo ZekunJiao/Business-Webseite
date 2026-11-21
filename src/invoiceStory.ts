@@ -47,6 +47,18 @@ export type InvoiceMessage = {
   paragraphs: { text: string; team?: string }[];
 };
 
+// Beschriftungen der Ergebnisspalte, damit die Demo auch mit „Sie“ läuft
+export type InvoiceLabels = {
+  ledgerTitle: string;
+  resultColumn: string;
+  confirmedChip: string;
+  readyChip: string;
+  extraSettled: string;
+  openForTeam: string;
+  filledByTeam: string;
+  sentNote: string;
+};
+
 export type InvoiceCase = {
   id: string;
   headline: string;
@@ -94,6 +106,16 @@ export const invoiceStory = {
   with: "Die Rechnung liegt als Entwurf bereit, sobald der Auftrag fertig ist. Überfällige Rechnungen und unpassende Zahlungen kommen von selbst hoch.",
   closing: "Viele Grüße\nIhr Team von Haustechnik Mustermann",
   vatRate: 0.19,
+  labels: {
+    ledgerTitle: "Offene Posten",
+    resultColumn: "Für dein Team vorbereitet",
+    confirmedChip: "Von deinem Team bestätigt",
+    readyChip: "Wartet auf deine Entscheidung",
+    extraSettled: "Von dir berechnet",
+    openForTeam: "Ergänzt dein Team",
+    filledByTeam: "Von dir ergänzt",
+    sentNote: "Von deinem Team geprüft, entschieden und gesendet.",
+  } as InvoiceLabels,
   cases: [
     {
       id: "rechnung",
@@ -306,3 +328,5 @@ export const invoiceStory = {
     },
   ] as InvoiceCase[],
 };
+
+export type InvoiceStoryData = typeof invoiceStory;

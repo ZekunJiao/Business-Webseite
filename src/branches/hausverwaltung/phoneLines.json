@@ -1,0 +1,53 @@
+[
+  {
+    "speaker": "assistant",
+    "text": "Guten Abend, hier ist der digitale Assistent der Hausverwaltung Mustermann. Das Büro ist gerade nicht besetzt. Worum geht es?"
+  },
+  {
+    "speaker": "caller",
+    "text": "Bei mir im Bad tropft Wasser von der Decke. Ziemlich viel, es läuft schon die Wand runter.",
+    "notes": [
+      "issue"
+    ]
+  },
+  {
+    "speaker": "assistant",
+    "text": "Das ist ein Notfall, ich gebe es sofort weiter. In welchem Haus und in welcher Wohnung wohnen Sie?",
+    "notes": [
+      "urgency"
+    ]
+  },
+  {
+    "speaker": "caller",
+    "text": "Jonas Becker, Isarstraße 8 in Freising. Zweiter Stock, Wohnung 2.3.",
+    "notes": [
+      "name",
+      "unit"
+    ]
+  },
+  {
+    "speaker": "assistant",
+    "text": "Danke, Herr Becker. Wenn es gefahrlos geht, schalten Sie bitte die Sicherung fürs Bad aus und legen Sie Handtücher aus. Ist in der Wohnung über Ihnen jemand da?",
+    "notes": [
+      "advice"
+    ]
+  },
+  {
+    "speaker": "caller",
+    "text": "Ich hab schon geklingelt, da macht keiner auf.",
+    "notes": [
+      "above"
+    ]
+  },
+  {
+    "speaker": "assistant",
+    "text": "Verstanden. Ich informiere jetzt die Bereitschaft der Hausverwaltung. Sie ruft Sie in wenigen Minuten unter dieser Nummer zurück und schickt bei Bedarf den Notdienst.",
+    "notes": [
+      "callback"
+    ]
+  },
+  {
+    "speaker": "caller",
+    "text": "Okay, vielen Dank!"
+  }
+]

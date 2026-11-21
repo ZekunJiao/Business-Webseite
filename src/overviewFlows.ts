@@ -6,6 +6,19 @@ import {
   ReceiptText,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { phoneStory } from "./phoneStory";
+import type { PhoneStoryData } from "./phoneStory";
+import { inboxStory } from "./inboxStory";
+import type { InboxStoryData } from "./inboxStory";
+import { quoteStory } from "./quoteStory";
+import type { QuoteStoryData } from "./quoteStory";
+import { scheduleStory } from "./scheduleStory";
+import type { ScheduleStoryData } from "./scheduleStory";
+import { invoiceStory } from "./invoiceStory";
+import type { InvoiceStoryData } from "./invoiceStory";
+import type { CostStoryData } from "./costStory";
+import type { MeetingStoryData } from "./meetingStory";
+import type { NoticeStoryData } from "./noticeStory";
 
 // Technische Bausteine je Anwendungsfall. Ein Satz in Alltagssprache, dazu
 // die eingesetzten Dienste mit ihrer Rolle ("Womit") und optional Hinweise.
@@ -20,13 +33,16 @@ export type TechBlocks = {
   // Zusätzliche Hinweise zu Datenschutz & Betrieb nur für diesen
   // Anwendungsfall; sie stehen unter den gemeinsamen aus techOperations.
   operationsNotes?: string[];
+  // Gemeinsame Angaben zu Datenschutz & Betrieb in anderer Anrede; ohne
+  // Angabe gilt techOperations.
+  operations?: TechBlock;
 };
 
-const llm: TechTool = {
+export const llm: TechTool = {
   role: "Sprachmodell",
   name: "GPT über Azure OpenAI (EU)",
 };
-const flow: TechTool = {
+export const flow: TechTool = {
   role: "Ablaufsteuerung",
   name: "n8n, selbst gehostet",
 };
@@ -58,7 +74,18 @@ export type UseCaseCard = {
   cta?: string;
 };
 
-// Ein Anwendungsfall: Karte, Überschrift und technische Bausteine.
+// Demo eines Anwendungsfalls: Art der Darstellung und ihre Beispieldaten.
+export type StoryConfig =
+  | { kind: "phone"; data: PhoneStoryData }
+  | { kind: "inbox"; data: InboxStoryData }
+  | { kind: "quote"; data: QuoteStoryData }
+  | { kind: "schedule"; data: ScheduleStoryData }
+  | { kind: "invoice"; data: InvoiceStoryData }
+  | { kind: "costs"; data: CostStoryData }
+  | { kind: "meeting"; data: MeetingStoryData }
+  | { kind: "notice"; data: NoticeStoryData };
+
+// Ein Anwendungsfall: Karte, Überschrift, Demo und technische Bausteine.
 export type OverviewSet = {
   // Wert für ?anwendungsfall=, Anker und Basis für die Beschriftungs-ID
   id: string;
@@ -66,6 +93,7 @@ export type OverviewSet = {
   kicker: string;
   title: string;
   intro: string;
+  story: StoryConfig;
   // Bausteine unter "So hängt es technisch zusammen"
   tech: TechBlocks;
 };
@@ -96,6 +124,7 @@ export const overviewSets: OverviewSet[] = [
     title: "Feierabend im Büro. Der Assistent geht ran.",
     intro:
       "Er fragt das Wichtige ab, erkennt Notfälle und schickt dir eine kurze Zusammenfassung aufs Handy. Dein Team ruft zurück und entscheidet.",
+    story: { kind: "phone", data: phoneStory },
     tech: {
       input: {
         text: "Deine Nummer bleibt. Anrufe, die niemand annimmt oder die auf besetzt treffen, leitet sie an den Assistenten weiter.",
@@ -142,6 +171,7 @@ export const overviewSets: OverviewSet[] = [
     title: "Die Anfrage kommt rein. Die Antwort liegt bereit.",
     intro:
       "Der Assistent liest die Mail, findet Kunde und passende Unterlagen und schreibt einen Antwortentwurf. Dein Team prüft und sendet selbst.",
+    story: { kind: "inbox", data: inboxStory },
     tech: {
       input: {
         text: "Dein Postfach und das Formular deiner Homepage.",
@@ -175,6 +205,7 @@ export const overviewSets: OverviewSet[] = [
     title: "Du warst beim Kunden. Das Angebot liegt bereit.",
     intro:
       "Der Assistent macht aus deiner Notiz einen Angebotsentwurf mit deinen Preisen, weist auf fehlende Positionen hin und erinnert an offene Angebote. Dein Team prüft und sendet selbst.",
+    story: { kind: "quote", data: quoteStory },
     tech: {
       input: {
         text: "Sprachnotiz oder Stichpunkte vom Handy, per WhatsApp.",
@@ -211,6 +242,7 @@ export const overviewSets: OverviewSet[] = [
     title: "Der Plan ändert sich. Der Vorschlag liegt bereit.",
     intro:
       "Der Assistent schaut in den Kalender, prüft, wer es kann und wer in der Nähe ist, und bereitet Plan und Kundennachrichten vor. Dein Team entscheidet und sendet selbst.",
+    story: { kind: "schedule", data: scheduleStory },
     tech: {
       input: {
         text: "Nachrichten von Kunden und Monteuren.",
@@ -257,6 +289,7 @@ export const overviewSets: OverviewSet[] = [
     title: "Der Auftrag ist fertig. Die Rechnung liegt bereit.",
     intro:
       "Der Assistent gleicht Angebot, Stunden und Zahlungseingänge ab, bereitet Rechnung oder Erinnerung vor und nennt den Grund dafür. Dein Team entscheidet und sendet selbst.",
+    story: { kind: "invoice", data: invoiceStory },
     tech: {
       input: {
         text: "Fertigmeldung, Hinweis aus der Software, Zahlungseingang vom Konto.",

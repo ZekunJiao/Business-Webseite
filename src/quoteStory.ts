@@ -257,3 +257,5 @@ export const quoteStory = {
     },
   ] as QuoteCase[],
 };
+
+export type QuoteStoryData = typeof quoteStory;

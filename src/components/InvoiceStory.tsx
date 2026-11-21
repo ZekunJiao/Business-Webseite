@@ -25,20 +25,19 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { ColumnLabel, Marked } from "./storyParts";
-import { invoiceStory } from "../invoiceStory";
 import type {
   InvoiceCase,
   InvoiceSource,
   InvoiceStepKind,
 } from "../invoiceStory";
 import type { OverviewSet } from "../overviewFlows";
+import type { InvoiceStoryData } from "../invoiceStory";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { useStoryPlayback } from "../lib/useStoryPlayback";
 import { StoryTechnical } from "./StoryTechnical";
 
 type View = "input" | "assistant" | "result";
 
-const { cases, vatRate } = invoiceStory;
 
 // Ab hier zeigt die Bühne eine Spalte mit Umschalter statt drei Spalten.
 const TABBED_QUERY = "(max-width: 1100px)";
@@ -80,7 +79,14 @@ const rowsOf = (entry: InvoiceCase) =>
 
 // Rechnungs-Demo in Leserichtung: Eingang, Assistent, offene Posten mit
 // Rechnungsentwurf bzw. Nachricht.
-export function InvoiceStory({ set }: { set: OverviewSet }) {
+export function InvoiceStory({
+  set,
+  story,
+}: {
+  set: OverviewSet;
+  story: InvoiceStoryData;
+}) {
+  const { cases, vatRate, labels } = story;
   const tabbed = useMediaQuery(TABBED_QUERY);
   const [manualView, setManualView] = useState<View | null>(null);
   const {
@@ -164,6 +170,9 @@ export function InvoiceStory({ set }: { set: OverviewSet }) {
   );
   const gross = net * (1 + vatRate);
   const hasExtra = !!positions?.some((position) => position.extra);
+  // Ohne Beträge (z. B. Unterlagenliste) entfällt die Betragsspalte.
+  const hasAmounts =
+    !!positions || item.ledger.some((row) => row.amount !== undefined);
 
   const inputColumn = (
     <div className="mailbox-column" data-view="input">
@@ -304,22 +313,22 @@ export function InvoiceStory({ set }: { set: OverviewSet }) {
 
   const resultColumn = (
     <div className="mailbox-column" data-view="result">
-      <ColumnLabel number={3}>Für dein Team vorbereitet</ColumnLabel>
+      <ColumnLabel number={3}>{labels.resultColumn}</ColumnLabel>
       <div
         className="mailbox-draft"
         data-state={isSent ? "sent" : complete ? "ready" : undefined}
-        aria-label="Offene Posten und Entwurf"
+        aria-label={`${labels.ledgerTitle} und Entwurf`}
       >
         <div className="mailbox-draft-head">
-          <strong>Offene Posten</strong>
+          <strong>{labels.ledgerTitle}</strong>
           <span
             className="mailbox-draft-chip"
             data-tone={isSent ? "sent" : complete ? "ready" : undefined}
           >
             {isSent
-              ? "Von deinem Team bestätigt"
+              ? labels.confirmedChip
               : complete
-                ? "Wartet auf deine Entscheidung"
+                ? labels.readyChip
                 : working && progress >= writeAt
                   ? "wird vorbereitet …"
                   : "Stand jetzt"}
@@ -349,9 +358,11 @@ export function InvoiceStory({ set }: { set: OverviewSet }) {
                   </strong>
                   <span>{row.number}</span>
                 </span>
-                <span className="invoice-ledger-amount">
-                  {value === undefined ? "–" : euro.format(value)}
-                </span>
+                {hasAmounts ? (
+                  <span className="invoice-ledger-amount">
+                    {value === undefined ? "–" : euro.format(value)}
+                  </span>
+                ) : null}
                 <span className="invoice-ledger-status" key={state.label}>
                   {state.label}
                 </span>
@@ -386,7 +397,7 @@ export function InvoiceStory({ set }: { set: OverviewSet }) {
                     <span className="quote-position-text">
                       {position.extra ? (
                         <span className="quote-position-flag">
-                          {settled ? "Von dir berechnet" : "Nicht im Angebot"}
+                          {settled ? labels.extraSettled : "Nicht im Angebot"}
                         </span>
                       ) : null}
                       <strong>{position.text}</strong>
@@ -459,19 +470,19 @@ export function InvoiceStory({ set }: { set: OverviewSet }) {
                 paragraph.team ? (
                   isSent ? (
                     <p key={paragraph.text} className="mailbox-draft-filled">
-                      <span>Von dir ergänzt</span>
+                      <span>{labels.filledByTeam}</span>
                       {paragraph.team}
                     </p>
                   ) : (
                     <p key={paragraph.text} className="mailbox-draft-open">
-                      <span>Ergänzt dein Team</span>[{paragraph.text}]
+                      <span>{labels.openForTeam}</span>[{paragraph.text}]
                     </p>
                   )
                 ) : (
                   <p key={paragraph.text}>{paragraph.text}</p>
                 ),
               )}
-              <p className="mailbox-draft-closing">{invoiceStory.closing}</p>
+              <p className="mailbox-draft-closing">{story.closing}</p>
             </div>
           </div>
         ))}
@@ -487,7 +498,7 @@ export function InvoiceStory({ set }: { set: OverviewSet }) {
         ) : isSent ? (
           <p className="mailbox-draft-sent" role="status">
             <CheckCheck size={18} aria-hidden="true" />
-            Von deinem Team geprüft, entschieden und gesendet.
+            {labels.sentNote}
           </p>
         ) : null}
       </div>
@@ -513,14 +524,14 @@ export function InvoiceStory({ set }: { set: OverviewSet }) {
           <TimerOff size={20} aria-hidden="true" />
           <div>
             <strong>Ohne Assistent</strong>
-            <p>{invoiceStory.without}</p>
+            <p>{story.without}</p>
           </div>
         </div>
         <div className="story-compare-item" data-tone="with">
           <ReceiptText size={20} aria-hidden="true" />
           <div>
             <strong>Mit Assistent</strong>
-            <p>{invoiceStory.with}</p>
+            <p>{story.with}</p>
           </div>
         </div>
       </div>
