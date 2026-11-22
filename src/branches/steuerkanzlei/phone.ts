@@ -4,8 +4,7 @@ import phoneLines from "./phoneLines.json";
 
 // Beispielanruf für die Telefon-Demo der Steuerkanzlei. Kanzlei, Mandant und
 // Angaben sind erfunden. Die Gesprächszeilen stehen in phoneLines.json, damit
-// später auch das Audio-Skript sie lesen kann. Noch ohne Aufnahmen: Das
-// Gespräch läuft im Lesetempo.
+// auch das Audio-Skript sie lesen kann.
 export const rueckrufStory: PhoneStoryData = {
   business: "Steuerkanzlei Mustermann",
   caller: { title: "Anrufer", subtitle: "Mandant · Mobilnummer" },
@@ -16,7 +15,12 @@ export const rueckrufStory: PhoneStoryData = {
   day: "Montag",
   headline: "Steuerbescheid mit Nachzahlung",
   lines: phoneLines as PhoneLine[],
-  audio: [],
+  // Vorab erzeugte Sprachaufnahmen je Zeile
+  // (npm run audio:phone -- --story=steuerkanzlei)
+  audio: phoneLines.map(
+    (_, index) =>
+      `/assets/phone/steuerkanzlei/line-${String(index + 1).padStart(2, "0")}.mp3`,
+  ),
   notes: [
     {
       id: "urgency",

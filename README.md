@@ -129,7 +129,7 @@ Vier Anwendungsfälle mit Demo, alle mit erfundenen Beispieldaten (Kanzlei Muste
 
 - **Fehlende Unterlagen & Belege** (`documents.ts`, Demo `invoice`): Statt offener Posten zeigt die Liste „Unterlagen je Mandant“ ohne Beträge. Fälle: Unterlagen mit der Checkliste abgleichen (Kinderbetreuung als offene Entscheidung), Erinnerung aus der Fristenkontrolle (zusätzlicher Anruf als Entscheidung), Kontoumsätze ohne Beleg (Tankstelle privat oder nachfragen).
 - **Mandantenanfragen** (`inbox.ts`, Demo `inbox`): Homeoffice und Arbeitsmittel, neue Minijob-Aushilfe für die Lohnabrechnung, Schreiben vom Finanzamt mit Frist über das Mandantenportal (dringend).
-- **Anrufe, wenn alle Leitungen besetzt sind** (`phone.ts`, Demo `phone`): Mandant mit Steuerbescheid und Nachzahlung, Rückrufnotiz an die Sachbearbeiterin. Noch ohne Aufnahmen (`audio` leer, Lesetempo); die Zeilen stehen in `phoneLines.json`. Für Aufnahmen die Branche im Audio-Skript unter `stories` ergänzen.
+- **Anrufe, wenn alle Leitungen besetzt sind** (`phone.ts`, Demo `phone`): Mandant mit Steuerbescheid und Nachzahlung, Rückrufnotiz an die Sachbearbeiterin. Aufnahmen in `public/assets/phone/steuerkanzlei/` (ElevenLabs, Anrufer-Stimme Eric), erzeugt mit `npm run audio:phone -- --story=steuerkanzlei`; die Zeilen stehen in `phoneLines.json`.
 
 Fachliche Angaben (Homeoffice-Pauschale 6 € pro Tag bis 1.260 €, wirksam über dem Arbeitnehmer-Pauschbetrag von 1.230 €; Arbeitsmittel bis 800 € netto; Rentenversicherungspflicht bei Minijobs, Grenze 2026: 603 €; Überweisung als Nachweis für Handwerkerkosten) sind vereinfacht und im November 2026 mit Quellen abgeglichen. Bei Gesetzesänderungen nachziehen. Geplant (optional): Belege vorkontieren, Tonaufnahmen für die Telefon-Demo, eigenes Vorschaubild.
 

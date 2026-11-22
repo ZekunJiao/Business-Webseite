@@ -5,6 +5,7 @@
 //
 // Aufruf: `npm run audio:phone` (Handwerk)
 //         `npm run audio:phone -- --story=hausverwaltung`
+//         `npm run audio:phone -- --story=steuerkanzlei`
 // Zugang über Umgebungsvariablen oder eine lokale Datei `.env` (nicht im
 // Repository, siehe .gitignore):
 //   ELEVENLABS_API_KEY            API-Schlüssel
@@ -41,6 +42,12 @@ const stories = {
     outDir: join(root, "public", "assets", "phone", "hausverwaltung"),
     // Chris (Standardstimme von ElevenLabs, locker, männlich)
     caller: "iP95p4xoKVk53GoZ742B",
+  },
+  steuerkanzlei: {
+    lines: join(root, "src", "branches", "steuerkanzlei", "phoneLines.json"),
+    outDir: join(root, "public", "assets", "phone", "steuerkanzlei"),
+    // Eric (Standardstimme von ElevenLabs, ruhig, mittleres Alter, männlich)
+    caller: "cjVigY5qzO86Huf0OWal",
   },
 };
 const storyArg = process.argv.find((arg) => arg.startsWith("--story="));
