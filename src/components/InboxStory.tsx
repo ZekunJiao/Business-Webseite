@@ -81,11 +81,15 @@ export function InboxStory({
   const [finished, setFinished] = useState<Set<string>>(() => new Set());
   const [sent, setSent] = useState<Set<string>>(() => new Set());
   const [manualView, setManualView] = useState<View | null>(null);
+  // Anfrage in anderer Sprache: welcher Entwurf zu sehen ist
+  const [draftForeign, setDraftForeign] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
   const autoStarted = useRef(false);
 
   const item = cases[index];
   const paragraphs = item.draft.paragraphs;
+  const foreign = item.foreign;
+  useEffect(() => setDraftForeign(false), [index]);
   // Der letzte Schritt ("Schreibt den Entwurf") bleibt aktiv, während die
   // Absätze erscheinen, und ist erst am Ende erledigt.
   const writeAt = item.steps.length - 1;
@@ -248,6 +252,15 @@ export function InboxStory({
                     <span className="mailbox-row-from">
                       <strong>{entry.from}</strong>
                       <Channel form={!!entry.form} />
+                      {entry.foreign ? (
+                        <span
+                          className="mailbox-channel"
+                          data-channel="lang"
+                          lang={entry.foreign.lang}
+                        >
+                          {entry.foreign.badge}
+                        </span>
+                      ) : null}
                     </span>
                     <span>{entry.subject}</span>
                   </span>
@@ -291,12 +304,22 @@ export function InboxStory({
               ))}
             </dl>
           ) : (
-            item.body?.map((text) => (
-              <p key={text}>
-                <Marked text={text} marks={item.marks} />
-              </p>
-            ))
+            <div lang={foreign?.lang}>
+              {item.body?.map((text) => (
+                <p key={text}>
+                  <Marked text={text} marks={item.marks} />
+                </p>
+              ))}
+            </div>
           )}
+          {foreign ? (
+            <details className="mailbox-translation">
+              <summary>{foreign.translationLabel}</summary>
+              {foreign.translation.map((text) => (
+                <p key={text}>{text}</p>
+              ))}
+            </details>
+          ) : null}
           {item.attachment ? (
             <span className="mailbox-attachment">
               <FileImage size={15} aria-hidden="true" />
@@ -417,6 +440,24 @@ export function InboxStory({
             <dd>AW: {item.subject}</dd>
           </div>
         </dl>
+        {foreign ? (
+          <div
+            className="mailbox-draft-tabs"
+            role="group"
+            aria-label="Sprache des Entwurfs"
+          >
+            {foreign.tabs.map((label, position) => (
+              <button
+                key={label}
+                type="button"
+                aria-pressed={draftForeign === (position === 1)}
+                onClick={() => setDraftForeign(position === 1)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        ) : null}
         {shownParagraphs === 0 ? (
           <p className="mailbox-draft-empty">
             {status === "idle"
@@ -424,6 +465,19 @@ export function InboxStory({
               : "Der Assistent sammelt noch Informationen …"}
           </p>
         ) : (
+          foreign && draftForeign ? (
+          <div className="mailbox-draft-body" lang={foreign.lang}>
+            <p>{foreign.draft.salutation}</p>
+            {foreign.draft.paragraphs
+              .slice(0, shownParagraphs)
+              .map((text) => (
+                <p key={text}>{text}</p>
+              ))}
+            {complete ? (
+              <p className="mailbox-draft-closing">{foreign.draft.closing}</p>
+            ) : null}
+          </div>
+          ) : (
           <div className="mailbox-draft-body">
             <p>{item.draft.salutation}</p>
             {paragraphs.slice(0, shownParagraphs).map((paragraph) =>
@@ -451,13 +505,20 @@ export function InboxStory({
               ),
             )}
             {complete ? (
-              <p className="mailbox-draft-closing">{story.closing}</p>
+              <p className="mailbox-draft-closing">
+                {item.draft.closing ?? story.closing}
+              </p>
             ) : null}
           </div>
+          )
         )}
         {status === "done" ? (
           <div className="mailbox-draft-actions">
-            <span>Prüfen, Orange ergänzen, absenden:</span>
+            <span>
+              {paragraphs.some((paragraph) => paragraph.team)
+                ? "Prüfen, Orange ergänzen, absenden:"
+                : "Prüfen und absenden:"}
+            </span>
             <button type="button" className="mailbox-send" onClick={send}>
               <Send size={16} aria-hidden="true" />
               Prüfen &amp; senden

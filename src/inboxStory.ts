@@ -44,7 +44,28 @@ export type InboxCase = {
   urgent?: boolean;
   steps: { kind: InboxStepKind; label: string; result: string }[];
   fields: InboxField[];
-  draft: { salutation: string; paragraphs: DraftParagraph[] };
+  draft: {
+    salutation: string;
+    paragraphs: DraftParagraph[];
+    // Gruß dieses Entwurfs statt des gemeinsamen
+    closing?: string;
+  };
+  // Anfrage in einer anderen Sprache: Kennzeichen im Posteingang,
+  // aufklappbare Übersetzung und Antwort in beiden Sprachen
+  foreign?: InboxForeign;
+};
+
+export type InboxForeign = {
+  // Sprachcode (BCP 47), z. B. "sq" für Albanisch
+  lang: string;
+  // Kennzeichen im Posteingang, in der Sprache selbst, z. B. "Shqip"
+  badge: string;
+  translationLabel: string;
+  translation: string[];
+  // Reiter über dem Entwurf: Deutsch zur Prüfung, Sprache des Absenders
+  tabs: [string, string];
+  // Antwort in der Sprache des Absenders, je Absatz des deutschen Entwurfs
+  draft: { salutation: string; paragraphs: string[]; closing: string };
 };
 
 // Feste Beschriftungen der Demo, je nach Anrede und Software der Branche
